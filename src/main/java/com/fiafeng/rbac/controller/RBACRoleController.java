@@ -1,0 +1,66 @@
+package com.fiafeng.rbac.controller;
+
+import com.alibaba.fastjson2.JSONObject;
+import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.utils.SpringUtils;
+import com.fiafeng.rbac.annotation.HasPermission;
+import com.fiafeng.rbac.annotation.HasRole;
+import com.fiafeng.rbac.controller.Interface.IRoleController;
+import com.fiafeng.common.pojo.AjaxResult;
+import com.fiafeng.common.pojo.Interface.IBaseRole;
+import com.fiafeng.common.service.IRoleService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+/**
+ * @author Fiafeng
+ * @create 2023/12/08
+ * @description RBAC角色控制器
+ */
+@RestController
+@HasRole
+@RequestMapping("/user/rbac/role")
+@BeanDefinitionOrderAnnotation
+public class RBACRoleController implements IRoleController {
+
+    @Autowired
+    IRoleService roleService;
+
+    @HasRole
+    @PostMapping("/insert")
+    public AjaxResult insertRole(@RequestBody JSONObject jsonObject){
+
+        IBaseRole bean = SpringUtils.getBean(IBaseRole.class);
+        IBaseRole iBaseRole = jsonObject.toJavaObject(bean.getClass());
+        roleService.insertRole(iBaseRole);
+        return AjaxResult.success();
+    }
+
+    @HasPermission("role:deleted")
+    @DeleteMapping("/deleted/{roleId}")
+    public AjaxResult deletedRole(@PathVariable Long roleId){
+        // 如果还有角色拥有这个权限，则不允许删除
+        roleService.deletedRoleById(roleId);
+        return AjaxResult.success();
+    }
+
+    @PostMapping("/update")
+    public AjaxResult updateRole(@RequestBody JSONObject jsonObject){
+        IBaseRole bean = SpringUtils.getBean(IBaseRole.class);
+        IBaseRole iBaseRole = jsonObject.toJavaObject(bean.getClass());
+        roleService.updateRole(iBaseRole);
+        return AjaxResult.success();
+    }
+
+    @HasRole
+    @GetMapping("/queryList")
+    public AjaxResult queryRoleMap(){
+        List<IBaseRole> roleList = roleService.queryRoleListAll();
+        return AjaxResult.success(roleList);
+    }
+
+
+
+}
