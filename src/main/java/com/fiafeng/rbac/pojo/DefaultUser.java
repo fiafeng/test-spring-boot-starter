@@ -1,7 +1,6 @@
 package com.fiafeng.rbac.pojo;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.common.annotation.BaseUserAnnotation;
 import com.fiafeng.common.pojo.Interface.IBaseUser;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,7 +21,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Accessors(chain = true)
 @ToString
-@BaseUserAnnotation
 @BeanDefinitionOrderAnnotation
 public class DefaultUser implements IBaseUser, Serializable {
 

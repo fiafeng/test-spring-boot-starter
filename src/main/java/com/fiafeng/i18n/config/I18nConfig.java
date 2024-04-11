@@ -1,7 +1,7 @@
 package com.fiafeng.i18n.config;
 
 import com.fiafeng.i18n.Interceptor.FiafengI18nInterceptor;
-import com.fiafeng.i18n.properties.FiafengI18nProperties;
+import com.fiafeng.i18n.properties.FiafengI18NProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -20,7 +20,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
         I18nBeanConfig.class
 })
 @EnableConfigurationProperties({
-        FiafengI18nProperties.class
+        FiafengI18NProperties.class
 })
 @ConditionalOnWebApplication
 public class I18nConfig implements WebMvcConfigurer {

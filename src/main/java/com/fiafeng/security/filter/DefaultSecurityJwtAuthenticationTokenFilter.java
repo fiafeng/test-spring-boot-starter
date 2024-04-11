@@ -48,26 +48,16 @@ public class DefaultSecurityJwtAuthenticationTokenFilter extends OncePerRequestF
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
-        IBaseUserInfo loginUser;
+        IUserDetails userDetails;
         try {
             // 从请求中获取用户信息
-            loginUser = tokenService.getLoginUser();
+            // 从请求中获取用户信息
+            userDetails = tokenService.getLoginUser();
         } catch (ServiceException e) {
             ServletUtils.renderString(response, JSON.toJSONString(AjaxResult.error(e.getMessage(), e.getCode())));
             return;
         }
-        // 判断当前用户是否是需要更新缓存的用户
-        HashSet<Long> updateUserInfoList = cacheService.getCacheObject(CacheConstants.UPDATE_USER_INFO);
-        if (updateUserInfoList != null && updateUserInfoList.contains(loginUser.getUser().getId())) {
-            tokenService.refreshToken(loginUser);
-            updateUserInfoList.remove(loginUser.getUser().getId());
-            long expire = cacheService.getExpire(CacheConstants.UPDATE_USER_INFO);
-            cacheService.setCacheObject(CacheConstants.UPDATE_USER_INFO, updateUserInfoList, expire, TimeUnit.MILLISECONDS);
-        }
 
-
-        // 从请求中获取用户信息
-        IUserDetails userDetails = tokenService.getLoginUser();
 
         // 校验token
         if (ObjectUtils.isNotNull(userDetails) && ObjectUtils.isNull(SecurityUtils.getAuthentication())) {

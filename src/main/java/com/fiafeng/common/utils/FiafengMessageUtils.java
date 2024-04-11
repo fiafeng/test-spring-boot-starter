@@ -1,6 +1,6 @@
 package com.fiafeng.common.utils;
 
-import com.fiafeng.i18n.properties.FiafengI18nProperties;
+import com.fiafeng.i18n.properties.FiafengI18NProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -13,10 +13,10 @@ import org.springframework.context.i18n.LocaleContextHolder;
 public class FiafengMessageUtils {
 
 
-    static FiafengI18nProperties i18nProperties;
+    static FiafengI18NProperties i18nProperties;
 
     @Autowired
-    public void setI18nProperties(FiafengI18nProperties i18nProperties) {
+    public void setI18nProperties(FiafengI18NProperties i18nProperties) {
         FiafengMessageUtils.i18nProperties = i18nProperties;
     }
 

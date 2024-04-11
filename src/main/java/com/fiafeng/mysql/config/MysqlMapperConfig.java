@@ -3,10 +3,12 @@ package com.fiafeng.mysql.config;
 
 import com.fiafeng.common.annotation.conditional.ConditionalEnableProperty;
 import com.fiafeng.common.annotation.conditional.ConditionalOnClassList;
-import com.fiafeng.mysql.init.MysqlApplicationInit;
+import com.fiafeng.mysql.init.MysqlApplicationProcessor;
 import com.fiafeng.mysql.mapper.*;
 import com.fiafeng.mysql.properties.*;
 import com.fiafeng.mysql.service.ConnectionPoolService;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -22,7 +24,7 @@ import javax.sql.DataSource;
         FiafengMysqlRoleProperties.class,
         FiafengMysqlUserProperties.class,
         FiafengMysqlUserRoleProperties.class,
-        FiafengMysqlProperties.class
+        FiafengMysqlProperties.class,
 })
 @ConditionalOnClassList(name = {"com.mysql.cj.jdbc.Driver", "com.mysql.jdbc.Driver"})
 @ConditionalEnableProperty("fiafeng.mysql.enable")
@@ -31,9 +33,8 @@ public class MysqlMapperConfig {
 
 
     @Bean
-    @ConditionalOnMissingClass("com.fiafeng.mysql.config.DefaultDataSource")
+    @ConditionalOnMissingBean(DataSource.class)
     DefaultDataSource dataSource() {
-        // 这里只是为了让项目不暴红，实际会在MysqlApplicationInit里面检查如果不存在dataSource,就会自动注入这个DefaultDataSource
         return new DefaultDataSource();
     }
 
@@ -98,7 +99,7 @@ public class MysqlMapperConfig {
     }
 
     @Bean
-    MysqlApplicationInit mysqlApplicationInit() {
-        return new MysqlApplicationInit();
+    MysqlApplicationProcessor mysqlApplicationInit() {
+        return new MysqlApplicationProcessor();
     }
 }

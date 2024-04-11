@@ -7,8 +7,6 @@ package com.fiafeng.common.constant;
  */
 public class Constants {
 
-    public static final long MILLIS_SECOND = 1000;
-
     /**
      * UTF-8 字符集
      */

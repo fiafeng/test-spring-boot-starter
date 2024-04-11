@@ -1,4 +1,4 @@
-package com.fiafeng.security.service;
+package com.fiafeng.common.service;
 
 /**
  * @author Fiafeng

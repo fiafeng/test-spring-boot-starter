@@ -1,12 +1,12 @@
 package com.fiafeng.mysql.properties;
 
-import com.fiafeng.common.properties.IProperties;
+import com.fiafeng.common.properties.IEnableProperties;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Data
 @ConfigurationProperties("fiafeng.mysql")
-public class FiafengMysqlProperties implements IProperties {
+public class FiafengMysqlProperties implements IEnableProperties {
 
     /**
      * 是否使用默认mysql的相关内容

@@ -1,6 +1,7 @@
 package com.fiafeng.rbac.service;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.service.Impl.UpdateCacheServiceImpl;
 import com.fiafeng.common.utils.FiafengMessageUtils;
 import com.fiafeng.common.constant.CacheConstants;
 import com.fiafeng.common.exception.ServiceException;
@@ -42,6 +43,8 @@ public class DefaultPermissionsServiceImpl implements IPermissionService {
     @Autowired
     public IUserRoleMapper userRoleMapper;
 
+    @Autowired
+    UpdateCacheServiceImpl updateCacheService;
 
     // 令牌有效期（默认60分钟）
     @Value("${fiafeng.token.expireTime:60}")
@@ -92,7 +95,7 @@ public class DefaultPermissionsServiceImpl implements IPermissionService {
             }
         }
         if (permissionMapper.updatePermission(permission)) {
-            updateCache(permission.getId());
+            updateCacheService.updateCacheByPermission(permission.getId());
         }else {
             throw new ServiceException("更新权限时遇到意外的异常");
         }
@@ -120,27 +123,12 @@ public class DefaultPermissionsServiceImpl implements IPermissionService {
         }
 
         if (permissionMapper.deletedPermission(permissionId)) {
-            updateCache(permissionId);
+            updateCacheService.updateCacheByPermission(permissionId);
         }else {
             throw new ServiceException("删除权限时遇到意外的异常");
         }
 
         return true;
-    }
-
-    private void updateCache(Long permissionId) {
-        HashSet<Long> hashSet = cacheService.getCacheObject(CacheConstants.UPDATE_USER_INFO);
-        if (hashSet == null) {
-            hashSet = new HashSet<>();
-        }
-
-        for (IBaseRolePermission userRole : rolePermissionMapper.selectPermissionListByPermissionId(permissionId)) {
-            for (IBaseUserRole iBaseUserRole : userRoleMapper.selectRoleListByRoleId(userRole.getRoleId())) {
-                hashSet.add(iBaseUserRole.getUserId());
-            }
-
-        }
-        cacheService.setCacheObject(CacheConstants.UPDATE_USER_INFO, hashSet, expireTime, TimeUnit.MINUTES);
     }
 
     @Override

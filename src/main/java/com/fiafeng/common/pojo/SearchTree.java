@@ -2,6 +2,10 @@ package com.fiafeng.common.pojo;
 
 import java.util.HashMap;
 
+
+/**
+ * url 搜索树
+ */
 public class SearchTree {
 
     public static final Node rootNode = new Node("*");

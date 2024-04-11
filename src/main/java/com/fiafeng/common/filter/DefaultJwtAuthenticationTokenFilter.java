@@ -48,20 +48,15 @@ public class DefaultJwtAuthenticationTokenFilter extends OncePerRequestFilter im
         try {
             // 从请求中获取用户信息
             loginUser = tokenService.getLoginUser();
+            tokenService.verifyToken(loginUser);
         } catch (ServiceException e) {
             ServletUtils.renderString(response, JSON.toJSONString(AjaxResult.error(e.getCode(), e.getMessage())));
             return;
+        } catch (Exception e){
+            ServletUtils.renderString(response, JSON.toJSONString(AjaxResult.error("遇到意外的错误=》" +e.getMessage())));
+            return;
         }
 
-        tokenService.verifyToken(loginUser);
-        // 判断当前用户是否是需要更新缓存的用户
-        HashSet<Long> updateUserInfoList = cacheService.getCacheObject(CacheConstants.UPDATE_USER_INFO);
-        if (updateUserInfoList != null && updateUserInfoList.contains(loginUser.getUser().getId())) {
-            updateUserInfoList.remove(loginUser.getUser().getId());
-            tokenService.refreshToken(loginUser);
-            long expire = cacheService.getExpire(CacheConstants.UPDATE_USER_INFO);
-            cacheService.setCacheObject(CacheConstants.UPDATE_USER_INFO, updateUserInfoList, expire, TimeUnit.MILLISECONDS);
-        }
 
         chain.doFilter(request, response);
     }

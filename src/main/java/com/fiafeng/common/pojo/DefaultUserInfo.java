@@ -1,7 +1,6 @@
 package com.fiafeng.common.pojo;
 
 
-import com.fiafeng.common.annotation.BaseUserInfoAnnotation;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.pojo.Interface.IBaseUser;
 import com.fiafeng.common.pojo.Interface.IBaseUserInfo;
@@ -12,7 +11,6 @@ import java.util.List;
 
 @Data
 @Accessors(chain = true)
-@BaseUserInfoAnnotation
 @BeanDefinitionOrderAnnotation
 public class DefaultUserInfo implements IBaseUserInfo {
 

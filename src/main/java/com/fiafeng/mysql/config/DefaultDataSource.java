@@ -1,6 +1,8 @@
 package com.fiafeng.mysql.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 
 import javax.sql.DataSource;
 import java.io.PrintWriter;
@@ -13,15 +15,18 @@ import java.util.logging.Logger;
 public class DefaultDataSource implements DataSource {
 
 
-    @Value("${spring.datasource.url}")
-    private String url = "jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8";
+    @Value("${spring.datasource.url:jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8}")
+    private String url;
 
-    @Value("${spring.datasource.username}")
-    private String username = "root";
+    @Value("${spring.datasource.username:root}")
+    private String username;
 
-    @Value("${spring.datasource.password}")
-    private String password = "123456";
+    @Value("${spring.datasource.password:123456}")
+    private String password;
 
+
+    @Autowired
+    Environment environment;
 
     @Override
     public Connection getConnection() {
@@ -43,6 +48,17 @@ public class DefaultDataSource implements DataSource {
             }
         }
         try {
+
+            if (url == null ){
+                url = environment.getProperty("spring.datasource.url");
+            }
+            if (username == null){
+                username = environment.getProperty("spring.datasource.username");
+            }
+            if (password == null){
+                password = environment.getProperty("spring.datasource.password");
+            }
+
             connection = DriverManager.getConnection(url, username, password);
         } catch (SQLException e) {
             throw new RuntimeException(e);

@@ -20,7 +20,6 @@ import java.util.List;
  * @description RBAC角色控制器
  */
 @RestController
-@HasRole
 @RequestMapping("/user/rbac/role")
 @BeanDefinitionOrderAnnotation
 public class RBACRoleController implements IRoleController {
@@ -28,7 +27,6 @@ public class RBACRoleController implements IRoleController {
     @Autowired
     IRoleService roleService;
 
-    @HasRole
     @PostMapping("/insert")
     public AjaxResult insertRole(@RequestBody JSONObject jsonObject){
 

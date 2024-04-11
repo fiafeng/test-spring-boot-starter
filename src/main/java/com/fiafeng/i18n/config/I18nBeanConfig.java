@@ -1,8 +1,9 @@
 package com.fiafeng.i18n.config;
 
+import com.fiafeng.common.annotation.conditional.matches.ConditionalPropertyMatches;
 import com.fiafeng.common.utils.StringUtils;
 import com.fiafeng.i18n.Interceptor.FiafengI18nInterceptor;
-import com.fiafeng.i18n.properties.FiafengI18nProperties;
+import com.fiafeng.i18n.properties.FiafengI18NProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -12,7 +13,14 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.security.CodeSource;
+import java.security.ProtectionDomain;
 import java.util.*;
+import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -25,13 +33,12 @@ public class I18nBeanConfig {
 
 
     @Autowired
-    FiafengI18nProperties i18nProperties;
+    FiafengI18NProperties i18nProperties;
 
 
     @Bean(name = "messageSource")
     public MessageSource messageSource() {
         ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
-
         String resourcePattern = "classpath*:i18n/*message*";
         List<String> stringList = scanModelsForI18nFolders(resourcePattern);
         HashSet<String> hashSet = new HashSet<>(stringList);
@@ -61,7 +68,7 @@ public class I18nBeanConfig {
             String pri;
 
             pri = resourcePattern.substring(0, resourcePattern.lastIndexOf(":"));
-            pri = pri.replaceAll("\\*","");
+            pri = pri.replaceAll("\\*", "");
             if (resourcePattern.contains("/")) {
                 pri = pri + resourcePattern.substring(resourcePattern.indexOf(":"), resourcePattern.lastIndexOf("/") + 1);
             }

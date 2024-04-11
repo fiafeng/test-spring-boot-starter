@@ -1,10 +1,14 @@
 package com.fiafeng.rbac.config;
 
 
-import com.fiafeng.rbac.init.RBACApplicationInit;
+import com.fiafeng.common.aop.PermissionAspect;
+import com.fiafeng.rbac.init.RBACApplicationProcessor;
 import com.fiafeng.rbac.mapper.*;
 import com.fiafeng.rbac.properties.FiafengRbacProperties;
 import com.fiafeng.rbac.service.*;
+import org.aspectj.lang.annotation.Aspect;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -72,9 +76,15 @@ public class RbacConfig {
     }
 
     @Bean
-    RBACApplicationInit rbacApplicationInit(){
-        return new RBACApplicationInit();
+    RBACApplicationProcessor rbacApplicationInit(){
+        return new RBACApplicationProcessor();
     }
 
+    @Bean
+    @ConditionalOnClass(Aspect.class)
+    @ConditionalOnProperty( prefix = "fiafeng.rbac" ,value = "permission-aop", havingValue = "true")
+    PermissionAspect permissionAspect(){
+        return new PermissionAspect();
+    }
 
 }

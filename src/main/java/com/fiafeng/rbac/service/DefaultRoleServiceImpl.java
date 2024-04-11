@@ -9,6 +9,7 @@ import com.fiafeng.common.pojo.Interface.IBaseRole;
 import com.fiafeng.common.pojo.Interface.IBaseUserRole;
 import com.fiafeng.common.service.ICacheService;
 import com.fiafeng.common.service.IRoleService;
+import com.fiafeng.common.service.Impl.UpdateCacheServiceImpl;
 import com.fiafeng.common.utils.FiafengMessageUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,6 +36,9 @@ public class DefaultRoleServiceImpl implements IRoleService {
 
     @Autowired
     public IUserRoleMapper userRoleMapper;
+
+    @Autowired
+    UpdateCacheServiceImpl updateCacheService;
 
 
     // 令牌有效期（默认60分钟）
@@ -71,7 +75,7 @@ public class DefaultRoleServiceImpl implements IRoleService {
         }
 
         if (roleMapper.deletedRole(roleId)) {
-            updateCache(roleId);
+            updateCacheService.updateCacheByRole(roleId);
         }else {
             throw new ServiceException("删除角色遇到意外的异常");
         }
@@ -115,7 +119,7 @@ public class DefaultRoleServiceImpl implements IRoleService {
 
         }
         if (roleMapper.updateRole(role)){
-            updateCache(role.getId());
+            updateCacheService.updateCacheByRole(role.getId());
         }else {
             throw new ServiceException("更新角色遇到意外的异常");
         }

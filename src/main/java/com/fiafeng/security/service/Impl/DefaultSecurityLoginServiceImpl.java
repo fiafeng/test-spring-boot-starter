@@ -3,7 +3,7 @@ package com.fiafeng.security.service.Impl;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.utils.FiafengMessageUtils;
 import com.fiafeng.common.exception.ServiceException;
-import com.fiafeng.security.service.ILoginService;
+import com.fiafeng.common.service.ILoginService;
 import com.fiafeng.security.service.IUserDetails;
 import com.fiafeng.common.service.ICacheService;
 import com.fiafeng.common.service.ITokenService;

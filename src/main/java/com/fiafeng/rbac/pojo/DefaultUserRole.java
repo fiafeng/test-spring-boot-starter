@@ -1,7 +1,6 @@
 package com.fiafeng.rbac.pojo;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.common.annotation.BaseUserRoleAnnotation;
 import com.fiafeng.common.pojo.Interface.IBaseUserRole;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -14,7 +13,6 @@ import org.springframework.context.annotation.Scope;
  */
 @Data
 @Accessors(chain = true)
-@BaseUserRoleAnnotation
 @Scope("prototype")
 @BeanDefinitionOrderAnnotation
 public class DefaultUserRole implements IBaseUserRole {

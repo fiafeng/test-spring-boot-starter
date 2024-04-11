@@ -1,5 +1,6 @@
 package com.fiafeng.common.utils;
 
+import lombok.Getter;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeansException;
@@ -21,6 +22,7 @@ public final class SpringUtils implements BeanFactoryPostProcessor, ApplicationC
     /**
      * Spring应用上下文环境
      */
+    @Getter
     private static ConfigurableListableBeanFactory beanFactory;
 
     private static ApplicationContext applicationContext;

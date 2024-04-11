@@ -1,6 +1,6 @@
 package com.fiafeng.security.properties;
 
-import com.fiafeng.common.properties.IProperties;
+import com.fiafeng.common.properties.IEnableProperties;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -10,7 +10,7 @@ import java.util.List;
 
 @Data
 @ConfigurationProperties("fiafeng.security")
-public class FiafengSecurityProperties implements IProperties {
+public class FiafengSecurityProperties implements IEnableProperties {
 
     public Boolean enable = true;
 

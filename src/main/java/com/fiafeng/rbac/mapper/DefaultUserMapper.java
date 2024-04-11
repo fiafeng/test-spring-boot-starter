@@ -3,7 +3,7 @@ package com.fiafeng.rbac.mapper;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.mapper.IUserMapper;
 import com.fiafeng.common.pojo.Interface.IBaseUser;
-import com.fiafeng.rbac.pojo.DefaultUser;
+import com.fiafeng.common.utils.SpringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ public class DefaultUserMapper implements IUserMapper {
         if (userMap == null){
             userMap = new ConcurrentHashMap<>();
 
-            IBaseUser defaultUser = new DefaultUser();
+            IBaseUser defaultUser = SpringUtils.getBean(IBaseUser.class);
             defaultUser.setId(1L);
             defaultUser.setUsername("admin");
             defaultUser.setPassword("123456");

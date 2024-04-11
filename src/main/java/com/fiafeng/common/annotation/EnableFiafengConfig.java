@@ -1,6 +1,7 @@
 package com.fiafeng.common.annotation;
 
 
+import com.fiafeng.blog.annotation.EnableFiafengBlogConfig;
 import com.fiafeng.captcha.config.CaptchaConfig;
 import com.fiafeng.common.config.CommonConfig;
 import com.fiafeng.i18n.config.I18nConfig;
@@ -31,6 +32,8 @@ import java.lang.annotation.*;
         CaptchaConfig.class,
         CommonConfig.class
 })
+@Inherited
 @ConditionalOnWebApplication
+@EnableFiafengBlogConfig
 public @interface EnableFiafengConfig {
 }

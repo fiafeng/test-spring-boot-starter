@@ -1,7 +1,7 @@
 package com.fiafeng.i18n.properties;
 
 
-import com.fiafeng.common.properties.IProperties;
+import com.fiafeng.common.properties.IEnableProperties;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -9,7 +9,7 @@ import java.util.Locale;
 
 @ConfigurationProperties("fiafeng.i18n")
 @Data
-public class FiafengI18nProperties implements IProperties {
+public class FiafengI18NProperties implements IEnableProperties {
 
     /**
      * 是否开启国际化配置

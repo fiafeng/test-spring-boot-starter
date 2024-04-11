@@ -164,7 +164,6 @@ public abstract class BaseMysqlMapper implements IBaseMysqlMapper {
                         .append(fieldAnnotation.isNull() ? " null " : " not null ")
                         .append(comment.isEmpty() ? "" : " comment '" + comment + "' ")
                         .append(" , \n");
-
             } else {
                 filedName = StringUtils.camelToUnderline(field.getName());
                 String typeName = getTypeName(field);
@@ -208,8 +207,6 @@ public abstract class BaseMysqlMapper implements IBaseMysqlMapper {
         T t = object;
         Field[] declaredFields = object.getClass().getDeclaredFields();
         List<Object> objectList = new ArrayList<>();
-
-
         StringBuilder insertColsName = new StringBuilder(" ( ");
         for (Field declaredField : declaredFields) {
             String fieldName = declaredField.getName();
@@ -251,15 +248,13 @@ public abstract class BaseMysqlMapper implements IBaseMysqlMapper {
         for (T object : objectList) {
             Field[] declaredFields = object.getClass().getDeclaredFields();
             List<Object> parameterObjectList = new ArrayList<>();
-
-
             StringBuilder insertColsName = new StringBuilder(" ( ");
             for (Field declaredField : declaredFields) {
                 String fieldName = declaredField.getName();
+                fieldName = StringUtils.camelToUnderline(fieldName);
                 if (flag && idName.equals(fieldName)) {
                     continue;
                 }
-                fieldName = StringUtils.camelToUnderline(fieldName);
                 try {
                     declaredField.setAccessible(true);
                     Object value = declaredField.get(object);
@@ -277,9 +272,8 @@ public abstract class BaseMysqlMapper implements IBaseMysqlMapper {
                 for (Object o : parameterObjectList) {
                     values.append("?,");
                 }
-                values = new StringBuilder(values.substring(0, values.length() - 1) + ")");
 
-                sql = "insert into " + tableName + insertColsName + values;
+                sql = "insert into " + tableName + insertColsName + values.substring(0, values.length() - 1) + ")";
             }
             list.add(parameterObjectList.toArray(new Object[parameterObjectList.size()]));
         }

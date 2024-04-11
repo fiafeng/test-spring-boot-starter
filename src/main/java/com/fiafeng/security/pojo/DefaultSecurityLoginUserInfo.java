@@ -1,7 +1,6 @@
 package com.fiafeng.security.pojo;
 
 import com.alibaba.fastjson2.annotation.JSONField;
-import com.fiafeng.common.annotation.BaseUserInfoAnnotation;
 import com.fiafeng.common.pojo.Interface.IBaseUser;
 import com.fiafeng.security.service.IUserDetails;
 import com.fiafeng.common.service.IUserRoleService;
@@ -25,7 +24,6 @@ import java.util.stream.Collectors;
 
 @Data
 @Accessors(chain = true)
-@BaseUserInfoAnnotation
 public class DefaultSecurityLoginUserInfo implements Serializable, IUserDetails{
 
     @Autowired

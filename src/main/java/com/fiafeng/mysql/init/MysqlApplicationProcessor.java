@@ -10,7 +10,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProce
 
 import javax.sql.DataSource;
 
-public class MysqlApplicationInit implements  BeanDefinitionRegistryPostProcessor {
+public class MysqlApplicationProcessor implements  BeanDefinitionRegistryPostProcessor {
     BeanDefinitionRegistry registry;
 
     @Override
@@ -19,9 +19,9 @@ public class MysqlApplicationInit implements  BeanDefinitionRegistryPostProcesso
         String[] beanNames = beanFactory.getBeanNamesForType(DataSource.class);
         if (beanNames.length == 0){
             // 注册自定义数据源
-            BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(DefaultDataSource.class);
-            BeanDefinition beanDefinition = beanDefinitionBuilder.getRawBeanDefinition();
-            registry.registerBeanDefinition("defaultDataSource",beanDefinition);
+//            BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(DefaultDataSource.class);
+//            BeanDefinition beanDefinition = beanDefinitionBuilder.getRawBeanDefinition();
+//            registry.registerBeanDefinition("defaultDataSource",beanDefinition);
         }
 
     }

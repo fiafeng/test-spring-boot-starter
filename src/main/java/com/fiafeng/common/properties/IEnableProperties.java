@@ -1,6 +1,10 @@
 package com.fiafeng.common.properties;
 
-public interface IProperties {
+
+/**
+ * 是否开启的属性接口
+ */
+public interface IEnableProperties {
 
     Boolean getEnable();
 

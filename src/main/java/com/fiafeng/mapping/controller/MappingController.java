@@ -1,7 +1,9 @@
 package com.fiafeng.mapping.controller;
 
 
+import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.common.annotation.conditional.ConditionalEnableProperty;
+import com.fiafeng.common.utils.SpringUtils;
 import com.fiafeng.mapping.pojo.DefaultMapping;
 import com.fiafeng.mapping.pojo.vo.RequestMappingBean;
 import com.fiafeng.mapping.pojo.vo.RequestMappingDataVO;
@@ -49,7 +51,9 @@ public class MappingController {
 
 
     @PostMapping("/addPermission")
-    public AjaxResult addMappingPermission(@RequestBody DefaultMapping defaultMapping) {
+    public AjaxResult addMappingPermission(@RequestBody JSONObject jsonObject) {
+        IBaseMapping bean = SpringUtils.getBean(IBaseMapping.class);
+        IBaseMapping defaultMapping = jsonObject.toJavaObject(bean.getClass());
         IBaseMapping iBaseMapping = checkPermissionList(defaultMapping);
         // 添加权限
         iBaseMapping.getPermissionHashSet().addAll(defaultMapping.getPermissionHashSet());
@@ -88,7 +92,11 @@ public class MappingController {
 
 
     @PostMapping("/addRole")
-    public AjaxResult addMappingRole(@RequestBody DefaultMapping defaultMapping) {
+    public AjaxResult addMappingRole(@RequestBody JSONObject jsonObject) {
+
+        IBaseMapping bean = SpringUtils.getBean(IBaseMapping.class);
+        IBaseMapping defaultMapping = jsonObject.toJavaObject(bean.getClass());
+
         IBaseMapping iBaseMapping = checkRoleList(defaultMapping);
         iBaseMapping.getRoleHashSet().addAll(defaultMapping.getRoleHashSet());
         iBaseMapping.setPermissionHashSet(null);
@@ -100,7 +108,10 @@ public class MappingController {
 
 
     @PostMapping("/deletedRole")
-    public AjaxResult deletedRole(@RequestBody DefaultMapping defaultMapping) {
+    public AjaxResult deletedRole(@RequestBody JSONObject jsonObject) {
+        IBaseMapping bean = SpringUtils.getBean(IBaseMapping.class);
+        IBaseMapping defaultMapping = jsonObject.toJavaObject(bean.getClass());
+
         IBaseMapping iBaseMapping = checkRoleList(defaultMapping);
         for (String roleName : defaultMapping.getRoleHashSet()) {
             iBaseMapping.getRoleHashSet().remove(roleName);
@@ -118,14 +129,18 @@ public class MappingController {
 
 
     @PostMapping("/deletedPermission")
-    public AjaxResult deletedMappingPermission(@RequestBody DefaultMapping defaultMapping) {
+    public AjaxResult deletedMappingPermission(@RequestBody JSONObject jsonObject) {
+
+        IBaseMapping bean = SpringUtils.getBean(IBaseMapping.class);
+        IBaseMapping defaultMapping = jsonObject.toJavaObject(bean.getClass());
+
         IBaseMapping iBaseMapping = checkPermissionList(defaultMapping);
         // 移除权限
         for (String permissionName : defaultMapping.getPermissionHashSet()) {
             iBaseMapping.getPermissionHashSet().remove(permissionName);
         }
         if (!mappingMapper.updateMapping(iBaseMapping)) {
-            throw new ServiceException("添加权限限制失败");
+            throw new ServiceException("添加权限限制失败,请检查id参数");
         }
         for (DefaultMapping mapping : requestMappingBean.getBaseMappingList()) {
             if (mapping.getUrl().equals(iBaseMapping.getUrl()) && Objects.equals(mapping.getId(), iBaseMapping.getId())){
@@ -241,7 +256,7 @@ public class MappingController {
     }
 
 
-    private IBaseMapping checkPermissionList(@RequestBody DefaultMapping defaultMapping) {
+    private IBaseMapping checkPermissionList(IBaseMapping defaultMapping) {
         checkMappingParaByRoleOrPermission(defaultMapping);
 
         if (defaultMapping.getPermissionHashSet().isEmpty()) {

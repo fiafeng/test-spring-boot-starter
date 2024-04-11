@@ -1,6 +1,6 @@
 package com.fiafeng.mapping.properties;
 
-import com.fiafeng.common.properties.IProperties;
+import com.fiafeng.common.properties.IEnableProperties;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -9,7 +9,7 @@ import java.util.List;
 
 @ConfigurationProperties("fiafeng.mapping")
 @Data
-public class FiafengMappingProperties implements IProperties {
+public class FiafengMappingProperties implements IEnableProperties {
 
     /**
      * 是否开启mapping功能
@@ -20,7 +20,7 @@ public class FiafengMappingProperties implements IProperties {
     /**
      * 是否需要添加基于mapping的拦截器
      */
-    public boolean permissionInterceptorEnable = true;
+    public Boolean permissionInterceptorEnable = true;
 
 
     /**

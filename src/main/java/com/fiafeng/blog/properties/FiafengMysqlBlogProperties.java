@@ -14,7 +14,17 @@ public class FiafengMysqlBlogProperties {
     public String tableName = "base_blog";
 
     /**
+     * 博客关系表
+     */
+    public String baseBlogUserTableName = "base_blog_user";
+
+    /**
      * 博客表中，和用户表关联的id名称
      */
     public String userIdName = "userId";
+
+    /**
+     * 博客表关系
+     */
+    public String blogIdName = "blogId";
 }

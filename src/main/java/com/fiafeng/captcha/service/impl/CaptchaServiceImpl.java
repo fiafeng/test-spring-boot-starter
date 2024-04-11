@@ -16,6 +16,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @BeanDefinitionOrderAnnotation
@@ -24,8 +25,8 @@ public class CaptchaServiceImpl implements ICaptchaService {
     @Autowired
     FiafengCaptchaProperties captchaProperties;
 
-    @Resource(name = "captchaProducer")
-    private Producer captchaProducer;
+    @Resource(name = "captchaProducerChar")
+    private Producer captchaProducerChar;
 
     @Resource(name = "captchaProducerMath")
     private Producer captchaProducerMath;
@@ -45,14 +46,12 @@ public class CaptchaServiceImpl implements ICaptchaService {
 
     /**
      * 检查是否存在规定参数，并且校验其中的验证码是否正确
-     * @param hashMap 参数集合
      */
-    public void checkCaptchaByHashMap(HashMap<String, String> hashMap) {
-        if (!hashMap.containsKey(captchaProperties.captchaName) || !hashMap.containsKey(captchaProperties.uuid)) {
+    public void checkCaptchaByHashMap(String captchaValue ,String uuid) {
+        if (captchaValue == null || captchaValue.isEmpty() || uuid == null || uuid.isEmpty()) {
             throw new ServiceException("参数传递错误！");
         }
-        String verifyKey = CacheConstants.CAPTCHA_CODE_KEY + hashMap.get(captchaProperties.uuid);
-        String captchaValue = hashMap.get(captchaProperties.captchaName);
+        String verifyKey = CacheConstants.CAPTCHA_CODE_KEY + uuid;
         String cacheValue = cacheService.getCacheObject(verifyKey);
         if (cacheValue == null) {
             throw new ServiceException("验证码不存在,或者已经过期", captchaProperties.expireCode);
@@ -74,8 +73,8 @@ public class CaptchaServiceImpl implements ICaptchaService {
         BufferedImage image = null;
         switch (captchaProperties.captchaProducerType) {
             case Char:
-                capStr = code = captchaProducer.createText();
-                image = captchaProducer.createImage(capStr);
+                capStr = code = captchaProducerChar.createText();
+                image = captchaProducerChar.createImage(capStr);
                 break;
             case Math:
                 String capText = captchaProducerMath.createText();

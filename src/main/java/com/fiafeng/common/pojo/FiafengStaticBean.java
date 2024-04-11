@@ -8,8 +8,6 @@ public class FiafengStaticBean {
 
     public static final SearchTree searchTree = new SearchTree();
 
-    public static final HashMap<Class<?>, HashSet<Class<?>>> baseBeanClassHashMap = new HashMap<>();
-
 
 
 }

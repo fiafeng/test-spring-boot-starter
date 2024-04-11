@@ -1,7 +1,6 @@
 package com.fiafeng.mapping.pojo;
 
 
-import com.fiafeng.common.annotation.BaseMappingAnnotation;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.pojo.Interface.IBaseMapping;
 import lombok.Data;
@@ -12,7 +11,6 @@ import java.util.HashSet;
 
 @Data
 @Accessors(chain = true)
-@BaseMappingAnnotation
 @BeanDefinitionOrderAnnotation
 @Scope("prototype")
 public class DefaultMapping implements IBaseMapping {

@@ -1,12 +1,12 @@
 package com.fiafeng.common.annotation;
 
-import org.springframework.context.annotation.Scope;
 
 import java.lang.annotation.*;
 
-@Target(value = {ElementType.TYPE})
+@Target(value = {ElementType.FIELD,ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-public @interface BaseMappingAnnotation {
+public @interface ApplicationInitAnnotation {
+    int value() default 0;
 }

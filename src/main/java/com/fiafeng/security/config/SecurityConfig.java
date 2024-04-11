@@ -6,7 +6,7 @@ import com.fiafeng.mysql.properties.FiafengMysqlUserProperties;
 import com.fiafeng.security.filter.DefaultSecurityJwtAuthenticationTokenFilter;
 import com.fiafeng.security.handler.AuthenticationEntryPointHandler;
 import com.fiafeng.security.handler.LogoutSuccessHandlerImpl;
-import com.fiafeng.security.init.SecurityApplicationInit;
+import com.fiafeng.security.init.SecurityApplicationProcessor;
 import com.fiafeng.security.mapper.DefaultSecurityMysqlUserMapper;
 import com.fiafeng.security.mapper.DefaultSecurityUserMapper;
 import com.fiafeng.security.pojo.DefaultSecurityLoginUserInfo;
@@ -94,8 +94,8 @@ public class SecurityConfig {
 
 
     @Bean
-    SecurityApplicationInit securityBeanDefinitionRegistryPostProcessor(){
-        return new SecurityApplicationInit();
+    SecurityApplicationProcessor securityBeanDefinitionRegistryPostProcessor(){
+        return new SecurityApplicationProcessor();
     }
 
     @Bean

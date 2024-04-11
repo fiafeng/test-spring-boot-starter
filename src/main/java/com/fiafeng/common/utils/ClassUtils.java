@@ -9,7 +9,7 @@ public class ClassUtils {
      * @return 判断指定的类数组是否存在系统内
      */
     public static boolean classIsExists(boolean logic, String ...aClasses){
-        boolean flag = false;
+        boolean flag = true;
         if (aClasses.length >= 1){
             for (String aClass : aClasses) {
                 if (logic){
@@ -30,7 +30,11 @@ public class ClassUtils {
         return flag;
     }
 
-    public static boolean classIsExistsOr(String ...aClasses){
+    public static boolean classIsExistsOR(String ...aClasses){
         return classIsExists(false, aClasses);
+    }
+
+    public static boolean classIsExistsAND(String ...aClasses){
+        return classIsExists(true, aClasses);
     }
 }

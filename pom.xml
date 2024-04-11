@@ -32,6 +32,13 @@
             <optional>true</optional>
         </dependency>
 
+        <!--    aop切面依赖-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+            <optional>false</optional>
+        </dependency>
+
         <!--        mybatis-plus依赖-->
         <dependency>
             <groupId>com.baomidou</groupId>

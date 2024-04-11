@@ -34,4 +34,6 @@ fiafeng:
   mysql-table:
     user:
       table-name: sys_user
+  mapping:
+    enable: false
 

@@ -3,54 +3,33 @@ package com.fiafeng.common.utils;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.mysql.mapper.BaseMysqlMapper;
 import com.fiafeng.common.pojo.FiafengStaticBean;
+import lombok.Getter;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.core.ResolvableType;
 
 import java.lang.annotation.Annotation;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class ObjectClassUtils {
 
     public static String url;
 
+    public static BeanDefinitionRegistry registry;
+    public static ConfigurableListableBeanFactory beanFactory;
 
-    /**
-     * 判断bean的类型上是否存在annotation注解，如果存在，则保存到key为baseClass的 FiafengStaticBean.baseBeanClassHashMap集合中
-     *
-     * @param bean       加载到容器的对象
-     * @param baseClass  默认接口类型
-     * @param annotation 自定义注解
-     */
-    public static void addBaseBeanType(Object bean,
-                                       Class<?> baseClass,
-                                       Class<? extends Annotation> annotation) {
-//        StackTraceElement stackTrace = Thread.currentThread().getStackTrace()[2];
-        if (bean.getClass().getAnnotation(annotation) != null) {
-            ObjectClassUtils.putBaseBean(baseClass, bean.getClass());
-        }
+    private static List<Class<?>> classList = new ArrayList<>();
+
+    public static void addClass(Class<?> aClass){
+        classList.add(aClass);
     }
 
-    /**
-     * 将基础的bean添加到 FiafengStaticBean.baseBeanClassHashMap
-     *
-     * @param key   key
-     * @param value value
-     */
-    public static void putBaseBean(Class<?> key, Class<?> value) {
 
-        if (FiafengStaticBean.baseBeanClassHashMap.containsKey(key)) {
-            FiafengStaticBean.baseBeanClassHashMap.get(key).add(value);
-        } else {
-            HashSet<Class<?>> list = new HashSet<>();
-            list.add(value);
-            FiafengStaticBean.baseBeanClassHashMap.put(key, list);
+    public static void removeBeanDefinitions() {
+        for (Class<?> aClass : ObjectClassUtils.classList) {
+            ObjectClassUtils.removeBeanDefinitions(registry, beanFactory,aClass);
         }
-
     }
 
     /**
@@ -81,7 +60,6 @@ public class ObjectClassUtils {
                         rawClass = Class.forName(beanClassName);
                     } catch (Exception e) {
                         Map<String, ?> beansOfType = beanFactory.getBeansOfType(objectClass);
-                        System.out.println(beansOfType);
                         break;
                     }
                 } else {

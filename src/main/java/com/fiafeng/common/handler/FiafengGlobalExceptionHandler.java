@@ -22,9 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 public class FiafengGlobalExceptionHandler {
 
-    @Autowired
-    FiafengMessageUtils fiafengMessageUtils;
-
     /**
      * 业务异常
      */

@@ -51,7 +51,7 @@ public class MappingConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
+    @Scope("prototype")
     DefaultMapping defaultMapping(){
         DefaultMapping defaultMapping = new DefaultMapping();
         return defaultMapping;

@@ -29,10 +29,6 @@ public class FiafengPermissionInterceptor implements HandlerInterceptor {
     @Autowired
     ITokenService tokenService;
 
-
-    @Value("${fiafeng.mapping.enable:false}")
-    boolean mappingEnable;
-
     @Autowired
     FiafengMappingProperties mappingProperties;
 

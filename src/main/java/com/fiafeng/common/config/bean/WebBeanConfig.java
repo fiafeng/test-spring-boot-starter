@@ -1,14 +1,12 @@
 package com.fiafeng.common.config.bean;
 
+import com.fiafeng.common.filter.RefreshUserFilter;
+import com.fiafeng.common.service.Impl.*;
 import com.fiafeng.common.utils.FiafengMessageUtils;
 import com.fiafeng.common.utils.SpringUtils;
 import com.fiafeng.security.properties.FiafengSecurityProperties;
 import com.fiafeng.common.filter.DefaultJwtAuthenticationTokenFilter;
 import com.fiafeng.common.properties.FiafengTokenProperties;
-import com.fiafeng.common.service.Impl.DefaultCacheServiceImpl;
-import com.fiafeng.common.service.Impl.DefaultLoginServiceImpl;
-import com.fiafeng.common.service.Impl.DefaultTokenServiceImpl;
-import com.fiafeng.common.service.Impl.DefaultUserTableInitServiceServiceImpl;
 import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.*;
@@ -19,8 +17,8 @@ import org.springframework.web.filter.CorsFilter;
 
 
 @ComponentScans({
-        @ComponentScan("com.fiafeng.test.controller"),
-        @ComponentScan("com.fiafeng.test.handler")
+        @ComponentScan("com.fiafeng.common.controller"),
+        @ComponentScan("com.fiafeng.common.handler")
 })
 @EnableConfigurationProperties({
         FiafengTokenProperties.class,
@@ -45,6 +43,11 @@ public class WebBeanConfig {
     }
 
     @Bean
+    UpdateCacheServiceImpl updateCacheService(){
+        return new UpdateCacheServiceImpl();
+    }
+
+    @Bean
     @Primary
     DefaultUserTableInitServiceServiceImpl defaultUserTableInitServiceService() {
         return new DefaultUserTableInitServiceServiceImpl();
@@ -53,6 +56,12 @@ public class WebBeanConfig {
     @Bean
     DefaultJwtAuthenticationTokenFilter defaultJwtAuthenticationTokenFilter(){
         return new DefaultJwtAuthenticationTokenFilter();
+    }
+
+
+    @Bean
+    RefreshUserFilter refreshUserFilter(){
+        return new RefreshUserFilter();
     }
 
     @Bean

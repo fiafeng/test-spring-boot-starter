@@ -9,7 +9,7 @@ import com.fiafeng.common.service.IUserService;
 import com.fiafeng.common.utils.SpringUtils;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.pojo.Interface.IBaseUser;
-import com.fiafeng.security.service.ILoginService;
+import com.fiafeng.common.service.ILoginService;
 import com.fiafeng.common.utils.FiafengMessageUtils;
 import com.fiafeng.common.utils.ObjectUtils;
 import lombok.extern.slf4j.Slf4j;

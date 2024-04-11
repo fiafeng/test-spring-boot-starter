@@ -2,6 +2,7 @@ package com.fiafeng.rbac.service;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.mapper.*;
+import com.fiafeng.common.service.Impl.UpdateCacheServiceImpl;
 import com.fiafeng.common.utils.FiafengMessageUtils;
 import com.fiafeng.common.constant.CacheConstants;
 import com.fiafeng.common.exception.ServiceException;
@@ -48,6 +49,8 @@ public class DefaultUserRoleServiceImpl implements IUserRoleService{
     @Autowired
     public IUserRoleMapper userRoleMapper;
 
+    @Autowired
+    UpdateCacheServiceImpl updateCacheService;
 
     @Override
     public <T extends IBaseUserRole> boolean insertUserRole(T userRole) {
@@ -69,7 +72,7 @@ public class DefaultUserRoleServiceImpl implements IUserRoleService{
         synchronized (this) {
             if (userRoleMapper.insertUserRole(userRole)) {
                 userRole = userRoleMapper.selectRoleListByUserIdRoleId(userRole);
-                updateCache(userRole.getUserId());
+                updateCacheService.updateCacheByUser(userRole.getUserId());
             }
         }
         return true;
@@ -102,7 +105,7 @@ public class DefaultUserRoleServiceImpl implements IUserRoleService{
             throw new ServiceException(FiafengMessageUtils.message("rbac.userRole.updateRoleListError"));
         }
 
-        updateCache(userId);
+        updateCacheService.updateCacheByUser(userId);
         return true;
     }
 
@@ -125,7 +128,7 @@ public class DefaultUserRoleServiceImpl implements IUserRoleService{
         }
 
         if (userRoleMapper.deleteUserRole(userRole)){
-            updateCache(userRole.getUserId());
+            updateCacheService.updateCacheByUser(userRole.getUserId());
         }
 
         return true;
@@ -139,26 +142,12 @@ public class DefaultUserRoleServiceImpl implements IUserRoleService{
             throw new ServiceException(FiafengMessageUtils.message("rbac.common.notFoundCurrentById"));
         }
         if (userRoleMapper.deleteUserRoleById(id)){
-            updateCache(userRole.getUserId());
+            updateCacheService.updateCacheByUser(userRole.getUserId());
         }
         return true;
     }
 
-    private void updateCache(Long userId) {
-        HashSet<Long> hashSet = cacheService.getCacheObject(CacheConstants.UPDATE_USER_INFO);
-        if (hashSet == null) {
-            hashSet = new HashSet<>();
-        }
-        hashSet.add(userId);
-        cacheService.setCacheObject(CacheConstants.UPDATE_USER_INFO, hashSet, expireTime, TimeUnit.MINUTES);
-    }
 
-
-    /**
-     * @param userId
-     * @param <T>
-     * @return
-     */
     @Override
     public <T extends IBaseRole> List<T> queryUserRoleListByUserId(Long userId) {
         if (userMapper.selectUserByUserId(userId) == null) {

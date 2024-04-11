@@ -1,6 +1,6 @@
 package com.fiafeng.mapping.init;
 
-import com.fiafeng.common.annotation.BaseMappingAnnotation;
+import com.fiafeng.common.init.ApplicationInit;
 import com.fiafeng.common.utils.ObjectClassUtils;
 import com.fiafeng.common.utils.SpringUtils;
 import com.fiafeng.mapping.pojo.DefaultMapping;
@@ -27,7 +27,7 @@ import org.springframework.web.util.pattern.PathPattern;
 
 import java.util.*;
 
-public class MappingApplicationInit implements ApplicationListener<ContextRefreshedEvent>, BeanPostProcessor, BeanDefinitionRegistryPostProcessor {
+public class MappingApplicationInit implements ApplicationInit {
 
     @Autowired
     ApplicationContext applicationContext;
@@ -38,39 +38,19 @@ public class MappingApplicationInit implements ApplicationListener<ContextRefres
     // 如果没有自动配置 DispatcherServlet，则不会注入该 bean
     private RequestMappingHandlerMapping requestMappingHandlerMapping;
 
-    @Override
-    public void onApplicationEvent(ContextRefreshedEvent event) {
-        // 防止事件运行多次
-        if (event.getApplicationContext().getParent() != null) {
-            return;
-        }
+    static {
+        ObjectClassUtils.addClass(IMappingMapper.class);
+    }
 
+    @Override
+    public void init() {
         ObjectClassUtils.refreshBaseMysqlMapperType(IMappingMapper.class, IBaseMapping.class);
 
         requestMappingHandlerMapping = SpringUtils.getBean(RequestMappingHandlerMapping.class);
 
         mappingSetting();
-
     }
 
-    private BeanDefinitionRegistry registry;
-
-    @Override
-    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-        ObjectClassUtils.removeBeanDefinitions(registry, beanFactory, IMappingMapper.class);
-    }
-
-    @Override
-    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-        this.registry = registry;
-    }
-
-
-    @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        ObjectClassUtils.addBaseBeanType(bean, IBaseMapping.class, BaseMappingAnnotation.class);
-        return bean;
-    }
 
     IMappingMapper mappingMapper = null;
 
@@ -144,11 +124,11 @@ public class MappingApplicationInit implements ApplicationListener<ContextRefres
 
 
         // 将系统内不存在的url从数据库中删除
-        if (!existentUrl.isEmpty()){
+        if (!existentUrl.isEmpty()) {
             for (String url : existentUrl) {
                 hashMap.remove(url);
             }
-            if (!hashMap.isEmpty()){
+            if (!hashMap.isEmpty()) {
                 List<Long> longs = new ArrayList<>();
                 for (IBaseMapping value : hashMap.values()) {
                     longs.add(value.getId());
@@ -161,12 +141,12 @@ public class MappingApplicationInit implements ApplicationListener<ContextRefres
         List<IBaseMapping> mappings = mappingMapper.selectMappingListAll();
         HashMap<String, IBaseMapping> mappingHashMap = new HashMap<>();
         for (IBaseMapping mapping : mappings) {
-            mappingHashMap.put(mapping.getUrl(),mapping);
+            mappingHashMap.put(mapping.getUrl(), mapping);
         }
 
         // 给所有没有id的值赋值
         for (DefaultMapping baseVO : requestMappingBean.getBaseMappingList()) {
-            if (baseVO.getId() == null){
+            if (baseVO.getId() == null) {
                 IBaseMapping iBaseMapping = mappingHashMap.get(baseVO.getUrl());
                 baseVO.setId(iBaseMapping.getId());
             }
@@ -197,4 +177,6 @@ public class MappingApplicationInit implements ApplicationListener<ContextRefres
 
 
     }
+
+
 }

@@ -1,7 +1,6 @@
 package com.fiafeng.rbac.pojo;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.common.annotation.BaseRoleAnnotation;
 import com.fiafeng.common.pojo.Interface.IBaseRole;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -18,7 +17,6 @@ import java.util.List;
  */
 @Data
 @Accessors(chain = true)
-@BaseRoleAnnotation
 @Scope("prototype")
 @BeanDefinitionOrderAnnotation
 public class DefaultRole implements IBaseRole {

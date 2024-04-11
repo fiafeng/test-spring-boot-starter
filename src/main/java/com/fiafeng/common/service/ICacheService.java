@@ -1,7 +1,5 @@
 package com.fiafeng.common.service;
 
-import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-
 import java.util.concurrent.TimeUnit;
 
 /**

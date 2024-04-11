@@ -1,7 +1,7 @@
 package com.fiafeng.common.annotation.conditional.matches;
 
 import com.fiafeng.common.annotation.conditional.ConditionalEnableProperty;
-import com.fiafeng.common.properties.IProperties;
+import com.fiafeng.common.properties.IEnableProperties;
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.env.Environment;
@@ -19,7 +19,7 @@ import java.util.jar.JarFile;
 
 public class ConditionalPropertyMatches implements Condition {
 
-    static HashMap<String, IProperties> iPropertiesHashMap = new HashMap<>();
+    static HashMap<String, IEnableProperties> iPropertiesHashMap = new HashMap<>();
 
 
     static {
@@ -58,8 +58,7 @@ public class ConditionalPropertyMatches implements Condition {
                     }
                 });
             }
-        } catch (Exception e) {
-            System.out.println();
+        } catch (Exception ignored) {
         }
     }
 
@@ -72,12 +71,12 @@ public class ConditionalPropertyMatches implements Condition {
 
     private static void addPropertiesClass(String classPath, Class<?> fileClass) throws InstantiationException, IllegalAccessException {
         for (Type type : fileClass.getGenericInterfaces()) {
-            if (type == IProperties.class) {
-                IProperties iProperties = (IProperties) fileClass.newInstance();
+            if (type == IEnableProperties.class) {
+                IEnableProperties iEnableProperties = (IEnableProperties) fileClass.newInstance();
                 String beanName = classPath.substring(classPath.lastIndexOf(".") + 1);
                 if (beanName.startsWith("Fiafeng") && beanName.endsWith("Properties")) {
                     beanName = beanName.substring(7, 8).toLowerCase() + beanName.substring(8, beanName.length() - 10);
-                    iPropertiesHashMap.put(beanName, iProperties);
+                    iPropertiesHashMap.put(beanName, iEnableProperties);
                 }
 
             }

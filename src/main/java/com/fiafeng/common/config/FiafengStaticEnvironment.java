@@ -6,7 +6,6 @@ public class FiafengStaticEnvironment {
 
     public static boolean captcha = false;
 
-
     public static boolean mysql = false;
 
     public static boolean redis = false;

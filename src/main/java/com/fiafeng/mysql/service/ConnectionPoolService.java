@@ -79,7 +79,6 @@ public class ConnectionPoolService {
                         }
                     }
                 }
-
             }
             // 当前连接池没有空闲的线程，检查线程池的数量有没有达到设定的数量
             else if (connectionPool.size() < maxSize) {
@@ -91,9 +90,9 @@ public class ConnectionPoolService {
                         connection = getDefaultConnection();
                         threadLocalInt.set(currentSize);
                         userCount.getAndIncrement();
-                        connectionUser.set(currentSize, true);
+                        connectionUser.add(currentSize, true);
                     } else {
-                        // 预防两个线程同时进到这里，创建一个链接直接返回
+                        // 线程池已经满了
                         connection = getDefaultConnection();
                     }
                 }
@@ -217,7 +216,6 @@ public class ConnectionPoolService {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println(e.getMessage());
         } finally {
             try {
                 resultSet.close();
@@ -243,9 +241,7 @@ public class ConnectionPoolService {
             statement = getStatement(sql);
             setObject(objects, statement);
             statement.execute();
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println(e.getMessage());
+        } catch (Exception ignored) {
         } finally {
             ConnectionPoolService.close();
         }
@@ -262,9 +258,7 @@ public class ConnectionPoolService {
             result = statement.executeUpdate();
             log.info("执行sql为[" + sql + "]参数为" + Arrays.toString(objects));
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println(e.getMessage());
+        } catch (Exception ignored) {
         } finally {
             ConnectionPoolService.close();
         }

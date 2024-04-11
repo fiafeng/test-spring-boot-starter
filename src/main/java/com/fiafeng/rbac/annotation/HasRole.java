@@ -7,7 +7,7 @@ import java.lang.annotation.*;
  * @create 2023/12/08
  * @description
  */
-@Target( value = {ElementType.METHOD,ElementType.TYPE} )
+@Target( value = {ElementType.METHOD} )
 @Retention( RetentionPolicy.RUNTIME )
 @Documented
 public @interface HasRole {

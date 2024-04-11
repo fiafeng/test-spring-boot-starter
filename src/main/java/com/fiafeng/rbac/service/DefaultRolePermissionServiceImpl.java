@@ -1,6 +1,7 @@
 package com.fiafeng.rbac.service;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.service.Impl.UpdateCacheServiceImpl;
 import com.fiafeng.common.utils.FiafengMessageUtils;
 import com.fiafeng.common.constant.CacheConstants;
 import com.fiafeng.common.exception.ServiceException;
@@ -49,6 +50,9 @@ public class DefaultRolePermissionServiceImpl implements IRolePermissionService 
     public IUserRoleMapper userRoleMapper;
 
 
+    @Autowired
+    UpdateCacheServiceImpl updateCacheService;
+
 
 
     @Override
@@ -75,7 +79,7 @@ public class DefaultRolePermissionServiceImpl implements IRolePermissionService 
 
         if (rolePermissionMapper.insertRolePermission(rolePermission)) {
 
-            updateCache(rolePermission.getRoleId());
+            updateCacheService.updateCacheByRole(rolePermission.getRoleId());
         }
         return true;
     }
@@ -103,7 +107,7 @@ public class DefaultRolePermissionServiceImpl implements IRolePermissionService 
             throw new ServiceException(FiafengMessageUtils.message("rbac.rolePermission.roleNotHasCurrentPermission"));
         }
         if (rolePermissionMapper.deleteRolePermission(rolePermission)) {
-            updateCache(rolePermission.getRoleId());
+            updateCacheService.updateCacheByRole(rolePermission.getRoleId());
         }
         return true;
     }
@@ -131,21 +135,10 @@ public class DefaultRolePermissionServiceImpl implements IRolePermissionService 
             }
         }
         if (rolePermissionMapper.updateRolePermissionList(roleId, permissionList)){
-            updateCache(roleId);
+            updateCacheService.updateCacheByRole(roleId);
         }
 
         return true;
-    }
-
-    private void updateCache(Long roleId) {
-        HashSet<Long> hashSet = cacheService.getCacheObject(CacheConstants.UPDATE_USER_INFO);
-        if (hashSet == null) {
-            hashSet = new HashSet<>();
-        }
-        for (IBaseUserRole userRole : userRoleMapper.selectRoleListByUserIdRoleId(roleId)) {
-            hashSet.add(userRole.getUserId());
-        }
-        cacheService.setCacheObject(CacheConstants.UPDATE_USER_INFO, hashSet, expireTime, TimeUnit.MINUTES);
     }
 
     @Override

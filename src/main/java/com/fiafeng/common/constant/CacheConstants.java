@@ -25,15 +25,4 @@ public class CacheConstants {
      */
     public static final String CAPTCHA_CODE_KEY = "captcha_codes:";
 
-
-    /**
-     * 用户的角色信息缓存key
-     */
-
-    public static final String USER_ROLE_INFO_KEY = "user_role_info:";
-
-    /**
-     * 用户的权限信息缓存
-     */
-    public static final String USER_PERMISSION_INFO_KEY = "user_permission_info:";
 }
