@@ -22,6 +22,7 @@ import static com.google.code.kaptcha.Constants.*;
  * 验证码配置类
  */
 @ComponentScans({
+        @ComponentScan("com.fiafeng.captcha.controller")
 })
 @EnableConfigurationProperties(value = {
         FiafengCaptchaProperties.class

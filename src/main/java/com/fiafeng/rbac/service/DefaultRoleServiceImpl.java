@@ -41,10 +41,6 @@ public class DefaultRoleServiceImpl implements IRoleService {
     UpdateCacheServiceImpl updateCacheService;
 
 
-    // 令牌有效期（默认60分钟）
-    @Value("${fiafeng.token.expireTime:60}")
-    private Long expireTime;
-
     @Override
     public boolean insertRole(IBaseRole role) {
         IBaseRole baseRole = roleMapper.selectRoleByRoleName(role.getName());
@@ -53,7 +49,7 @@ public class DefaultRoleServiceImpl implements IRoleService {
             throw new ServiceException(FiafengMessageUtils.message("rbac.role.roleNameRepeat"));
 
         }
-       return roleMapper.insertRole(role);
+        return roleMapper.insertRole(role);
     }
 
     @Override
@@ -76,22 +72,14 @@ public class DefaultRoleServiceImpl implements IRoleService {
 
         if (roleMapper.deletedRole(roleId)) {
             updateCacheService.updateCacheByRole(roleId);
-        }else {
+            cacheService.deleteObject(CacheConstants.ROLE_PERMISSION_PREFIX + roleId);
+
+        } else {
             throw new ServiceException("删除角色遇到意外的异常");
         }
         return true;
     }
 
-    private void updateCache(Long roleId) {
-        HashSet<Long> hashSet = cacheService.getCacheObject(CacheConstants.UPDATE_USER_INFO);
-        if (hashSet == null) {
-            hashSet = new HashSet<>();
-        }
-        for (IBaseUserRole userRole : userRoleMapper.selectRoleListByUserIdRoleId(roleId)) {
-            hashSet.add(userRole.getUserId());
-        }
-        cacheService.setCacheObject(CacheConstants.UPDATE_USER_INFO, hashSet, expireTime, TimeUnit.MINUTES);
-    }
 
     @Override
     public boolean updateRole(IBaseRole role) {
@@ -118,9 +106,9 @@ public class DefaultRoleServiceImpl implements IRoleService {
             }
 
         }
-        if (roleMapper.updateRole(role)){
+        if (roleMapper.updateRole(role)) {
             updateCacheService.updateCacheByRole(role.getId());
-        }else {
+        } else {
             throw new ServiceException("更新角色遇到意外的异常");
         }
         return true;

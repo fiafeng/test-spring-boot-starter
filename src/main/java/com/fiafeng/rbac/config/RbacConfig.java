@@ -1,7 +1,7 @@
 package com.fiafeng.rbac.config;
 
 
-import com.fiafeng.common.aop.PermissionAspect;
+import com.fiafeng.rbac.aop.PermissionAspect;
 import com.fiafeng.rbac.init.RBACApplicationProcessor;
 import com.fiafeng.rbac.mapper.*;
 import com.fiafeng.rbac.properties.FiafengRbacProperties;
@@ -82,7 +82,7 @@ public class RbacConfig {
 
     @Bean
     @ConditionalOnClass(Aspect.class)
-    @ConditionalOnProperty( prefix = "fiafeng.rbac" ,value = "permission-aop", havingValue = "true")
+    @ConditionalOnProperty( prefix = "fiafeng.rbac" ,value = "permission-aop-enable", havingValue = "true")
     PermissionAspect permissionAspect(){
         return new PermissionAspect();
     }

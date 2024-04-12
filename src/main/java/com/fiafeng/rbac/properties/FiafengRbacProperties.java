@@ -21,8 +21,30 @@ public class FiafengRbacProperties implements IEnableProperties {
 
 
     /**
-     * 是否启用aop  HasPermission HasRole注解
+     * 是否启用aop  HasPermissionAnnotation HasRole注解
      */
-    public Boolean permissionAop = false;
+    public Boolean permissionAopEnable = false;
+
+
+    /**
+     * 管理员角色的角色名
+     */
+    public String roleAdminName = "admin";
+
+    /**
+     * 管理员权限的权限名
+     */
+    public String permissionAdminName = "admin";
+
+
+    /**
+     * 默认用户的用户名
+     */
+    public String defaultUserName = "admin";
+
+    /**
+     * 默认用户的密码
+     */
+    public String defaultUserPassword =  "123456";
 
 }

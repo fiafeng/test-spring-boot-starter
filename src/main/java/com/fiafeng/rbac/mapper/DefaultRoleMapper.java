@@ -1,9 +1,10 @@
 package com.fiafeng.rbac.mapper;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.mapper.IRoleMapper;
 import com.fiafeng.common.pojo.Interface.IBaseRole;
-import com.fiafeng.rbac.pojo.DefaultRole;
+import com.fiafeng.common.utils.SpringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,40 +15,17 @@ import java.util.concurrent.atomic.AtomicLong;
 @BeanDefinitionOrderAnnotation()
 public class DefaultRoleMapper implements IRoleMapper {
 
-    ConcurrentHashMap<Long, String> roleMap;
+    ConcurrentHashMap<Long, IBaseRole> roleMap;
 
     AtomicLong atomicLong = new AtomicLong(2);
 
-    public ConcurrentHashMap<Long, String> getRoleMap() {
+    public ConcurrentHashMap<Long, IBaseRole> getRoleMap() {
         if (roleMap == null) {
             roleMap = new ConcurrentHashMap<>();
-            roleMap.put(1L, "admin");
+            roleMap.put(1L, SpringUtils.getBean(IBaseRole.class));
         }
 
         return roleMap;
-    }
-
-    @Override
-    public <T extends IBaseRole> T selectRoleByRoleName(String roleName) {
-        if (roleName == null || roleName.isEmpty()) {
-            return null;
-        }
-
-        for (HashMap.Entry<Long, String> entry : getRoleMap().entrySet()) {
-            if (roleName.equals(entry.getValue())) {
-                return (T) new DefaultRole().setId(entry.getKey()).setName(entry.getValue());
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public <T extends IBaseRole> T selectRoleByRoleId(Long roleId) {
-        if (getRoleMap().containsKey(roleId)) {
-            return (T) new DefaultRole().setId(roleId).setName(getRoleMap().get(roleId));
-        }
-
-        return null;
     }
 
     @Override
@@ -56,7 +34,10 @@ public class DefaultRoleMapper implements IRoleMapper {
             return false;
         }
         try {
-            getRoleMap().put(atomicLong.getAndIncrement(), role.getName());
+            long andIncrement = atomicLong.getAndIncrement();
+            role.setId(andIncrement);
+
+            getRoleMap().put(andIncrement, role);
         } catch (NullPointerException e) {
             return false;
         }
@@ -72,7 +53,7 @@ public class DefaultRoleMapper implements IRoleMapper {
         if (!getRoleMap().containsKey(role.getId())) {
             return false;
         } else {
-            getRoleMap().put(role.getId(), role.getName());
+            getRoleMap().put(role.getId(), role);
         }
 
         return true;
@@ -85,10 +66,36 @@ public class DefaultRoleMapper implements IRoleMapper {
 
     @Override
     public <T extends IBaseRole> List<T> selectRoleListALl() {
-        List<DefaultRole> defaultRoleList = new ArrayList<>();
-        for (HashMap.Entry<Long, String> entry : getRoleMap().entrySet()) {
-            defaultRoleList.add(new DefaultRole().setId(entry.getKey()).setName(entry.getValue()));
+        List<IBaseRole> iBaseRoleList = new ArrayList<>();
+        for (HashMap.Entry<Long, IBaseRole> entry : getRoleMap().entrySet()) {
+            iBaseRoleList.add(JSONObject.from(entry.getValue()).toJavaObject(IBaseRole.class));
         }
-        return (List<T>) defaultRoleList;
+        return (List<T>) iBaseRoleList;
     }
+
+    @Override
+    public <T extends IBaseRole> T selectRoleByRoleName(String roleName) {
+        if (roleName == null || roleName.isEmpty()) {
+            return null;
+        }
+
+        for (HashMap.Entry<Long, IBaseRole> entry : getRoleMap().entrySet()) {
+            if (roleName.equals(entry.getValue().getName())) {
+                return (T) SpringUtils.getBean(IBaseRole.class)
+                        .setId(entry.getKey())
+                        .setName(entry.getValue().getName());
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public <T extends IBaseRole> T selectRoleByRoleId(Long roleId) {
+        if (getRoleMap().containsKey(roleId)) {
+            return (T) SpringUtils.getBean(IBaseRole.class).setId(roleId).setName(getRoleMap().get(roleId).getName());
+        }
+
+        return null;
+    }
+
 }

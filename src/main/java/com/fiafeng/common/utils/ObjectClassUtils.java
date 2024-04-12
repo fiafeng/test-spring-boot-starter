@@ -2,14 +2,11 @@ package com.fiafeng.common.utils;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.mysql.mapper.BaseMysqlMapper;
-import com.fiafeng.common.pojo.FiafengStaticBean;
-import lombok.Getter;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.core.ResolvableType;
 
-import java.lang.annotation.Annotation;
 import java.util.*;
 
 public class ObjectClassUtils {
@@ -21,7 +18,7 @@ public class ObjectClassUtils {
 
     private static List<Class<?>> classList = new ArrayList<>();
 
-    public static void addClass(Class<?> aClass){
+    public static void addRemoveBeanDefinitionByClass(Class<?> aClass){
         classList.add(aClass);
     }
 

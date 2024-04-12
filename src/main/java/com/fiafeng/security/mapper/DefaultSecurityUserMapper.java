@@ -4,6 +4,7 @@ import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.utils.SpringUtils;
 import com.fiafeng.common.mapper.IUserMapper;
 import com.fiafeng.common.pojo.Interface.IBaseUser;
+import com.fiafeng.rbac.properties.FiafengRbacProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -27,6 +28,9 @@ public class DefaultSecurityUserMapper implements IUserMapper {
     AtomicLong atomicLong = new AtomicLong(2);
 
     @Autowired
+    FiafengRbacProperties rbacProperties;
+
+    @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
     private ConcurrentHashMap<Long, IBaseUser> getUserMap() {
@@ -35,9 +39,8 @@ public class DefaultSecurityUserMapper implements IUserMapper {
 
             IBaseUser defaultUser = SpringUtils.getBean(IBaseUser.class);
             defaultUser.setId(1L);
-            defaultUser.setUsername("admin");
-//            defaultUser.setPassword("123456");
-            defaultUser.setPassword(bCryptPasswordEncoder.encode("123456"));
+            defaultUser.setUsername(rbacProperties.defaultUserName);
+            defaultUser.setPassword(bCryptPasswordEncoder.encode(rbacProperties.defaultUserPassword));
             userMap.put(defaultUser.getId(), defaultUser);
         }
         return userMap;

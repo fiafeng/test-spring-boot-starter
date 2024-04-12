@@ -26,7 +26,7 @@ public class DefaultUserServiceImpl implements IUserService {
     public <T extends IBaseUser> T selectUserByUserName(String username) {
         IBaseUser user = userMapper.selectUserByUserName(username);
         if (user == null){
-            throw new ServiceException("没有找到用户名为" + username + "的用户");
+            throw new ServiceException("用户不存在");
         }
 
         return (T) user;

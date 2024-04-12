@@ -1,5 +1,7 @@
 package com.fiafeng.rbac.annotation;
 
+import com.fiafeng.rbac.Enum.LogicEnum;
+
 import java.lang.annotation.*;
 
 /**
@@ -10,6 +12,7 @@ import java.lang.annotation.*;
 @Target(value = {ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface HasPermission {
+public @interface HasPermissionAnnotation {
     String[] value();
+
 }

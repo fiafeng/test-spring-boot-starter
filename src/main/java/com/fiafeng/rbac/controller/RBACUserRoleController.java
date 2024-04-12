@@ -2,16 +2,15 @@ package com.fiafeng.rbac.controller;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.common.utils.SpringUtils;
-import com.fiafeng.rbac.annotation.HasRole;
-import com.fiafeng.rbac.controller.Interface.IUserRoleController;
-import com.fiafeng.rbac.properties.FiafengRbacProperties;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.pojo.AjaxResult;
-import com.fiafeng.rbac.pojo.DefaultUserRole;
 import com.fiafeng.common.pojo.Interface.IBaseRole;
 import com.fiafeng.common.pojo.Interface.IBaseUserRole;
 import com.fiafeng.common.service.IUserRoleService;
+import com.fiafeng.common.utils.SpringUtils;
+import com.fiafeng.rbac.annotation.HasRoleAnnotation;
+import com.fiafeng.rbac.controller.Interface.IUserRoleController;
+import com.fiafeng.rbac.properties.FiafengRbacProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,18 +32,18 @@ public class RBACUserRoleController implements IUserRoleController {
     @Autowired
     FiafengRbacProperties rbacProperties;
 
-    @GetMapping("/insert/{userId}/{roleId}")
-    public AjaxResult insertRole(@PathVariable Long roleId, @PathVariable Long userId) {
+    @PostMapping("/insert")
+    public AjaxResult insertRole(@RequestBody JSONObject jsonObject) {
+
+        IBaseUserRole bean = SpringUtils.getBean(IBaseUserRole.class);
+        IBaseUserRole userRole = jsonObject.toJavaObject(bean.getClass());
+
         if (rbacProperties.allowHasRoles){
-            List<IBaseRole> iBaseRoles = userRoleService.queryUserRoleListByUserId(userId);
+            List<IBaseRole> iBaseRoles = userRoleService.queryUserRoleListByUserId(userRole.getUserId());
             if (!iBaseRoles.isEmpty()){
-                throw new ServiceException("用户单一角色限制已经开启！");
+                throw new ServiceException("用户单一角色限制已经开启,当前用户已经拥有一个角色了！");
             }
         }
-
-        IBaseUserRole userRole = SpringUtils.getBean(IBaseUserRole.class);
-        userRole.setRoleId(roleId).setUserId(userId);
-
 
         userRoleService.insertUserRole(userRole);
         return AjaxResult.success();
@@ -60,8 +59,9 @@ public class RBACUserRoleController implements IUserRoleController {
 
 
     @PostMapping("/deleted")
-    public AjaxResult deletedRole(@RequestBody DefaultUserRole userRole) {
-
+    public AjaxResult deletedRole(@RequestBody JSONObject jsonObject) {
+        IBaseUserRole bean = SpringUtils.getBean(IBaseUserRole.class);
+        IBaseUserRole userRole = jsonObject.toJavaObject(bean.getClass());
         userRoleService.deletedUserRole(userRole);
         return AjaxResult.success();
     }
@@ -87,7 +87,7 @@ public class RBACUserRoleController implements IUserRoleController {
         return AjaxResult.success();
     }
 
-    @HasRole
+    @HasRoleAnnotation
     @GetMapping("/queryRoleNameList/{userId}")
     public AjaxResult queryRoleNameByUserId(@PathVariable Long userId) {
         List<String> roleList = userRoleService.queryUserRoleNameListByUserId(userId);

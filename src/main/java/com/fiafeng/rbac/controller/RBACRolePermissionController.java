@@ -2,12 +2,13 @@ package com.fiafeng.rbac.controller;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.rbac.annotation.HasRole;
-import com.fiafeng.rbac.controller.Interface.IRolePermissionController;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.pojo.AjaxResult;
-import com.fiafeng.rbac.pojo.DefaultRolePermission;
+import com.fiafeng.common.pojo.Interface.IBaseRolePermission;
 import com.fiafeng.common.service.IRolePermissionService;
+import com.fiafeng.common.utils.SpringUtils;
+import com.fiafeng.rbac.annotation.HasRoleAnnotation;
+import com.fiafeng.rbac.controller.Interface.IRolePermissionController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,14 +28,19 @@ public class RBACRolePermissionController implements IRolePermissionController {
     IRolePermissionService rolePermissionService;
 
     @PostMapping("/insertPermission")
-    public AjaxResult insertRole(@RequestBody DefaultRolePermission rolePermission) {
+    public AjaxResult insertRole(@RequestBody JSONObject jsonObject) {
+
+        IBaseRolePermission bean = SpringUtils.getBean(IBaseRolePermission.class);
+        IBaseRolePermission rolePermission = jsonObject.toJavaObject(bean.getClass());
+
         rolePermissionService.insertRolePermission(rolePermission);
         return AjaxResult.success();
     }
 
     @DeleteMapping("/deleted")
-    public AjaxResult deletedRole(@RequestBody DefaultRolePermission rolePermission) {
-
+    public AjaxResult deletedRole(@RequestBody JSONObject jsonObject) {
+        IBaseRolePermission bean = SpringUtils.getBean(IBaseRolePermission.class);
+        IBaseRolePermission rolePermission = jsonObject.toJavaObject(bean.getClass());
         rolePermissionService.deletedRolePermission(rolePermission);
         return AjaxResult.success();
     }
@@ -62,7 +68,7 @@ public class RBACRolePermissionController implements IRolePermissionController {
      * @param roleId 角色Id
      * @return 角色权限列表
      */
-    @HasRole
+    @HasRoleAnnotation
     @GetMapping("/query/{roleId}")
     public AjaxResult queryRolePermission(@PathVariable Long roleId){
         List<String> permissionList = rolePermissionService.queryPermissionNameListByRoleId(roleId);

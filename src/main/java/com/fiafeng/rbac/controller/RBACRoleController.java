@@ -3,8 +3,8 @@ package com.fiafeng.rbac.controller;
 import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.utils.SpringUtils;
-import com.fiafeng.rbac.annotation.HasPermission;
-import com.fiafeng.rbac.annotation.HasRole;
+import com.fiafeng.rbac.annotation.HasPermissionAnnotation;
+import com.fiafeng.rbac.annotation.HasRoleAnnotation;
 import com.fiafeng.rbac.controller.Interface.IRoleController;
 import com.fiafeng.common.pojo.AjaxResult;
 import com.fiafeng.common.pojo.Interface.IBaseRole;
@@ -36,7 +36,7 @@ public class RBACRoleController implements IRoleController {
         return AjaxResult.success();
     }
 
-    @HasPermission("role:deleted")
+    @HasPermissionAnnotation("rbac:role:deleted")
     @DeleteMapping("/deleted/{roleId}")
     public AjaxResult deletedRole(@PathVariable Long roleId){
         // 如果还有角色拥有这个权限，则不允许删除
@@ -52,7 +52,7 @@ public class RBACRoleController implements IRoleController {
         return AjaxResult.success();
     }
 
-    @HasRole
+    @HasRoleAnnotation
     @GetMapping("/queryList")
     public AjaxResult queryRoleMap(){
         List<IBaseRole> roleList = roleService.queryRoleListAll();

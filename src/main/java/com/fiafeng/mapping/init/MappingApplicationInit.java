@@ -10,15 +10,8 @@ import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.mapper.IMappingMapper;
 import com.fiafeng.common.pojo.FiafengStaticBean;
 import com.fiafeng.common.pojo.Interface.IBaseMapping;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.condition.PathPatternsRequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
@@ -30,34 +23,23 @@ import java.util.*;
 public class MappingApplicationInit implements ApplicationInit {
 
     @Autowired
-    ApplicationContext applicationContext;
-
-    @Autowired
     RequestMappingBean requestMappingBean;
 
-    // 如果没有自动配置 DispatcherServlet，则不会注入该 bean
-    private RequestMappingHandlerMapping requestMappingHandlerMapping;
-
     static {
-        ObjectClassUtils.addClass(IMappingMapper.class);
+        ObjectClassUtils.addRemoveBeanDefinitionByClass(IMappingMapper.class);
     }
 
     @Override
     public void init() {
         ObjectClassUtils.refreshBaseMysqlMapperType(IMappingMapper.class, IBaseMapping.class);
 
-        requestMappingHandlerMapping = SpringUtils.getBean(RequestMappingHandlerMapping.class);
-
         mappingSetting();
     }
-
-
-    IMappingMapper mappingMapper = null;
 
     private void mappingSetting() {
         // 获取系统内部所有的映射添加到bean里面
 
-        mappingMapper = SpringUtils.getBean(IMappingMapper.class);
+        IMappingMapper mappingMapper = SpringUtils.getBean(IMappingMapper.class);
 
         // 获取数据库内所有连接
         List<IBaseMapping> baseMappingList = mappingMapper.selectMappingListAll();
@@ -72,7 +54,7 @@ public class MappingApplicationInit implements ApplicationInit {
 
         List<String> notExistent = new ArrayList<>(); // 数据库中不存在的url
         List<String> existentUrl = new ArrayList<>(); // 数据库中使用过的url
-
+        RequestMappingHandlerMapping requestMappingHandlerMapping = SpringUtils.getBean(RequestMappingHandlerMapping.class);
         for (Map.Entry<RequestMappingInfo, HandlerMethod> entry : requestMappingHandlerMapping.getHandlerMethods().entrySet()) {
             RequestMappingInfo requestMappingInfo = entry.getKey();
             HandlerMethod handlerMethod = entry.getValue();
@@ -100,9 +82,6 @@ public class MappingApplicationInit implements ApplicationInit {
                     } else {
                         notExistent.add(url);
                     }
-                    if (requestMappingBean == null) {
-                        requestMappingBean = SpringUtils.getBean(RequestMappingBean.class);
-                    }
 
                     requestMappingBean.getBaseMappingList().add(baseVO);
 
@@ -119,7 +98,13 @@ public class MappingApplicationInit implements ApplicationInit {
         }
         // 将url不存在数据库的添加到数据库
         if (!notExistent.isEmpty()) {
-            insertMappingList(notExistent);
+            List<IBaseMapping> mappingList = new ArrayList<>();
+            for (String url : notExistent) {
+                IBaseMapping baseMapping = SpringUtils.getBean(IBaseMapping.class);
+                baseMapping.setUrl(url);
+                mappingList.add(baseMapping);
+            }
+            mappingMapper.insertMappingList(mappingList);
         }
 
 
@@ -152,31 +137,5 @@ public class MappingApplicationInit implements ApplicationInit {
             }
 
         }
-
-
     }
-
-    private IBaseMapping getMapping(String url) {
-        IBaseMapping object;
-        try {
-            object = SpringUtils.getBean(IBaseMapping.class);
-            object.setUrl(url);
-
-        } catch (Exception e) {
-            throw new ServiceException("创建mapping映射实体类时出现意外的异常：" + e.getMessage());
-        }
-        return object;
-    }
-
-    public void insertMappingList(List<String> urlList) {
-        List<IBaseMapping> baseMappingList = new ArrayList<>();
-        for (String url : urlList) {
-            baseMappingList.add(getMapping(url));
-        }
-        mappingMapper.insertMappingList(baseMappingList);
-
-
-    }
-
-
 }

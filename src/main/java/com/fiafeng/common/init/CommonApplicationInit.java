@@ -11,8 +11,9 @@ import com.fiafeng.common.utils.ClassUtils;
 import com.fiafeng.common.utils.ObjectClassUtils;
 import com.fiafeng.common.utils.SpringUtils;
 import com.fiafeng.mysql.mapper.BaseMysqlMapper;
+import com.fiafeng.rbac.properties.FiafengRbacProperties;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -25,10 +26,8 @@ import org.springframework.core.env.Environment;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-public class CommonApplicationInit implements ApplicationListener<ContextRefreshedEvent>, BeanDefinitionRegistryPostProcessor, BeanPostProcessor, Ordered {
+public class CommonApplicationInit extends ApplicationProcessor implements ApplicationListener<ContextRefreshedEvent>, Ordered {
 
-
-    BeanDefinitionRegistry registry;
 
     static {
         FiafengStaticEnvironment.security = ClassUtils.classIsExistsOR("org.springframework.security.config.annotation.web.configuration.AutowiredWebSecurityConfigurersIgnoreParents");
@@ -37,27 +36,28 @@ public class CommonApplicationInit implements ApplicationListener<ContextRefresh
         FiafengStaticEnvironment.captcha = ClassUtils.classIsExistsOR("com.google.code.kaptcha.Producer");
         FiafengStaticEnvironment.redis = ClassUtils.classIsExistsOR("org.springframework.data.redis.core.RedisTemplate");
 
-        ObjectClassUtils.addClass(IBaseMapping.class);
-        ObjectClassUtils.addClass(IBaseRole.class);
-        ObjectClassUtils.addClass(IBaseRolePermission.class);
-        ObjectClassUtils.addClass(IBaseUser.class);
-        ObjectClassUtils.addClass(IBaseUserRole.class);
-        ObjectClassUtils.addClass(IPermissionMapper.class);
-        ObjectClassUtils.addClass(IRoleMapper.class);
-        ObjectClassUtils.addClass(IRolePermissionMapper.class);
-        ObjectClassUtils.addClass(IUserMapper.class);
-        ObjectClassUtils.addClass(IUserRoleMapper.class);
-        ObjectClassUtils.addClass(IPermissionService.class);
-        ObjectClassUtils.addClass(IUserRoleService.class);
-        ObjectClassUtils.addClass(IUserService.class);
-        ObjectClassUtils.addClass(IUserTableInitService.class);
-        ObjectClassUtils.addClass(ITokenService.class);
-        ObjectClassUtils.addClass(ILoginService.class);
-        ObjectClassUtils.addClass(ICacheService.class);
-        ObjectClassUtils.addClass(IJwtAuthenticationTokenFilter.class);
-        ObjectClassUtils.addClass(ILoginController.class);
+        ObjectClassUtils.addRemoveBeanDefinitionByClass(IBaseMapping.class);
+        ObjectClassUtils.addRemoveBeanDefinitionByClass(IBaseRole.class);
+        ObjectClassUtils.addRemoveBeanDefinitionByClass(IBaseRolePermission.class);
+        ObjectClassUtils.addRemoveBeanDefinitionByClass(IBaseUser.class);
+        ObjectClassUtils.addRemoveBeanDefinitionByClass(IBaseUserRole.class);
+        ObjectClassUtils.addRemoveBeanDefinitionByClass(IPermissionMapper.class);
+        ObjectClassUtils.addRemoveBeanDefinitionByClass(IRoleMapper.class);
+        ObjectClassUtils.addRemoveBeanDefinitionByClass(IRolePermissionMapper.class);
+        ObjectClassUtils.addRemoveBeanDefinitionByClass(IUserMapper.class);
+        ObjectClassUtils.addRemoveBeanDefinitionByClass(IUserRoleMapper.class);
+        ObjectClassUtils.addRemoveBeanDefinitionByClass(IPermissionService.class);
+        ObjectClassUtils.addRemoveBeanDefinitionByClass(IUserRoleService.class);
+        ObjectClassUtils.addRemoveBeanDefinitionByClass(IUserService.class);
+        ObjectClassUtils.addRemoveBeanDefinitionByClass(IUserTableInitService.class);
+        ObjectClassUtils.addRemoveBeanDefinitionByClass(ITokenService.class);
+        ObjectClassUtils.addRemoveBeanDefinitionByClass(ILoginService.class);
+        ObjectClassUtils.addRemoveBeanDefinitionByClass(ICacheService.class);
+        ObjectClassUtils.addRemoveBeanDefinitionByClass(IJwtAuthenticationTokenFilter.class);
+        ObjectClassUtils.addRemoveBeanDefinitionByClass(ILoginController.class);
 
     }
+
 
     @Override
     public int getOrder() {
@@ -65,8 +65,6 @@ public class CommonApplicationInit implements ApplicationListener<ContextRefresh
     }
 
 
-    @Value("${spring.datasource.url:jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8}")
-    String url;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -76,11 +74,8 @@ public class CommonApplicationInit implements ApplicationListener<ContextRefresh
         }
 
         if (ObjectClassUtils.url == null) {
-            ObjectClassUtils.url = url;
-            if (ObjectClassUtils.url == null) {
-                Environment environment = event.getApplicationContext().getEnvironment();
-                ObjectClassUtils.url = environment.getProperty("spring.datasource.url");
-            }
+            Environment environment = event.getApplicationContext().getEnvironment();
+            ObjectClassUtils.url = environment.getProperty("spring.datasource.url");
         }
 
         // 如果加载了默认提供的mysql的RBAC的Service时，从系统获取默认基础类型加载到
@@ -127,21 +122,8 @@ public class CommonApplicationInit implements ApplicationListener<ContextRefresh
         }
     }
 
-    // 移除多余的实现类
-    @Override
-    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-        ObjectClassUtils.beanFactory = beanFactory;
-
-        ObjectClassUtils.removeBeanDefinitions();
-
-    }
-
-
-    @Override
-    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-        ObjectClassUtils.registry = registry;
-        this.registry = registry;
-    }
+    @Autowired
+    FiafengRbacProperties rbacProperties;
 
     /**
      * 初始化mysql数据库，用户，角色，权限。默认添加管理员和管理员角色和管理员权限
@@ -150,7 +132,10 @@ public class CommonApplicationInit implements ApplicationListener<ContextRefresh
 
         // 检查用户表
         try {
-            SpringUtils.getBean(IUserTableInitService.class).init();
+            IUserTableInitService userTableInitService = SpringUtils.getBean(IUserTableInitService.class);
+            userTableInitService.init();
+
+            System.out.println();
         } catch (Exception ignored) {
         }
 
@@ -160,7 +145,7 @@ public class CommonApplicationInit implements ApplicationListener<ContextRefresh
             if (baseMysqlMapper.selectObjectByObjectId(1L) == null) {
                 IBaseRole baseRole = SpringUtils.getBean(IBaseRole.class);
                 baseRole.setId(1L);
-                baseRole.setName("admin");
+                baseRole.setName(rbacProperties.roleAdminName);
                 baseMysqlMapper.insertObject(baseRole, false);
             }
         }
@@ -171,7 +156,7 @@ public class CommonApplicationInit implements ApplicationListener<ContextRefresh
             if (baseMysqlMapper.selectObjectByObjectId(1L) == null) {
                 IBasePermission baseRole = SpringUtils.getBean(IBasePermission.class);
                 baseRole.setId(1L);
-                baseRole.setName("admin");
+                baseRole.setName(rbacProperties.permissionAdminName);
                 baseMysqlMapper.insertObject(baseRole, false);
 
             }

@@ -1,12 +1,16 @@
 package com.fiafeng.rbac.mapper;
 
 
+import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.mapper.IUserRoleMapper;
 import com.fiafeng.common.pojo.Interface.IBaseUserRole;
-import com.fiafeng.rbac.pojo.DefaultUserRole;
+import com.fiafeng.common.utils.SpringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -14,17 +18,19 @@ import java.util.concurrent.atomic.AtomicLong;
 @BeanDefinitionOrderAnnotation()
 public class DefaultUserRoleMapper implements IUserRoleMapper {
 
-    ConcurrentHashMap<Long, HashMap<Long, Long>> userRoleMap;
+    ConcurrentHashMap<Long, IBaseUserRole> userRoleMap;
 
 
     AtomicLong atomicLong = new AtomicLong(1);
 
-    public ConcurrentHashMap<Long, HashMap<Long, Long>> getUserRoleMap() {
+    public ConcurrentHashMap<Long,IBaseUserRole> getUserRoleMap() {
         if (userRoleMap == null) {
             userRoleMap = new ConcurrentHashMap<>();
-            HashMap<Long,Long> userHashMap = new HashMap<>();
-            userHashMap.put(1L, 1L);
-            userRoleMap.put(1L, userHashMap);
+            IBaseUserRole userRole = SpringUtils.getBean(IBaseUserRole.class);
+            userRole.setId(1L);
+            userRole.setRoleId(1L);
+            userRole.setUserId(1L);
+            userRoleMap.put(1L, userRole);
         }
         return userRoleMap;
     }
@@ -32,62 +38,80 @@ public class DefaultUserRoleMapper implements IUserRoleMapper {
 
     /**
      * @param userRole 用户角色关系
-     * @param <T> 用户角色接口
+     * @param <T>      用户角色接口
      * @return 用户角色关系
      */
     @Override
     public <T extends IBaseUserRole> boolean insertUserRole(T userRole) {
-        if (getUserRoleMap().containsKey(userRole.getUserId())) {
-            getUserRoleMap().get(userRole.getUserId()).put(userRole.getRoleId(),atomicLong.getAndIncrement());
-        } else {
-            HashMap<Long, Long> roleHashset = new HashMap<>();
-            roleHashset.put(userRole.getRoleId(), atomicLong.getAndIncrement());
-            getUserRoleMap().put(userRole.getUserId(), roleHashset);
+        for (IBaseUserRole iBaseUserRole : getUserRoleMap().values()) {
+            if (Objects.equals(iBaseUserRole.getUserId(), userRole.getUserId()) && Objects.equals(iBaseUserRole.getRoleId(), userRole.getRoleId())){
+                throw new ServiceException("新增角色用户时候，当前用户已经拥有当前当前橘色");
+            }
         }
+
+        long andIncrement = atomicLong.getAndIncrement();
+        userRole.setId(andIncrement);
+        getUserRoleMap().put(andIncrement, userRole);
         return true;
     }
 
     /**
-     * @param userId 用户Id
+     * @param userId     用户Id
      * @param roleIdList 用户角色列表
      * @return 用户角色列表
      */
     @Override
     public boolean updateUserRoleList(Long userId, List<Long> roleIdList) {
+        List<Long> longList = new ArrayList<>();
+        for (IBaseUserRole iBaseRolePermission : getUserRoleMap().values()) {
+            if (Objects.equals(iBaseRolePermission.getUserId(), userId)) {
+                longList.add(iBaseRolePermission.getId());
+            }
+        }
+        for (Long id : longList) {
+            getUserRoleMap().remove(id);
+        }
+        for (Long roleId : roleIdList) {
+            IBaseUserRole userRole = SpringUtils.getBean(IBaseUserRole.class);
+            userRole.setUserId(userId).setRoleId(roleId);
+            insertUserRole(userRole);
+
+        }
+
+
         return false;
     }
 
     /**
      * @param userRole 用户角色关系
-     * @param <T> 用户角色接口
+     * @param <T>      用户角色接口
      * @return s
      */
     @Override
     public <T extends IBaseUserRole> boolean deleteUserRole(T userRole) {
-        if (getUserRoleMap().containsKey(userRole.getUserId())) {
-            if (getUserRoleMap().get(userRole.getUserId()).containsKey(userRole.getRoleId())){
-                return getUserRoleMap().get(userRole.getUserId()).remove(userRole.getRoleId()) == null;
-            }
-
+        if (userRole.getId() != null){
+            deleteUserRoleById(userRole.getId());
         }
+        if (userRole.getUserId() == null ||userRole.getRoleId() == null){
+            throw new ServiceException("准备删除用户角色关系时，参数缺少");
+        }
+
+
+        for (IBaseUserRole iBaseRolePermission : getUserRoleMap().values()) {
+            if (Objects.equals(iBaseRolePermission.getRoleId(), userRole.getRoleId())
+                    && Objects.equals(iBaseRolePermission.getUserId(), userRole.getUserId())) {
+                getUserRoleMap().remove(iBaseRolePermission.getId());
+                return true;
+            }
+        }
+
+
         return false;
     }
 
     @Override
     public boolean deleteUserRoleById(Long id) {
-        for (Long userId : getUserRoleMap().keySet()) {
-            HashMap<Long, Long> role = getUserRoleMap().get(userId);
-            HashSet<Long>  hashSet = new HashSet<>(role.values());
-            if (hashSet.contains(id)){
-                for (Long roleId : role.keySet()) {
-                    if (Objects.equals(role.get(roleId), id)){
-                        return Objects.equals(role.remove(roleId), roleId);
-
-                    }
-                }
-            }
-        }
-
+        getUserRoleMap().remove(id);
         return false;
     }
 
@@ -97,57 +121,46 @@ public class DefaultUserRoleMapper implements IUserRoleMapper {
      */
     @Override
     public List<Long> selectRoleIdListByUserId(Long userId) {
-        if (getUserRoleMap().containsKey(userId)){
-            return new ArrayList<>(getUserRoleMap().get(userId).keySet());
+        List<Long> longList = new ArrayList<>();
+        for (IBaseUserRole userRole : getUserRoleMap().values()) {
+            if (Objects.equals(userRole.getUserId(), userId)) {
+                longList.add(userRole.getId());
+            }
         }
-
-        return null;
+        return longList;
     }
 
     @Override
-    public <T extends IBaseUserRole> List<T> selectRoleListByUserIdRoleId(Long userId) {
-        List<IBaseUserRole> rolePermissionList = new ArrayList<>();
-        if (getUserRoleMap().containsKey(userId)){
-            HashMap<Long, Long> longLongHashMap = getUserRoleMap().get(userId);
-            for (Long roleId : longLongHashMap.keySet()) {
-                rolePermissionList.add(
-                        new DefaultUserRole()
-                                .setUserId(userId)
-                                .setRoleId(roleId)
-                                .setId(longLongHashMap.get(roleId))
-                );
+    public <T extends IBaseUserRole> List<T> selectRoleListByUserRole(Long userId) {
+        List<IBaseUserRole> userRoleList = new ArrayList<>();
+        for (IBaseUserRole userRole : getUserRoleMap().values()) {
+            if (Objects.equals(userRole.getUserId(), userId)) {
+                userRoleList.add(JSONObject.from(userRole).toJavaObject(IBaseUserRole.class));
             }
         }
 
-        return (List<T>) rolePermissionList;
+        return (List<T>) userRoleList;
 
     }
 
     @Override
     public <T extends IBaseUserRole> List<T> selectRoleListByRoleId(Long roleId) {
         List<IBaseUserRole> userRoleList = new ArrayList<>();
-        for (Long userId : getUserRoleMap().keySet()) {
-            HashMap<Long, Long> role = getUserRoleMap().get(userId);
-            if (role.containsKey(roleId)) {
-                DefaultUserRole defaultUserRole = new DefaultUserRole()
-                        .setRoleId(roleId)
-                        .setId(role.get(roleId))
-                        .setUserId(userId);
-                userRoleList.add(defaultUserRole);
+        for (IBaseUserRole userRole : getUserRoleMap().values()) {
+            if (Objects.equals(userRole.getRoleId(), roleId)) {
+                userRoleList.add(JSONObject.from(userRole).toJavaObject(IBaseUserRole.class));
             }
         }
+
         return (List<T>) userRoleList;
     }
 
     @Override
-    public <T extends IBaseUserRole> T selectRoleListByUserIdRoleId(T userRole) {
-        if (getUserRoleMap().containsKey(userRole.getUserId())) {
-            HashMap<Long, Long> hashMap = getUserRoleMap().get(userRole.getUserId());
-            if (hashMap.containsKey(userRole.getRoleId())) {
-                return (T) new DefaultUserRole()
-                        .setUserId(userRole.getUserId())
-                        .setRoleId(userRole.getRoleId())
-                        .setId(hashMap.get(userRole.getRoleId()));
+    public <T extends IBaseUserRole> T selectRoleListByUserRole(T userRole) {
+        for (IBaseUserRole iBaseRolePermission : getUserRoleMap().values()) {
+            if (Objects.equals(iBaseRolePermission.getRoleId(), userRole.getRoleId())
+                    && Objects.equals(iBaseRolePermission.getUserId(), userRole.getUserId())) {
+                return (T) JSONObject.from(iBaseRolePermission).toJavaObject(IBaseUserRole.class);
             }
         }
         return null;
@@ -155,22 +168,8 @@ public class DefaultUserRoleMapper implements IUserRoleMapper {
 
     @Override
     public <T extends IBaseUserRole> T selectRoleListById(Long id) {
-        for (Long userId : getUserRoleMap().keySet()) {
-            HashMap<Long, Long> role = getUserRoleMap().get(userId);
-            HashSet<Long>  hashSet = new HashSet<>(role.values());
-            if (hashSet.contains(id)){
-                for (Long roleId : role.keySet()) {
-                    if (Objects.equals(role.get(roleId), id)){
-                        DefaultUserRole defaultUserRole = new DefaultUserRole()
-                                .setRoleId(roleId)
-                                .setId(id)
-                                .setUserId(userId);
-
-                        return (T) defaultUserRole;
-
-                    }
-                }
-            }
+        if (getUserRoleMap().containsKey(id)){
+            return (T) JSONObject.from(getUserRoleMap().get(id)).toJavaObject(IBaseUserRole.class);
         }
         return null;
     }

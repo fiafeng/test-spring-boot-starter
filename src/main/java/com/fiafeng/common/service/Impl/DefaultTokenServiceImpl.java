@@ -4,9 +4,9 @@ import com.alibaba.fastjson2.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.properties.FiafengTokenProperties;
 import com.fiafeng.common.service.ICacheService;
 import com.fiafeng.common.constant.CacheConstants;
-import com.fiafeng.common.constant.Constants;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.pojo.Interface.IBaseUserInfo;
 import com.fiafeng.common.service.ITokenService;
@@ -18,7 +18,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -26,20 +25,9 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-@BeanDefinitionOrderAnnotation(0)
+@BeanDefinitionOrderAnnotation()
 public class DefaultTokenServiceImpl implements ITokenService {
 
-
-    @Value("${fiafeng.token.secret:abcdefghijklmnopqrstuvwxyz}")
-    private String secret;
-
-    // 令牌有效期（默认60分钟）
-    @Value("${fiafeng.token.expireTime:60}")
-    private Long expireTime;
-
-    // 令牌自定义标识
-    @Value("${fiafeng.token.header:Authorization}")
-    private String header;
 
     protected static final long MILLIS_SECOND = 1000;
 
@@ -51,6 +39,11 @@ public class DefaultTokenServiceImpl implements ITokenService {
     public ICacheService cacheService;
 
 
+    @Autowired
+    FiafengTokenProperties tokenProperties;
+
+
+
     /**
      * 获取请求token
      *
@@ -58,9 +51,9 @@ public class DefaultTokenServiceImpl implements ITokenService {
      * @return token
      */
     private String getToken(HttpServletRequest request) {
-        String token = request.getHeader(header);
-        if (StringUtils.strNotEmpty(token) && token.startsWith(Constants.TOKEN_PREFIX)) {
-            token = token.replace(Constants.TOKEN_PREFIX, "");
+        String token = request.getHeader(tokenProperties.header);
+        if (StringUtils.strNotEmpty(token) && token.startsWith(tokenProperties.token_prefix)) {
+            token = token.replace(tokenProperties.token_prefix, "");
         }
         return token;
     }
@@ -74,7 +67,7 @@ public class DefaultTokenServiceImpl implements ITokenService {
      */
     private Claims parseToken(String token) {
         return Jwts.parser()
-                .setSigningKey(secret)
+                .setSigningKey(tokenProperties.secret)
                 .parseClaimsJws(token)
                 .getBody();
     }
@@ -92,7 +85,7 @@ public class DefaultTokenServiceImpl implements ITokenService {
             try {
                 Claims claims = parseToken(token);
                 // 解析对应的权限以及用户信息
-                String uuid = (String) claims.get(Constants.Token_LOGIN_USER_KEY);
+                String uuid = (String) claims.get(CacheConstants.TOKEN_LOGIN_USER_KEY);
                 String userKey = getTokenKey(uuid);
                 JSONObject jsonObject = cacheService.getCacheObject(userKey);
                 IBaseUserInfo defaultSecurityLoginUserInfo = JSONObject.parseObject(jsonObject.toJSONString(), IBaseUserInfo.class);
@@ -119,7 +112,7 @@ public class DefaultTokenServiceImpl implements ITokenService {
     private String createToken(Map<String, Object> claims) {
         String token = Jwts.builder()
                 .setClaims(claims)
-                .signWith(SignatureAlgorithm.HS512, secret).compact();
+                .signWith(SignatureAlgorithm.HS512, tokenProperties.secret).compact();
         return token;
     }
 
@@ -132,12 +125,15 @@ public class DefaultTokenServiceImpl implements ITokenService {
     @Override
     public String createToken(IBaseUserInfo userInfo) {
 
-        String uuid = IdUtils.fastUUID();
+        String uuid = cacheService.getCacheObject(CacheConstants.USERNAME_UUID + userInfo.getUser().getUsername());
+        if (uuid == null){
+            uuid = IdUtils.fastUUID();
+        }
+
         userInfo.setUuid(uuid);
         refreshToken(userInfo);
-
         Map<String, Object> claims = new HashMap<>();
-        claims.put(Constants.Token_LOGIN_USER_KEY, uuid);
+        claims.put(CacheConstants.TOKEN_LOGIN_USER_KEY, uuid);
         return createToken(claims);
     }
 
@@ -154,14 +150,16 @@ public class DefaultTokenServiceImpl implements ITokenService {
     @Override
     public void refreshToken(IBaseUserInfo userInfo) {
         userInfo.setLoginTime(System.currentTimeMillis());
-        userInfo.setExpireTime(userInfo.getLoginTime() + expireTime * MILLIS_MINUTE);
+        userInfo.setExpireTime(userInfo.getLoginTime() + tokenProperties.expireTime * MILLIS_MINUTE);
+        String uuidKey = CacheConstants.USERNAME_UUID + userInfo.getUser().getUsername();
         // 根据uuid将loginUser缓存
         ObjectMapper objectMapper = new ObjectMapper();
         String userKey = getTokenKey(userInfo.getUuid());
         try {
             String jsonString = objectMapper.writeValueAsString(userInfo);
             JSONObject jsonObject = JSONObject.parse(jsonString);
-            cacheService.setCacheObject(userKey, jsonObject, expireTime, TimeUnit.MINUTES);
+            cacheService.setCacheObject(userKey, jsonObject, tokenProperties.expireTime, TimeUnit.MINUTES);
+            cacheService.setCacheObject(uuidKey, userInfo.getUuid(), tokenProperties.expireTime, TimeUnit.MINUTES);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

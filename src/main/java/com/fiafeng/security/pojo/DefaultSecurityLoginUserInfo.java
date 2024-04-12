@@ -2,15 +2,16 @@ package com.fiafeng.security.pojo;
 
 import com.alibaba.fastjson2.annotation.JSONField;
 import com.fiafeng.common.pojo.Interface.IBaseUser;
-import com.fiafeng.security.service.IUserDetails;
 import com.fiafeng.common.service.IUserRoleService;
+import com.fiafeng.common.utils.SpringUtils;
+import com.fiafeng.security.service.IUserDetails;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,10 +25,11 @@ import java.util.stream.Collectors;
 
 @Data
 @Accessors(chain = true)
-public class DefaultSecurityLoginUserInfo implements Serializable, IUserDetails{
+public class DefaultSecurityLoginUserInfo implements Serializable, IUserDetails {
 
-    @Autowired
-    IUserRoleService userRoleService;
+//    @Autowired
+//    @JSONField(serialize = false)
+//    IUserRoleService userRoleService;
 
 
     /**
@@ -71,7 +73,8 @@ public class DefaultSecurityLoginUserInfo implements Serializable, IUserDetails{
                     map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toList());
         else {
-            permissionList = userRoleService.queryUserPermissionNameListByUserId(user.getId());
+            permissionList = SpringUtils.getBean(IUserRoleService.class).queryUserPermissionNameListByUserId(user.getId());
+//            permissionList = new ArrayList<>();
             return permissionList.stream().
                     map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toList());
@@ -80,7 +83,6 @@ public class DefaultSecurityLoginUserInfo implements Serializable, IUserDetails{
 
     /**
      * 获取密码
-     *
      */
     @JSONField(serialize = false)
     @Override
@@ -90,7 +92,6 @@ public class DefaultSecurityLoginUserInfo implements Serializable, IUserDetails{
 
     /**
      * 获取用户名
-     *
      */
     @Override
     public String getUsername() {
@@ -107,7 +108,6 @@ public class DefaultSecurityLoginUserInfo implements Serializable, IUserDetails{
 
     /**
      * 指定用户是否解锁,锁定的用户无法进行身份验证
-     *
      */
     @JSONField(serialize = false)
     @Override
@@ -117,7 +117,6 @@ public class DefaultSecurityLoginUserInfo implements Serializable, IUserDetails{
 
     /**
      * 指示是否已过期的用户的凭据(密码),过期的凭据防止认证
-     *
      */
     @JSONField(serialize = false)
     @Override
@@ -127,7 +126,6 @@ public class DefaultSecurityLoginUserInfo implements Serializable, IUserDetails{
 
     /**
      * 是否可用 ,禁用的用户不能身份验证
-     *
      */
     @JSONField(serialize = false)
     @Override

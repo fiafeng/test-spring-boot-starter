@@ -35,7 +35,7 @@ public class DefaultPermissionsServiceImpl implements IPermissionService {
     ICacheService cacheService;
 
     @Autowired
-    public IPermissionMapper permissionMapper = null;
+    public IPermissionMapper permissionMapper;
 
     @Autowired
     public IRolePermissionMapper rolePermissionMapper;
@@ -46,9 +46,6 @@ public class DefaultPermissionsServiceImpl implements IPermissionService {
     @Autowired
     UpdateCacheServiceImpl updateCacheService;
 
-    // 令牌有效期（默认60分钟）
-    @Value("${fiafeng.token.expireTime:60}")
-    private Long expireTime;
 
 
     @Override

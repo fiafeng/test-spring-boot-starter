@@ -19,11 +19,11 @@ public interface IUserRoleMapper {
 
 
 
-    <T extends IBaseUserRole> List<T> selectRoleListByUserIdRoleId(Long userId);
+    <T extends IBaseUserRole> List<T> selectRoleListByUserRole(Long userId);
 
     <T extends IBaseUserRole> List<T> selectRoleListByRoleId(Long roleId);
 
-    <T extends IBaseUserRole> T selectRoleListByUserIdRoleId(T userRole);
+    <T extends IBaseUserRole> T selectRoleListByUserRole(T userRole);
 
 
     <T extends IBaseUserRole> T selectRoleListById(Long id);

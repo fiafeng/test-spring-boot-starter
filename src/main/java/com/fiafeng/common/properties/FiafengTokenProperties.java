@@ -10,20 +10,28 @@ public class FiafengTokenProperties {
     /**
      * 安全密钥加密字符串
      */
-    String secret = "abcdefghijklmnopqrstuvwxyz";
+    public String secret = "abcdefghijklmnopqrstuvwxyz";
+
+
+    /**
+     * token 值里面的前缀值
+     */
+    public String token_prefix = "Bearer ";
+
 
     /**
      * 前后端约定的token在headers里面的字段名称,默认Authorization
      */
-    String header = "Authorization";
+    public String header = "Authorization";
 
     /**
      * 登录成功后，token值在数据中的字段名称，默认token
      */
-    String token = "token";
+    public String token = "token";
+
 
     /**
      * token过期时间，单位:分钟.默认60分钟
      */
-    Long expireTime = 60L;
+    public Long expireTime = 60L;
 }

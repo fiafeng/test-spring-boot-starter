@@ -21,7 +21,7 @@ public class DefaultMysqlUserRoleMapper extends BaseMysqlMapper implements IUser
     @Override
     public boolean updateUserRoleList(Long userId, List<Long> roleIdList) {
         List<Long> queryUserIdList = new ArrayList<>();
-        List<IBaseUserRole> iBaseUserRoles = selectRoleListByUserIdRoleId(userId);
+        List<IBaseUserRole> iBaseUserRoles = selectRoleListByUserRole(userId);
         for (IBaseUserRole iBaseUserRole : iBaseUserRoles) {
             queryUserIdList.add(iBaseUserRole.getId());
         }
@@ -74,7 +74,7 @@ public class DefaultMysqlUserRoleMapper extends BaseMysqlMapper implements IUser
     public List<Long> selectRoleIdListByUserId(Long userId) {
 
         List<Long> permissionIdList = new ArrayList<>();
-        List<IBaseUserRole> objectList = selectRoleListByUserIdRoleId(userId);
+        List<IBaseUserRole> objectList = selectRoleListByUserRole(userId);
         for (IBaseUserRole iBaseUserRole : objectList) {
             permissionIdList.add(iBaseUserRole.getRoleId());
         }
@@ -83,7 +83,7 @@ public class DefaultMysqlUserRoleMapper extends BaseMysqlMapper implements IUser
     }
 
     @Override
-    public <T extends IBaseUserRole> List<T> selectRoleListByUserIdRoleId(Long userId) {
+    public <T extends IBaseUserRole> List<T> selectRoleListByUserRole(Long userId) {
         return selectObjectByKeyAndValueList(userIdName, userId);
     }
 
@@ -93,7 +93,7 @@ public class DefaultMysqlUserRoleMapper extends BaseMysqlMapper implements IUser
     }
 
     @Override
-    public <T extends IBaseUserRole> T selectRoleListByUserIdRoleId(T userRole) {
+    public <T extends IBaseUserRole> T selectRoleListByUserRole(T userRole) {
         return selectObjectByName1Name2AndValue1Value2(userIdName, roleIdName, userRole.getUserId(), userRole.getRoleId());
     }
 

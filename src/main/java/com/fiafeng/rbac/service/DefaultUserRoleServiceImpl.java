@@ -1,10 +1,10 @@
 package com.fiafeng.rbac.service;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.constant.CacheConstants;
 import com.fiafeng.common.mapper.*;
 import com.fiafeng.common.service.Impl.UpdateCacheServiceImpl;
 import com.fiafeng.common.utils.FiafengMessageUtils;
-import com.fiafeng.common.constant.CacheConstants;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.pojo.Interface.IBasePermission;
 import com.fiafeng.common.pojo.Interface.IBaseRole;
@@ -12,12 +12,10 @@ import com.fiafeng.common.pojo.Interface.IBaseUserRole;
 import com.fiafeng.common.service.ICacheService;
 import com.fiafeng.common.service.IUserRoleService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Fiafeng
@@ -29,10 +27,6 @@ public class DefaultUserRoleServiceImpl implements IUserRoleService{
 
     @Autowired
     ICacheService cacheService;
-
-    // 令牌有效期（默认60分钟）
-    @Value("${fiafeng.token.expireTime:60}")
-    private Long expireTime;
 
     @Autowired
     public IPermissionMapper permissionMapper;
@@ -64,14 +58,14 @@ public class DefaultUserRoleServiceImpl implements IUserRoleService{
             throw new ServiceException(FiafengMessageUtils.message("rbac.userRole.roleInfoNotExist"));
         }
 
-        if (userRoleMapper.selectRoleListByUserIdRoleId(userRole) != null){
+        if (userRoleMapper.selectRoleListByUserRole(userRole) != null){
 //            throw new ServiceException("当前用户已经拥有该角色了！");
             throw new ServiceException(FiafengMessageUtils.message("rbac.userRole.userHasCurrentRole"));
         }
 
         synchronized (this) {
             if (userRoleMapper.insertUserRole(userRole)) {
-                userRole = userRoleMapper.selectRoleListByUserIdRoleId(userRole);
+                userRole = userRoleMapper.selectRoleListByUserRole(userRole);
                 updateCacheService.updateCacheByUser(userRole.getUserId());
             }
         }
@@ -122,7 +116,7 @@ public class DefaultUserRoleServiceImpl implements IUserRoleService{
         }
         if (userRole.getId() == null){
 //            throw new ServiceException("删除Id不允许为空");
-            userRole = userRoleMapper.selectRoleListByUserIdRoleId(userRole);
+            userRole = userRoleMapper.selectRoleListByUserRole(userRole);
             if (userRole == null)
                 throw new ServiceException(FiafengMessageUtils.message("rbac.userRole.userNotExistCurrent"));
         }
@@ -148,26 +142,14 @@ public class DefaultUserRoleServiceImpl implements IUserRoleService{
     }
 
 
-    @Override
-    public <T extends IBaseRole> List<T> queryUserRoleListByUserId(Long userId) {
-        if (userMapper.selectUserByUserId(userId) == null) {
-//            throw new ServiceException("找不到用户信息");
-            throw new ServiceException(FiafengMessageUtils.message("rbac.userRole.userInfoNotExist"));
-        }
-        List<IBaseRole> roleList = new ArrayList<>();
-        for (Long roleId : userRoleMapper.selectRoleIdListByUserId(userId)) {
-            roleList.add(roleMapper.selectRoleByRoleId(roleId));
-        }
 
-        return (List<T>) roleList;
-    }
 
     @Override
     public <T extends IBaseRole> List<T> queryUserRoleListByRoleId(Long roleId) {
+
         List<IBaseRole> roleList = new ArrayList<>();
         for (IBaseUserRole iBaseUserRole : userRoleMapper.selectRoleListByRoleId(roleId)) {
-           roleList.add(roleMapper.selectRoleByRoleId(iBaseUserRole.getId()));
-
+            roleList.add(roleMapper.selectRoleByRoleId(iBaseUserRole.getId()));
         }
         return (List<T>) roleList;
     }
@@ -179,15 +161,17 @@ public class DefaultUserRoleServiceImpl implements IUserRoleService{
             throw new ServiceException(FiafengMessageUtils.message("rbac.userRole.userInfoNotExist"));
         }
         List<IBasePermission> permissionList = new ArrayList<>();
+
         HashSet<Long> permissionIdHashSet = new HashSet<>();
 
         for (Long roleId : userRoleMapper.selectRoleIdListByUserId(userId)) {
+
+
             permissionIdHashSet.addAll(rolePermissionMapper.selectPermissionIdListByRoleId(roleId));
         }
         for (Long permissionId : permissionIdHashSet) {
             permissionList.add(permissionMapper.selectPermissionByPermissionId(permissionId));
         }
-
         return (List<T>) permissionList;
     }
 
@@ -198,19 +182,24 @@ public class DefaultUserRoleServiceImpl implements IUserRoleService{
             throw new ServiceException(FiafengMessageUtils.message("rbac.userRole.userInfoNotExist"));
         }
         List<String> permissionNameList = new ArrayList<>();
-        HashSet<Long> permissionIdHashSet = new HashSet<>();
         List<Long> roleList = userRoleMapper.selectRoleIdListByUserId(userId);
         for (Long roleId : roleList) {
-            permissionIdHashSet.addAll(rolePermissionMapper.selectPermissionIdListByRoleId(roleId));
-        }
-        for (Long permissionId : permissionIdHashSet) {
-            IBasePermission defaultPermission = permissionMapper.selectPermissionByPermissionId(permissionId);
-            if (defaultPermission == null){
-                return new ArrayList<>();
+            String key = CacheConstants.ROLE_PERMISSION_PREFIX + roleId;
+            HashSet<String> permissionList =  cacheService.getCacheObject(key);
+
+            if (permissionList == null) {
+                permissionList = new HashSet<>();
+                for (Long permissionId : rolePermissionMapper.selectPermissionIdListByRoleId(roleId)) {
+                    IBasePermission defaultPermission = permissionMapper.selectPermissionByPermissionId(permissionId);
+                    if (defaultPermission == null) {
+                        return new ArrayList<>();
+                    }
+                    permissionList.add(defaultPermission.getName());
+                }
+                cacheService.setCacheObject(key, permissionList);
             }
-            permissionNameList.add(defaultPermission.getName());
+            permissionNameList.addAll(permissionList);
         }
-        // TODO 添加到缓存
 
         return permissionNameList;
     }
@@ -229,8 +218,20 @@ public class DefaultUserRoleServiceImpl implements IUserRoleService{
         for (Long roleId : roleIdList) {
             permissionNameList.add(roleMapper.selectRoleByRoleId(roleId).getName());
         }
-
-
         return permissionNameList;
+    }
+
+    @Override
+    public <T extends IBaseRole> List<T> queryUserRoleListByUserId(Long userId) {
+        if (userMapper.selectUserByUserId(userId) == null) {
+//            throw new ServiceException("找不到用户信息");
+            throw new ServiceException(FiafengMessageUtils.message("rbac.userRole.userInfoNotExist"));
+        }
+        List<IBaseRole> roleList = new ArrayList<>();
+        for (Long roleId : userRoleMapper.selectRoleIdListByUserId(userId)) {
+            roleList.addAll(queryUserRoleListByRoleId(roleId));
+        }
+
+        return (List<T>) roleList;
     }
 }

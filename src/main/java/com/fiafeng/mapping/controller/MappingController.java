@@ -3,10 +3,6 @@ package com.fiafeng.mapping.controller;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.common.annotation.conditional.ConditionalEnableProperty;
-import com.fiafeng.common.utils.SpringUtils;
-import com.fiafeng.mapping.pojo.DefaultMapping;
-import com.fiafeng.mapping.pojo.vo.RequestMappingBean;
-import com.fiafeng.mapping.pojo.vo.RequestMappingDataVO;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.mapper.IMappingMapper;
 import com.fiafeng.common.pojo.AjaxResult;
@@ -17,6 +13,9 @@ import com.fiafeng.common.pojo.Interface.IBaseRole;
 import com.fiafeng.common.service.ICacheService;
 import com.fiafeng.common.service.IPermissionService;
 import com.fiafeng.common.service.IRoleService;
+import com.fiafeng.common.utils.SpringUtils;
+import com.fiafeng.mapping.pojo.vo.RequestMappingBean;
+import com.fiafeng.mapping.pojo.vo.RequestMappingDataVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMapping;
@@ -119,7 +118,7 @@ public class MappingController {
         if (!mappingMapper.updateMapping(iBaseMapping)) {
             throw new ServiceException("添加角色限制失败");
         }
-        for (DefaultMapping mapping : requestMappingBean.getBaseMappingList()) {
+        for (IBaseMapping mapping : requestMappingBean.getBaseMappingList()) {
             if (mapping.getUrl().equals(iBaseMapping.getUrl()) && Objects.equals(mapping.getId(), iBaseMapping.getId())){
                 mapping.setRoleHashSet(iBaseMapping.getRoleHashSet());
             }
@@ -142,7 +141,7 @@ public class MappingController {
         if (!mappingMapper.updateMapping(iBaseMapping)) {
             throw new ServiceException("添加权限限制失败,请检查id参数");
         }
-        for (DefaultMapping mapping : requestMappingBean.getBaseMappingList()) {
+        for (IBaseMapping mapping : requestMappingBean.getBaseMappingList()) {
             if (mapping.getUrl().equals(iBaseMapping.getUrl()) && Objects.equals(mapping.getId(), iBaseMapping.getId())){
                 mapping.setPermissionHashSet(iBaseMapping.getRoleHashSet());
             }
@@ -183,8 +182,6 @@ public class MappingController {
 
         requestMappingHandlerMapping.unregisterMapping(dataVO.getRequestMappingInfo());
         FiafengStaticBean.searchTree.removeNode(url);
-
-
         return AjaxResult.success("删除映射成功");
     }
 

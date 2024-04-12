@@ -30,10 +30,12 @@ server:
   port: 7000
 fiafeng:
   captcha:
-    enable: true
+    enable: false
   mysql-table:
     user:
       table-name: sys_user
   mapping:
     enable: false
 
+  rbac:
+    permission-aop-enable: true

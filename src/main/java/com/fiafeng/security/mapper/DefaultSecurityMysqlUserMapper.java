@@ -64,16 +64,12 @@ public class DefaultSecurityMysqlUserMapper extends BaseMysqlMapper implements I
     @Override
     public <T extends IBaseUser> List<T> selectUserListAll() {
         List<IBaseUser> objectList = selectObjectListAll();
-        for (IBaseUser baseUser : objectList) {
-            baseUser.setPassword(bCryptPasswordEncoder.encode(baseUser.getPassword()));
-        }
         return (List<T>) objectList;
     }
 
     @Override
     public <T extends IBaseUser> T selectUserByUserName(String userName) {
         IBaseUser baseUser = selectObjectByObjectName(userName);
-        baseUser.setPassword(bCryptPasswordEncoder.encode(baseUser.getPassword()));
         return (T) baseUser;
     }
 
@@ -81,7 +77,6 @@ public class DefaultSecurityMysqlUserMapper extends BaseMysqlMapper implements I
     public <T extends IBaseUser> T selectUserByUserId(Long userId) {
 
         IBaseUser baseUser = selectObjectByObjectId(userId);
-        baseUser.setPassword(bCryptPasswordEncoder.encode(baseUser.getPassword()));
         return (T) baseUser;
     }
 }
