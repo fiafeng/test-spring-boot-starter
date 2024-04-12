@@ -109,7 +109,8 @@ public class ConditionalPropertyMatches implements Condition {
         if (key.startsWith("fiafeng.") && key.endsWith(".enable")) {
             String name = key.substring(8, key.length() - 7);
             if (iPropertiesHashMap.containsKey(name)) {
-                return iPropertiesHashMap.get(name).getEnable() == value;
+                boolean flag = iPropertiesHashMap.get(name).getEnable() == value;
+                return flag;
             } else {
                 throw new RuntimeException("请建立名字为Fiafeng" + name + "Properties的类，并且需要继承，并且将类放在properties包下IProperties接口");
             }

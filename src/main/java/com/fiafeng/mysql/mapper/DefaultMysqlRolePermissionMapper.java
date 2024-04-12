@@ -66,6 +66,8 @@ public class DefaultMysqlRolePermissionMapper extends BaseMysqlMapper implements
 
     @Override
     public List<Long> selectPermissionIdListByRoleId(Long roleId) {
+
+
         List<IBaseRolePermission> objectList = selectObjectByKeyAndValueList(roleIdName, roleId);
         List<Long> permissionIdList = new ArrayList<>();
         for (IBaseRolePermission iBaseRolePermission : objectList) {

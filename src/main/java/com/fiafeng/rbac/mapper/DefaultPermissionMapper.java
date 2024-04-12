@@ -30,7 +30,7 @@ public class DefaultPermissionMapper implements IPermissionMapper {
     public ConcurrentHashMap<Long, IBasePermission> getPermissionListMap() {
         if (permissionListMap == null) {
             permissionListMap = new ConcurrentHashMap<>();
-            permissionListMap.put(1L, SpringUtils.getBean(IBasePermission.class).setName(rbacProperties.permissionAdminName));
+            permissionListMap.put(1L, SpringUtils.getBean(IBasePermission.class).setName(rbacProperties.permissionAdminName).setId(1L));
         }
 
         return permissionListMap;

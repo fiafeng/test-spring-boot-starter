@@ -5,6 +5,8 @@ import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.mapper.IRoleMapper;
 import com.fiafeng.common.pojo.Interface.IBaseRole;
 import com.fiafeng.common.utils.SpringUtils;
+import com.fiafeng.rbac.properties.FiafengRbacProperties;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,10 +21,13 @@ public class DefaultRoleMapper implements IRoleMapper {
 
     AtomicLong atomicLong = new AtomicLong(2);
 
+    @Autowired
+    FiafengRbacProperties rbacProperties;
+
     public ConcurrentHashMap<Long, IBaseRole> getRoleMap() {
         if (roleMap == null) {
             roleMap = new ConcurrentHashMap<>();
-            roleMap.put(1L, SpringUtils.getBean(IBaseRole.class));
+            roleMap.put(1L, SpringUtils.getBean(IBaseRole.class).setName(rbacProperties.roleAdminName).setId(1L));
         }
 
         return roleMap;

@@ -4,6 +4,7 @@ package com.fiafeng.common.annotation;
 import com.fiafeng.blog.annotation.EnableFiafengBlogConfig;
 import com.fiafeng.captcha.config.CaptchaConfig;
 import com.fiafeng.common.config.CommonConfig;
+import com.fiafeng.common.config.DefaultConfig;
 import com.fiafeng.i18n.config.I18nConfig;
 import com.fiafeng.mapping.config.MappingConfig;
 import com.fiafeng.mybatis.config.MyBatisConfig;
@@ -11,7 +12,6 @@ import com.fiafeng.mysql.config.MysqlMapperConfig;
 import com.fiafeng.rbac.config.RbacConfig;
 import com.fiafeng.redis.config.RedisConfig;
 import com.fiafeng.security.config.SecurityConfig;
-import com.fiafeng.common.config.DefaultConfig;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Import;
 
