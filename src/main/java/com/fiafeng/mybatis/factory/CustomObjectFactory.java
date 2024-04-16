@@ -1,9 +1,12 @@
 package com.fiafeng.mybatis.factory;
 
-import com.fiafeng.common.utils.SpringUtils;
+import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.DynamicTableNameInnerInterceptor;
+import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import org.apache.ibatis.reflection.ReflectionException;
 import org.apache.ibatis.reflection.Reflector;
 import org.apache.ibatis.reflection.factory.DefaultObjectFactory;
+import org.springframework.context.annotation.Bean;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
@@ -12,6 +15,18 @@ import java.util.stream.Collectors;
 
 public class CustomObjectFactory extends DefaultObjectFactory {
 
+
+    @Bean
+    public MybatisPlusInterceptor mybatisPlusInterceptor() {
+        MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
+        DynamicTableNameInnerInterceptor dynamicTableNameInnerInterceptor = new DynamicTableNameInnerInterceptor();
+        dynamicTableNameInnerInterceptor.setTableNameHandler((sql, tableName) -> {
+            String newTable = "user1";
+            return newTable;
+        });
+        interceptor.addInnerInterceptor(dynamicTableNameInnerInterceptor);
+        return interceptor;
+    }
 
     @Override
     public <T> T create(Class<T> type) {
@@ -22,7 +37,7 @@ public class CustomObjectFactory extends DefaultObjectFactory {
     public <T> T create(Class<T> type, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
         try {
 
-            Class<?> classToCreate = (Class<?>) SpringUtils.getBean(type);
+            Class<?> classToCreate = (Class<?>) FiafengSpringUtils.getBean(type);
             return (T) instantiateClass(classToCreate, constructorArgTypes, constructorArgs);
         } catch (Exception e) {
            return super.create(type, constructorArgTypes, constructorArgs);

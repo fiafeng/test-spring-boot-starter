@@ -1,8 +1,12 @@
 package com.fiafeng.mapping.mapper;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.common.mapper.IMappingMapper;
-import com.fiafeng.common.pojo.Interface.IBaseMapping;
+import com.fiafeng.common.annotation.PojoAnnotation;
+import com.fiafeng.common.mapper.Interface.IMappingMapper;
+import com.fiafeng.mapping.pojo.Interface.IBaseMapping;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 @BeanDefinitionOrderAnnotation()
+@Component
 public class DefaultMappingMapper implements IMappingMapper {
 
     volatile ConcurrentHashMap<Long, IBaseMapping> mappingListMap;

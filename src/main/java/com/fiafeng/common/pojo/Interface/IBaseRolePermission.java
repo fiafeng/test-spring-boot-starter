@@ -1,11 +1,13 @@
 package com.fiafeng.common.pojo.Interface;
 
+import com.fiafeng.common.pojo.Interface.base.IBasePojo;
+
 /**
  * @author Fiafeng
  * @create 2023/12/08
  * @description
  */
-public interface IBaseRolePermission {
+public interface IBaseRolePermission extends IBasePojo {
 
     Long getId();
 

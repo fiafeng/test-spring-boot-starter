@@ -3,15 +3,16 @@ package com.fiafeng.mapping.interceptor;
 import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.common.constant.CacheConstants;
 import com.fiafeng.common.exception.ServiceException;
-import com.fiafeng.common.pojo.FiafengStaticBean;
-import com.fiafeng.common.pojo.Interface.IBaseMapping;
-import com.fiafeng.common.pojo.Interface.IBaseUserInfo;
+import com.fiafeng.common.pojo.Vo.FiafengStaticBean;
+import com.fiafeng.mapping.pojo.Interface.IBaseMapping;
+import com.fiafeng.common.pojo.Vo.IBaseUserInfo;
 import com.fiafeng.common.service.ICacheService;
 import com.fiafeng.common.service.ITokenService;
-import com.fiafeng.mapping.pojo.vo.RequestMappingBean;
+import com.fiafeng.mapping.pojo.RequestMappingBean;
 import com.fiafeng.mapping.properties.FiafengMappingProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,6 +21,7 @@ import java.util.List;
 
 
 @Slf4j
+@Component
 public class FiafengPermissionInterceptor implements HandlerInterceptor {
 
     @Autowired

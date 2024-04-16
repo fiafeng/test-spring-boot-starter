@@ -2,6 +2,7 @@ package com.fiafeng.common.service.Impl;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.service.ICacheService;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -14,7 +15,7 @@ import java.util.concurrent.TimeUnit;
  * @create 2023/12/06
  * @description
  */
-
+@Service
 @BeanDefinitionOrderAnnotation()
 public class DefaultCacheServiceImpl implements ICacheService {
 

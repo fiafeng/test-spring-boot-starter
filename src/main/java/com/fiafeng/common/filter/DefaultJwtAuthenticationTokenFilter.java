@@ -2,14 +2,14 @@ package com.fiafeng.common.filter;
 
 import com.alibaba.fastjson2.JSON;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.common.utils.ServletUtils;
-import com.fiafeng.common.constant.CacheConstants;
+import com.fiafeng.common.utils.mvc.ServletUtils;
 import com.fiafeng.common.exception.ServiceException;
-import com.fiafeng.common.pojo.AjaxResult;
-import com.fiafeng.common.pojo.Interface.IBaseUserInfo;
+import com.fiafeng.common.pojo.Dto.AjaxResult;
+import com.fiafeng.common.pojo.Vo.IBaseUserInfo;
 import com.fiafeng.common.service.ICacheService;
 import com.fiafeng.common.service.ITokenService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -17,8 +17,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.concurrent.TimeUnit;
 
 /**
  * token过滤器 验证token有效性
@@ -27,6 +25,7 @@ import java.util.concurrent.TimeUnit;
  */
 
 @BeanDefinitionOrderAnnotation(1)
+@Component
 public class DefaultJwtAuthenticationTokenFilter extends OncePerRequestFilter implements IJwtAuthenticationTokenFilter {
 
     @Autowired

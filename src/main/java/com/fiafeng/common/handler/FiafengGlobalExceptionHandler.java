@@ -1,15 +1,12 @@
 package com.fiafeng.common.handler;
 
-import com.fiafeng.common.utils.FiafengMessageUtils;
+import com.fiafeng.common.utils.spring.FiafengMessageUtils;
 import com.fiafeng.common.exception.ServiceException;
-import com.fiafeng.common.pojo.AjaxResult;
+import com.fiafeng.common.pojo.Dto.AjaxResult;
 import com.fiafeng.common.utils.ObjectUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * 全局异常处理器

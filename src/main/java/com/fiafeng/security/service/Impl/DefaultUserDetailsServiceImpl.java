@@ -1,7 +1,6 @@
 package com.fiafeng.security.service.Impl;
 
-import com.fiafeng.common.utils.SpringUtils;
-import com.fiafeng.security.pojo.DefaultSecurityLoginUserInfo;
+import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.pojo.Interface.IBaseUser;
 import com.fiafeng.common.service.IUserRoleService;
@@ -13,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 
@@ -22,6 +22,7 @@ import java.util.ArrayList;
  * @description
  */
 @Slf4j
+@Component
 public class DefaultUserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
@@ -43,7 +44,7 @@ public class DefaultUserDetailsServiceImpl implements UserDetailsService {
     }
 
     public UserDetails createLoginUser(IBaseUser user) {
-        IUserDetails userDetails = SpringUtils.getBean(IUserDetails.class);
+        IUserDetails userDetails = FiafengSpringUtils.getBean(IUserDetails.class);
         userDetails.setUser(user)
                 .setPermissionList(userRoleService.queryUserPermissionNameListByUserId(user.getId()))
                 .setRoleList(new ArrayList<>(userRoleService.queryUserRoleNameListByUserId(user.getId())));

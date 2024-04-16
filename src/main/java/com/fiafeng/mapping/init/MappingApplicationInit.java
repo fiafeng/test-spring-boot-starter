@@ -2,16 +2,14 @@ package com.fiafeng.mapping.init;
 
 import com.fiafeng.common.init.ApplicationInit;
 import com.fiafeng.common.utils.ObjectClassUtils;
-import com.fiafeng.common.utils.SpringUtils;
+import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import com.fiafeng.mapping.pojo.DefaultMapping;
-import com.fiafeng.mapping.pojo.vo.RequestMappingBean;
+import com.fiafeng.mapping.pojo.RequestMappingBean;
 import com.fiafeng.mapping.pojo.vo.RequestMappingDataVO;
-import com.fiafeng.common.exception.ServiceException;
-import com.fiafeng.common.mapper.IMappingMapper;
-import com.fiafeng.common.pojo.FiafengStaticBean;
-import com.fiafeng.common.pojo.Interface.IBaseMapping;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
+import com.fiafeng.common.mapper.Interface.IMappingMapper;
+import com.fiafeng.common.pojo.Vo.FiafengStaticBean;
+import com.fiafeng.mapping.pojo.Interface.IBaseMapping;
+import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.condition.PathPatternsRequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
@@ -20,13 +18,13 @@ import org.springframework.web.util.pattern.PathPattern;
 
 import java.util.*;
 
+@Component
 public class MappingApplicationInit implements ApplicationInit {
 
-    @Autowired
-    RequestMappingBean requestMappingBean;
 
     static {
         ObjectClassUtils.addRemoveBeanDefinitionByClass(IMappingMapper.class);
+
     }
 
     @Override
@@ -39,7 +37,9 @@ public class MappingApplicationInit implements ApplicationInit {
     private void mappingSetting() {
         // 获取系统内部所有的映射添加到bean里面
 
-        IMappingMapper mappingMapper = SpringUtils.getBean(IMappingMapper.class);
+        IMappingMapper mappingMapper = FiafengSpringUtils.getBean(IMappingMapper.class);
+
+        RequestMappingBean requestMappingBean = FiafengSpringUtils.getBean(RequestMappingBean.class);
 
         // 获取数据库内所有连接
         List<IBaseMapping> baseMappingList = mappingMapper.selectMappingListAll();
@@ -54,7 +54,7 @@ public class MappingApplicationInit implements ApplicationInit {
 
         List<String> notExistent = new ArrayList<>(); // 数据库中不存在的url
         List<String> existentUrl = new ArrayList<>(); // 数据库中使用过的url
-        RequestMappingHandlerMapping requestMappingHandlerMapping = SpringUtils.getBean(RequestMappingHandlerMapping.class);
+        RequestMappingHandlerMapping requestMappingHandlerMapping = FiafengSpringUtils.getBean(RequestMappingHandlerMapping.class);
         for (Map.Entry<RequestMappingInfo, HandlerMethod> entry : requestMappingHandlerMapping.getHandlerMethods().entrySet()) {
             RequestMappingInfo requestMappingInfo = entry.getKey();
             HandlerMethod handlerMethod = entry.getValue();
@@ -100,7 +100,7 @@ public class MappingApplicationInit implements ApplicationInit {
         if (!notExistent.isEmpty()) {
             List<IBaseMapping> mappingList = new ArrayList<>();
             for (String url : notExistent) {
-                IBaseMapping baseMapping = SpringUtils.getBean(IBaseMapping.class);
+                IBaseMapping baseMapping = FiafengSpringUtils.getBean(IBaseMapping.class);
                 baseMapping.setUrl(url);
                 mappingList.add(baseMapping);
             }
@@ -130,7 +130,7 @@ public class MappingApplicationInit implements ApplicationInit {
         }
 
         // 给所有没有id的值赋值
-        for (DefaultMapping baseVO : requestMappingBean.getBaseMappingList()) {
+        for (IBaseMapping baseVO : requestMappingBean.getBaseMappingList()) {
             if (baseVO.getId() == null) {
                 IBaseMapping iBaseMapping = mappingHashMap.get(baseVO.getUrl());
                 baseVO.setId(iBaseMapping.getId());

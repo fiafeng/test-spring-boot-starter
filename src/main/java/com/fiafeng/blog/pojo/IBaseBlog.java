@@ -1,8 +1,10 @@
 package com.fiafeng.blog.pojo;
 
+import com.fiafeng.common.pojo.Interface.base.IBasePojo;
+
 import java.sql.Date;
 
-public interface IBaseBlog {
+public interface IBaseBlog extends IBasePojo {
 
     Long getId();
 

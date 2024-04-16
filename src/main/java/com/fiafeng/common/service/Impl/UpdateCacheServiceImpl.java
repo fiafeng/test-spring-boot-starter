@@ -1,10 +1,10 @@
 package com.fiafeng.common.service.Impl;
 
 import com.fiafeng.common.constant.CacheConstants;
-import com.fiafeng.common.mapper.IPermissionMapper;
-import com.fiafeng.common.mapper.IRoleMapper;
-import com.fiafeng.common.mapper.IRolePermissionMapper;
-import com.fiafeng.common.mapper.IUserRoleMapper;
+import com.fiafeng.common.mapper.Interface.IPermissionMapper;
+import com.fiafeng.common.mapper.Interface.IRoleMapper;
+import com.fiafeng.common.mapper.Interface.IRolePermissionMapper;
+import com.fiafeng.common.mapper.Interface.IUserRoleMapper;
 import com.fiafeng.common.pojo.Interface.IBasePermission;
 import com.fiafeng.common.pojo.Interface.IBaseRole;
 import com.fiafeng.common.pojo.Interface.IBaseRolePermission;
@@ -12,11 +12,13 @@ import com.fiafeng.common.pojo.Interface.IBaseUserRole;
 import com.fiafeng.common.service.ICacheService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+@Service
 public class UpdateCacheServiceImpl {
 
     @Autowired

@@ -3,7 +3,7 @@ package com.fiafeng.blog.mapper;
 import com.fiafeng.blog.pojo.IBaseBlog;
 import com.fiafeng.blog.properties.FiafengMysqlBlogProperties;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.mysql.mapper.BaseMysqlMapper;
+import com.fiafeng.common.mapper.mysql.BaseMysqlMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;

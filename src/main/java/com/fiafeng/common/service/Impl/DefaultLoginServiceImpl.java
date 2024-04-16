@@ -1,23 +1,26 @@
 package com.fiafeng.common.service.Impl;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.common.pojo.Interface.IBaseUserInfo;
+import com.fiafeng.common.pojo.Vo.IBaseUserInfo;
 import com.fiafeng.common.service.ICacheService;
 import com.fiafeng.common.service.ITokenService;
 import com.fiafeng.common.service.IUserRoleService;
 import com.fiafeng.common.service.IUserService;
-import com.fiafeng.common.utils.SpringUtils;
+import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.pojo.Interface.IBaseUser;
 import com.fiafeng.common.service.ILoginService;
-import com.fiafeng.common.utils.FiafengMessageUtils;
+import com.fiafeng.common.utils.spring.FiafengMessageUtils;
 import com.fiafeng.common.utils.ObjectUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
 
+@Service
 @Slf4j
-
 @BeanDefinitionOrderAnnotation(1)
+@Primary
 public class DefaultLoginServiceImpl implements ILoginService {
 
     @Autowired
@@ -42,7 +45,7 @@ public class DefaultLoginServiceImpl implements ILoginService {
         if (!user.getPassword().equals(password)){
             throw new ServiceException(FiafengMessageUtils.message("user.password.not.match"));
         }
-        IBaseUserInfo iBaseUserInfo = SpringUtils.getBean(IBaseUserInfo.class);
+        IBaseUserInfo iBaseUserInfo = FiafengSpringUtils.getBean(IBaseUserInfo.class);
         iBaseUserInfo.setUser(user);
         iBaseUserInfo.setPermissionList(userRoleService.queryUserPermissionNameListByUserId(user.getId()));
         iBaseUserInfo.setRoleList(userRoleService.queryUserRoleNameListByUserId(user.getId()));

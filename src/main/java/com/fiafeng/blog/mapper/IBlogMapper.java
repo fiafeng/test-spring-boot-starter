@@ -1,10 +1,11 @@
 package com.fiafeng.blog.mapper;
 
 import com.fiafeng.blog.pojo.IBaseBlog;
+import com.fiafeng.common.mapper.Interface.IMapper;
 
 import java.util.List;
 
-public interface IBlogMapper {
+public interface IBlogMapper extends IMapper {
 
      boolean insertBlog(IBaseBlog baseBlog);
 

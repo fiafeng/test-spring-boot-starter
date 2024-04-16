@@ -1,6 +1,6 @@
 package com.fiafeng.security.service;
 
-import com.fiafeng.common.pojo.Interface.IBaseUserInfo;
+import com.fiafeng.common.pojo.Vo.IBaseUserInfo;
 import com.fiafeng.common.service.ITokenService;
 
 /**

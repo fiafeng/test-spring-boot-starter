@@ -4,17 +4,17 @@ package com.fiafeng.mapping.controller;
 import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.common.annotation.conditional.ConditionalEnableProperty;
 import com.fiafeng.common.exception.ServiceException;
-import com.fiafeng.common.mapper.IMappingMapper;
-import com.fiafeng.common.pojo.AjaxResult;
-import com.fiafeng.common.pojo.FiafengStaticBean;
-import com.fiafeng.common.pojo.Interface.IBaseMapping;
+import com.fiafeng.common.mapper.Interface.IMappingMapper;
+import com.fiafeng.common.pojo.Dto.AjaxResult;
+import com.fiafeng.common.pojo.Vo.FiafengStaticBean;
+import com.fiafeng.mapping.pojo.Interface.IBaseMapping;
 import com.fiafeng.common.pojo.Interface.IBasePermission;
 import com.fiafeng.common.pojo.Interface.IBaseRole;
 import com.fiafeng.common.service.ICacheService;
 import com.fiafeng.common.service.IPermissionService;
 import com.fiafeng.common.service.IRoleService;
-import com.fiafeng.common.utils.SpringUtils;
-import com.fiafeng.mapping.pojo.vo.RequestMappingBean;
+import com.fiafeng.common.utils.spring.FiafengSpringUtils;
+import com.fiafeng.mapping.pojo.RequestMappingBean;
 import com.fiafeng.mapping.pojo.vo.RequestMappingDataVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -51,7 +51,7 @@ public class MappingController {
 
     @PostMapping("/addPermission")
     public AjaxResult addMappingPermission(@RequestBody JSONObject jsonObject) {
-        IBaseMapping bean = SpringUtils.getBean(IBaseMapping.class);
+        IBaseMapping bean = FiafengSpringUtils.getBean(IBaseMapping.class);
         IBaseMapping defaultMapping = jsonObject.toJavaObject(bean.getClass());
         IBaseMapping iBaseMapping = checkPermissionList(defaultMapping);
         // 添加权限
@@ -93,7 +93,7 @@ public class MappingController {
     @PostMapping("/addRole")
     public AjaxResult addMappingRole(@RequestBody JSONObject jsonObject) {
 
-        IBaseMapping bean = SpringUtils.getBean(IBaseMapping.class);
+        IBaseMapping bean = FiafengSpringUtils.getBean(IBaseMapping.class);
         IBaseMapping defaultMapping = jsonObject.toJavaObject(bean.getClass());
 
         IBaseMapping iBaseMapping = checkRoleList(defaultMapping);
@@ -108,7 +108,7 @@ public class MappingController {
 
     @PostMapping("/deletedRole")
     public AjaxResult deletedRole(@RequestBody JSONObject jsonObject) {
-        IBaseMapping bean = SpringUtils.getBean(IBaseMapping.class);
+        IBaseMapping bean = FiafengSpringUtils.getBean(IBaseMapping.class);
         IBaseMapping defaultMapping = jsonObject.toJavaObject(bean.getClass());
 
         IBaseMapping iBaseMapping = checkRoleList(defaultMapping);
@@ -130,7 +130,7 @@ public class MappingController {
     @PostMapping("/deletedPermission")
     public AjaxResult deletedMappingPermission(@RequestBody JSONObject jsonObject) {
 
-        IBaseMapping bean = SpringUtils.getBean(IBaseMapping.class);
+        IBaseMapping bean = FiafengSpringUtils.getBean(IBaseMapping.class);
         IBaseMapping defaultMapping = jsonObject.toJavaObject(bean.getClass());
 
         IBaseMapping iBaseMapping = checkPermissionList(defaultMapping);

@@ -4,7 +4,7 @@ package com.fiafeng.captcha.aop;
 import com.fiafeng.captcha.properties.FiafengCaptchaProperties;
 import com.fiafeng.captcha.service.impl.CaptchaServiceImpl;
 import com.fiafeng.common.exception.ServiceException;
-import com.fiafeng.common.utils.HttpServletUtils;
+import com.fiafeng.common.utils.mvc.HttpServletUtils;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Autowired;

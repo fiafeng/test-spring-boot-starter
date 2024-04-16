@@ -1,14 +1,15 @@
 package com.fiafeng.security.handler;
 
 import com.alibaba.fastjson2.JSON;
-import com.fiafeng.common.pojo.AjaxResult;
-import com.fiafeng.common.pojo.Interface.IBaseUserInfo;
+import com.fiafeng.common.pojo.Dto.AjaxResult;
+import com.fiafeng.common.pojo.Vo.IBaseUserInfo;
 import com.fiafeng.common.service.ITokenService;
 import com.fiafeng.common.utils.ObjectUtils;
-import com.fiafeng.common.utils.ServletUtils;
+import com.fiafeng.common.utils.mvc.ServletUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -18,6 +19,8 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author ruoyi
  */
+
+@Component
 public class LogoutSuccessHandlerImpl implements LogoutSuccessHandler {
 
     @Autowired

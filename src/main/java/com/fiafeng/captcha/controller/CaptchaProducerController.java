@@ -4,7 +4,7 @@ package com.fiafeng.captcha.controller;
 import com.fiafeng.captcha.properties.FiafengCaptchaProperties;
 import com.fiafeng.captcha.service.impl.CaptchaServiceImpl;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.common.pojo.AjaxResult;
+import com.fiafeng.common.pojo.Dto.AjaxResult;
 import com.fiafeng.common.utils.IdUtils;
 import com.google.code.kaptcha.Producer;
 import org.springframework.beans.factory.annotation.Autowired;

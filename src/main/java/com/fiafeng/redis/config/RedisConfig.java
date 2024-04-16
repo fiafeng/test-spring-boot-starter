@@ -1,7 +1,6 @@
 package com.fiafeng.redis.config;
 
 import com.fiafeng.redis.properties.FiafengRedisProperties;
-import com.fiafeng.redis.service.RedisCacheServiceImpl;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -9,7 +8,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.ComponentScans;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -25,6 +25,9 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @ConditionalOnWebApplication
 @EnableConfigurationProperties({
         FiafengRedisProperties.class
+})
+@ComponentScans({
+        @ComponentScan("com.fiafeng.redis")
 })
 public class RedisConfig extends CachingConfigurerSupport {
 
@@ -48,9 +51,4 @@ public class RedisConfig extends CachingConfigurerSupport {
         return template;
     }
 
-    @Bean
-    @Primary
-    RedisCacheServiceImpl redisCacheService(){
-        return new RedisCacheServiceImpl();
-    }
 }

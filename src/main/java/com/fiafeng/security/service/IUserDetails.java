@@ -1,6 +1,6 @@
 package com.fiafeng.security.service;
 
-import com.fiafeng.common.pojo.Interface.IBaseUserInfo;
+import com.fiafeng.common.pojo.Vo.IBaseUserInfo;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serializable;

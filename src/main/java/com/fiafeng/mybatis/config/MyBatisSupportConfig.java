@@ -1,6 +1,8 @@
 package com.fiafeng.mybatis.config;
 
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
+import com.fiafeng.common.utils.spring.FiafengSpringUtils;
+import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,9 @@ import org.springframework.context.annotation.Bean;
 import com.fiafeng.mybatis.factory.CustomObjectFactory;
 
 import javax.sql.DataSource;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 
 // 在配置类中进行相关配置
@@ -18,16 +23,12 @@ import javax.sql.DataSource;
 public class MyBatisSupportConfig {
 
     @Autowired
-    DataSource dataSource;
-
-    @Autowired
     CustomObjectFactory customObjectFactory;
-
 
     @Bean(name = "sqlSessionFactory")
     @ConditionalOnClass(SqlSessionFactoryBean.class)
     @ConditionalOnMissingClass("com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean")
-    public SqlSessionFactory sqlSessionFactory() throws Exception {
+    public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
         SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
         sessionFactory.setDataSource(dataSource);
         SqlSessionFactory object = sessionFactory.getObject();
@@ -42,14 +43,18 @@ public class MyBatisSupportConfig {
 
     @Bean(name = "mybatisSqlSessionFactoryBean")
     @ConditionalOnClass({MybatisSqlSessionFactoryBean.class, SqlSessionFactoryBean.class})
-    public SqlSessionFactory MybatisPlusSqlSessionFactory() throws Exception {
+    public SqlSessionFactory MybatisPlusSqlSessionFactory(DataSource dataSource) throws Exception {
         Class.forName("com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean");
         MybatisSqlSessionFactoryBean mybatisSqlSessionFactoryBean = new MybatisSqlSessionFactoryBean();
         mybatisSqlSessionFactoryBean.setDataSource(dataSource);
+
+        Map<String, Interceptor> interceptorMap = FiafengSpringUtils.getBeanFactory().getBeansOfType(Interceptor.class);
+        List<Interceptor> values = new ArrayList<>(interceptorMap.values());
+
         mybatisSqlSessionFactoryBean.setObjectFactory(customObjectFactory);
+        mybatisSqlSessionFactoryBean.setPlugins(values.toArray(new Interceptor[values.size()]));
+
+
         return mybatisSqlSessionFactoryBean.getObject();
     }
-
-
-
 }

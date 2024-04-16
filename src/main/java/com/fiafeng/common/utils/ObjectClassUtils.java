@@ -1,7 +1,10 @@
 package com.fiafeng.common.utils;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.mysql.mapper.BaseMysqlMapper;
+import com.fiafeng.common.mapper.Interface.IMapper;
+import com.fiafeng.common.mapper.mysql.BaseMysqlMapper;
+import com.fiafeng.common.pojo.Interface.base.IBasePojo;
+import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -16,16 +19,18 @@ public class ObjectClassUtils {
     public static BeanDefinitionRegistry registry;
     public static ConfigurableListableBeanFactory beanFactory;
 
-    private static List<Class<?>> classList = new ArrayList<>();
+    public static HashMap<Class, HashSet<String>> mybatisClassMap = new HashMap<>();
 
-    public static void addRemoveBeanDefinitionByClass(Class<?> aClass){
+    private static HashSet<Class<?>> classList = new HashSet<>();
+
+    public static void addRemoveBeanDefinitionByClass(Class<?> aClass) {
         classList.add(aClass);
     }
 
 
     public static void removeBeanDefinitions() {
         for (Class<?> aClass : ObjectClassUtils.classList) {
-            ObjectClassUtils.removeBeanDefinitions(registry, beanFactory,aClass);
+            ObjectClassUtils.removeBeanDefinitions(registry, beanFactory, aClass);
         }
     }
 
@@ -56,7 +61,6 @@ public class ObjectClassUtils {
                     try {
                         rawClass = Class.forName(beanClassName);
                     } catch (Exception e) {
-                        Map<String, ?> beansOfType = beanFactory.getBeansOfType(objectClass);
                         break;
                     }
                 } else {
@@ -75,6 +79,7 @@ public class ObjectClassUtils {
                 int value = annotation.value();
                 hashMap.put(beanName, value);
             } else {
+                // 找到第一个没有BeanDefinitionOrderAnnotation注解的
                 maxBennName = beanName;
                 break;
             }
@@ -93,6 +98,13 @@ public class ObjectClassUtils {
         for (String beanName : beanNames) {
             if (!Objects.equals(beanName, maxBennName)) {
                 registry.removeBeanDefinition(beanName);
+                if (mybatisClassMap.containsKey(objectClass)) {
+                    mybatisClassMap.get(objectClass).add(beanName);
+                } else {
+                    HashSet<String> hashSet = new HashSet<>();
+                    hashSet.add(beanName);
+                    mybatisClassMap.put(objectClass, hashSet);
+                }
             }
         }
 
@@ -106,7 +118,7 @@ public class ObjectClassUtils {
      * @param iMapperClass mapper接口类
      * @param iBaseObject  pojo接口类
      */
-    public static void refreshBaseMysqlMapperType(Class<?> iMapperClass, Class<?> iBaseObject) {
+    public static void refreshBaseMysqlMapperType(Class<? extends IMapper> iMapperClass, Class<? extends IBasePojo> iBaseObject) {
         refreshBaseMysqlMapperType(iMapperClass, iBaseObject, true);
     }
 
@@ -120,11 +132,11 @@ public class ObjectClassUtils {
      */
     public static void refreshBaseMysqlMapperType(Class<?> iMapperClass, Class<?> iBaseObject, boolean createTable) {
         try {
-            Object bean = SpringUtils.getBean(iMapperClass);
+            Object bean = FiafengSpringUtils.getBean(iMapperClass);
             if (bean instanceof BaseMysqlMapper) {
                 BaseMysqlMapper mapper = (BaseMysqlMapper) bean;
 
-                mapper.type = SpringUtils.getBean(iBaseObject).getClass();
+                mapper.type = FiafengSpringUtils.getBean(iBaseObject).getClass();
                 if (createTable) {
                     mapper.checkMysqlTableIsExist(url);
                 }

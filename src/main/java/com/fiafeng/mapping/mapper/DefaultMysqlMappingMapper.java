@@ -1,9 +1,9 @@
 package com.fiafeng.mapping.mapper;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.mysql.mapper.BaseMysqlMapper;
-import com.fiafeng.common.mapper.IMappingMapper;
-import com.fiafeng.common.pojo.Interface.IBaseMapping;
+import com.fiafeng.common.mapper.mysql.BaseMysqlMapper;
+import com.fiafeng.common.mapper.Interface.IMappingMapper;
+import com.fiafeng.mapping.pojo.Interface.IBaseMapping;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;

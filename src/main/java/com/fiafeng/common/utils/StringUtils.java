@@ -1,5 +1,7 @@
 package com.fiafeng.common.utils;
 
+import com.fiafeng.common.utils.spring.StrFormatter;
+
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.StringJoiner;

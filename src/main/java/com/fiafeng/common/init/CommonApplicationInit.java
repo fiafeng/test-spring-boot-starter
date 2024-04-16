@@ -1,31 +1,35 @@
 package com.fiafeng.common.init;
 
 import com.fiafeng.common.annotation.ApplicationInitAnnotation;
-import com.fiafeng.common.config.FiafengStaticEnvironment;
+import com.fiafeng.common.controller.controller.Interface.IPermissionController;
+import com.fiafeng.common.controller.controller.Interface.IRoleController;
+import com.fiafeng.common.controller.controller.Interface.IRolePermissionController;
+import com.fiafeng.common.controller.controller.Interface.IUserRoleController;
+import com.fiafeng.common.mapper.Interface.*;
+import com.fiafeng.common.pojo.Dto.FiafengStaticEnvironment;
 import com.fiafeng.common.controller.ILoginController;
 import com.fiafeng.common.filter.IJwtAuthenticationTokenFilter;
-import com.fiafeng.common.mapper.*;
 import com.fiafeng.common.pojo.Interface.*;
 import com.fiafeng.common.service.*;
 import com.fiafeng.common.utils.ClassUtils;
 import com.fiafeng.common.utils.ObjectClassUtils;
-import com.fiafeng.common.utils.SpringUtils;
-import com.fiafeng.mysql.mapper.BaseMysqlMapper;
-import com.fiafeng.rbac.properties.FiafengRbacProperties;
-import org.springframework.beans.BeansException;
+import com.fiafeng.common.utils.spring.FiafengSpringUtils;
+import com.fiafeng.mapping.pojo.Interface.IBaseMapping;
+import com.fiafeng.common.mapper.mysql.BaseMysqlMapper;
+import com.fiafeng.common.properties.FiafengRbacProperties;
+import com.fiafeng.mybatis.init.MybatisPlusApplicationInit;
+import com.fiafeng.mybatis.utils.MybatisPlusUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 import java.util.Map;
 
+@Component
 public class CommonApplicationInit extends ApplicationProcessor implements ApplicationListener<ContextRefreshedEvent>, Ordered {
 
 
@@ -41,11 +45,13 @@ public class CommonApplicationInit extends ApplicationProcessor implements Appli
         ObjectClassUtils.addRemoveBeanDefinitionByClass(IBaseRolePermission.class);
         ObjectClassUtils.addRemoveBeanDefinitionByClass(IBaseUser.class);
         ObjectClassUtils.addRemoveBeanDefinitionByClass(IBaseUserRole.class);
+
         ObjectClassUtils.addRemoveBeanDefinitionByClass(IPermissionMapper.class);
         ObjectClassUtils.addRemoveBeanDefinitionByClass(IRoleMapper.class);
         ObjectClassUtils.addRemoveBeanDefinitionByClass(IRolePermissionMapper.class);
         ObjectClassUtils.addRemoveBeanDefinitionByClass(IUserMapper.class);
         ObjectClassUtils.addRemoveBeanDefinitionByClass(IUserRoleMapper.class);
+
         ObjectClassUtils.addRemoveBeanDefinitionByClass(IPermissionService.class);
         ObjectClassUtils.addRemoveBeanDefinitionByClass(IUserRoleService.class);
         ObjectClassUtils.addRemoveBeanDefinitionByClass(IUserService.class);
@@ -53,9 +59,21 @@ public class CommonApplicationInit extends ApplicationProcessor implements Appli
         ObjectClassUtils.addRemoveBeanDefinitionByClass(ITokenService.class);
         ObjectClassUtils.addRemoveBeanDefinitionByClass(ILoginService.class);
         ObjectClassUtils.addRemoveBeanDefinitionByClass(ICacheService.class);
-        ObjectClassUtils.addRemoveBeanDefinitionByClass(IJwtAuthenticationTokenFilter.class);
-        ObjectClassUtils.addRemoveBeanDefinitionByClass(ILoginController.class);
 
+        ObjectClassUtils.addRemoveBeanDefinitionByClass(IJwtAuthenticationTokenFilter.class);
+
+        ObjectClassUtils.addRemoveBeanDefinitionByClass(ILoginController.class);
+        ObjectClassUtils.addRemoveBeanDefinitionByClass(IPermissionController.class);
+        ObjectClassUtils.addRemoveBeanDefinitionByClass(IRolePermissionController.class);
+        ObjectClassUtils.addRemoveBeanDefinitionByClass(IRoleController.class);
+        ObjectClassUtils.addRemoveBeanDefinitionByClass(IUserRoleController.class);
+
+
+        MybatisPlusApplicationInit.putHashMapMybatisPlusTableName(IUserMapper.class, IBaseUser.class);
+        MybatisPlusApplicationInit.putHashMapMybatisPlusTableName(IUserRoleMapper.class, IBaseUserRole.class);
+        MybatisPlusApplicationInit.putHashMapMybatisPlusTableName(IRoleMapper.class, IBaseRole.class);
+        MybatisPlusApplicationInit.putHashMapMybatisPlusTableName(IRolePermissionMapper.class, IBaseRolePermission.class);
+        MybatisPlusApplicationInit.putHashMapMybatisPlusTableName(IPermissionMapper.class, IBasePermission.class);
     }
 
 
@@ -91,7 +109,7 @@ public class CommonApplicationInit extends ApplicationProcessor implements Appli
 
         mysqlMapperInit();
 
-        Map<String, ApplicationInit> beansOfType = SpringUtils.getBeanFactory().getBeansOfType(ApplicationInit.class);
+        Map<String, ApplicationInit> beansOfType = FiafengSpringUtils.getBeanFactory().getBeansOfType(ApplicationInit.class);
         Integer[] valuesArray = new Integer[beansOfType.size()];
         ApplicationInit[] applicationInitArray = beansOfType.values().toArray(new ApplicationInit[beansOfType.values().size()]);
         for (int i = 0; i < applicationInitArray.length; i++) {
@@ -132,7 +150,7 @@ public class CommonApplicationInit extends ApplicationProcessor implements Appli
 
         // 检查用户表
         try {
-            IUserTableInitService userTableInitService = SpringUtils.getBean(IUserTableInitService.class);
+            IUserTableInitService userTableInitService = FiafengSpringUtils.getBean(IUserTableInitService.class);
             userTableInitService.init();
 
             System.out.println();
@@ -140,10 +158,10 @@ public class CommonApplicationInit extends ApplicationProcessor implements Appli
         }
 
         // 检查角色表
-        if (SpringUtils.getBean(IRoleMapper.class) instanceof BaseMysqlMapper) {
-            BaseMysqlMapper baseMysqlMapper = (BaseMysqlMapper) SpringUtils.getBean(IRoleMapper.class);
+        if (FiafengSpringUtils.getBean(IRoleMapper.class) instanceof BaseMysqlMapper) {
+            BaseMysqlMapper baseMysqlMapper = (BaseMysqlMapper) FiafengSpringUtils.getBean(IRoleMapper.class);
             if (baseMysqlMapper.selectObjectByObjectId(1L) == null) {
-                IBaseRole baseRole = SpringUtils.getBean(IBaseRole.class);
+                IBaseRole baseRole = FiafengSpringUtils.getBean(IBaseRole.class);
                 baseRole.setId(1L);
                 baseRole.setName(rbacProperties.roleAdminName);
                 baseMysqlMapper.insertObject(baseRole, false);
@@ -151,10 +169,10 @@ public class CommonApplicationInit extends ApplicationProcessor implements Appli
         }
 
         // 检查权限表
-        if (SpringUtils.getBean(IPermissionMapper.class) instanceof BaseMysqlMapper) {
-            BaseMysqlMapper baseMysqlMapper = (BaseMysqlMapper) SpringUtils.getBean(IPermissionMapper.class);
+        if (FiafengSpringUtils.getBean(IPermissionMapper.class) instanceof BaseMysqlMapper) {
+            BaseMysqlMapper baseMysqlMapper = (BaseMysqlMapper) FiafengSpringUtils.getBean(IPermissionMapper.class);
             if (baseMysqlMapper.selectObjectByObjectId(1L) == null) {
-                IBasePermission baseRole = SpringUtils.getBean(IBasePermission.class);
+                IBasePermission baseRole = FiafengSpringUtils.getBean(IBasePermission.class);
                 baseRole.setId(1L);
                 baseRole.setName(rbacProperties.permissionAdminName);
                 baseMysqlMapper.insertObject(baseRole, false);
@@ -163,10 +181,10 @@ public class CommonApplicationInit extends ApplicationProcessor implements Appli
         }
 
         // 检查用户角色表
-        if (SpringUtils.getBean(IUserRoleMapper.class) instanceof BaseMysqlMapper) {
-            BaseMysqlMapper baseMysqlMapper = (BaseMysqlMapper) SpringUtils.getBean(IUserRoleMapper.class);
+        if (FiafengSpringUtils.getBean(IUserRoleMapper.class) instanceof BaseMysqlMapper) {
+            BaseMysqlMapper baseMysqlMapper = (BaseMysqlMapper) FiafengSpringUtils.getBean(IUserRoleMapper.class);
             if (baseMysqlMapper.selectObjectByObjectId(1L) == null) {
-                IBaseUserRole baseRole = SpringUtils.getBean(IBaseUserRole.class);
+                IBaseUserRole baseRole = FiafengSpringUtils.getBean(IBaseUserRole.class);
                 baseRole.setId(1L);
                 baseRole.setRoleId(1L);
                 baseRole.setUserId(1L);
@@ -176,10 +194,10 @@ public class CommonApplicationInit extends ApplicationProcessor implements Appli
 
 
         // 检查角色权限表
-        if (SpringUtils.getBean(IRolePermissionMapper.class) instanceof BaseMysqlMapper) {
-            BaseMysqlMapper baseMysqlMapper = (BaseMysqlMapper) SpringUtils.getBean(IRolePermissionMapper.class);
+        if (FiafengSpringUtils.getBean(IRolePermissionMapper.class) instanceof BaseMysqlMapper) {
+            BaseMysqlMapper baseMysqlMapper = (BaseMysqlMapper) FiafengSpringUtils.getBean(IRolePermissionMapper.class);
             if (baseMysqlMapper.selectObjectByObjectId(1L) == null) {
-                IBaseRolePermission baseRole = SpringUtils.getBean(IBaseRolePermission.class);
+                IBaseRolePermission baseRole = FiafengSpringUtils.getBean(IBaseRolePermission.class);
                 baseRole.setId(1L);
                 baseRole.setRoleId(1L);
                 baseRole.setPermissionId(1L);

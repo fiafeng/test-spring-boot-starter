@@ -3,12 +3,14 @@ package com.fiafeng.mapping.properties;
 import com.fiafeng.common.properties.IEnableProperties;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @ConfigurationProperties("fiafeng.mapping")
 @Data
+@Component
 public class FiafengMappingProperties implements IEnableProperties {
 
     /**

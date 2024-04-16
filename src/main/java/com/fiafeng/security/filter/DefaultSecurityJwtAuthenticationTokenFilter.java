@@ -2,21 +2,20 @@ package com.fiafeng.security.filter;
 
 import com.alibaba.fastjson2.JSON;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.common.constant.CacheConstants;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.filter.IJwtAuthenticationTokenFilter;
-import com.fiafeng.common.pojo.AjaxResult;
-import com.fiafeng.common.pojo.Interface.IBaseUserInfo;
+import com.fiafeng.common.pojo.Dto.AjaxResult;
 import com.fiafeng.security.service.IUserDetails;
 import com.fiafeng.common.service.ICacheService;
 import com.fiafeng.common.service.ITokenService;
 import com.fiafeng.common.utils.ObjectUtils;
 import com.fiafeng.common.utils.SecurityUtils;
-import com.fiafeng.common.utils.ServletUtils;
+import com.fiafeng.common.utils.mvc.ServletUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.NestedServletException;
 
@@ -25,8 +24,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.concurrent.TimeUnit;
 
 /**
  * token过滤器 验证token有效性
@@ -36,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 
 
 @BeanDefinitionOrderAnnotation(3)
+@Component
 public class DefaultSecurityJwtAuthenticationTokenFilter extends OncePerRequestFilter implements IJwtAuthenticationTokenFilter {
 
     @Autowired

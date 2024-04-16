@@ -7,12 +7,11 @@ import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.properties.FiafengTokenProperties;
 import com.fiafeng.security.service.ITokenSecurityService;
 import com.fiafeng.common.constant.CacheConstants;
-import com.fiafeng.common.constant.Constants;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.security.pojo.DefaultSecurityLoginUserInfo;
 import com.fiafeng.security.service.IUserDetails;
 import com.fiafeng.common.service.ICacheService;
-import com.fiafeng.common.utils.HttpServletUtils;
+import com.fiafeng.common.utils.mvc.HttpServletUtils;
 import com.fiafeng.common.utils.IdUtils;
 import com.fiafeng.common.utils.StringUtils;
 import io.jsonwebtoken.Claims;
@@ -21,6 +20,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @BeanDefinitionOrderAnnotation(3)
+@Component
 public class DefaultTokenSecurityServiceImpl implements ITokenSecurityService {
 
 

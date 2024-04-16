@@ -4,14 +4,9 @@ package com.fiafeng.common.annotation;
 import com.fiafeng.blog.annotation.EnableFiafengBlogConfig;
 import com.fiafeng.captcha.config.CaptchaConfig;
 import com.fiafeng.common.config.CommonConfig;
-import com.fiafeng.common.config.DefaultConfig;
-import com.fiafeng.i18n.config.I18nConfig;
-import com.fiafeng.mapping.config.MappingConfig;
+import com.fiafeng.mapping.config.MappingAutoConfig;
 import com.fiafeng.mybatis.config.MyBatisConfig;
-import com.fiafeng.mysql.config.MysqlMapperConfig;
-import com.fiafeng.rbac.config.RbacConfig;
 import com.fiafeng.redis.config.RedisConfig;
-import com.fiafeng.security.config.SecurityConfig;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Import;
 
@@ -21,13 +16,8 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Import({
-        RbacConfig.class,
-        DefaultConfig.class,
-        MappingConfig.class,
-        MysqlMapperConfig.class,
+        MappingAutoConfig.class,
         MyBatisConfig.class,
-        SecurityConfig.class,
-        I18nConfig.class,
         RedisConfig.class,
         CaptchaConfig.class,
         CommonConfig.class

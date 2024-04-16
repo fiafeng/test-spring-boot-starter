@@ -1,12 +1,13 @@
 package com.fiafeng.security.handler;
 
 import com.alibaba.fastjson2.JSON;
-import com.fiafeng.common.utils.ServletUtils;
+import com.fiafeng.common.utils.mvc.ServletUtils;
 import com.fiafeng.common.utils.StringUtils;
 import com.fiafeng.common.constant.HttpStatus;
-import com.fiafeng.common.pojo.AjaxResult;
+import com.fiafeng.common.pojo.Dto.AjaxResult;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,6 +18,7 @@ import java.io.Serializable;
  *
  * @author ruoyi
  */
+@Component
 public class AuthenticationEntryPointHandler implements AuthenticationEntryPoint, Serializable {
     private static final long serialVersionUID = -8970718410437077606L;
 

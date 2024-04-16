@@ -1,7 +1,7 @@
 package com.fiafeng.security.service.Impl;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.common.utils.FiafengMessageUtils;
+import com.fiafeng.common.utils.spring.FiafengMessageUtils;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.service.ILoginService;
 import com.fiafeng.security.service.IUserDetails;
@@ -17,6 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @BeanDefinitionOrderAnnotation(3)
+@Component
 public class DefaultSecurityLoginServiceImpl implements ILoginService {
 
     @Autowired

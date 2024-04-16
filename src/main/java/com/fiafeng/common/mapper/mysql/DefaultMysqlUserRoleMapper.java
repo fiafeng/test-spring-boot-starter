@@ -1,0 +1,104 @@
+package com.fiafeng.common.mapper.mysql;
+
+import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.mapper.Interface.IUserRoleMapper;
+import com.fiafeng.common.pojo.Interface.IBaseUserRole;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+
+
+@BeanDefinitionOrderAnnotation(1)
+public class DefaultMysqlUserRoleMapper extends BaseMysqlMapper implements IUserRoleMapper {
+
+
+    @Override
+    public <T extends IBaseUserRole> boolean insertUserRole(T userRole) {
+        return insertObject(userRole);
+    }
+
+    @Override
+    public boolean updateUserRoleList(Long userId, List<Long> roleIdList) {
+        List<Long> queryUserIdList = new ArrayList<>();
+        List<IBaseUserRole> iBaseUserRoles = selectRoleListByUserRole(userId);
+        for (IBaseUserRole iBaseUserRole : iBaseUserRoles) {
+            queryUserIdList.add(iBaseUserRole.getId());
+        }
+
+        deletedObjectByIdList(queryUserIdList);
+        List<IBaseUserRole> userRoleList = new ArrayList<>();
+        for (Long permissionId : roleIdList) {
+            try {
+                Object o = type.newInstance();
+                Field field = o.getClass().getDeclaredField(userIdName);
+                field.setAccessible(true);
+                field.set(o, userId);
+                field = o.getClass().getDeclaredField(roleIdName);
+                field.setAccessible(true);
+                field.set(o, permissionId);
+                userRoleList.add((IBaseUserRole) o);
+            } catch (Exception e) {
+//                throw new ServiceException("批量更新时，遇到意外的错误，错误消息为：" + e.getMessage());'
+                return false;
+            }
+        }
+        try {
+            for (IBaseUserRole iBaseUserRole : userRoleList) {
+                insertUserRole(iBaseUserRole);
+            }
+        } catch (Exception e) {
+            for (IBaseUserRole iBaseUserRole : iBaseUserRoles) {
+                insertObject(iBaseUserRole, false);
+            }
+
+
+            return false;
+        }
+
+
+        return true;
+    }
+
+    @Override
+    public <T extends IBaseUserRole> boolean deleteUserRole(T userRole) {
+        return deletedObjectById(userRole.getUserId());
+    }
+
+    @Override
+    public boolean deleteUserRoleById(Long id) {
+        return deletedObjectById(id);
+    }
+
+    @Override
+    public List<Long> selectRoleIdListByUserId(Long userId) {
+
+        List<Long> permissionIdList = new ArrayList<>();
+        List<IBaseUserRole> objectList = selectRoleListByUserRole(userId);
+        for (IBaseUserRole iBaseUserRole : objectList) {
+            permissionIdList.add(iBaseUserRole.getRoleId());
+        }
+        return permissionIdList;
+
+    }
+
+    @Override
+    public <T extends IBaseUserRole> List<T> selectRoleListByUserRole(Long userId) {
+        return selectObjectByKeyAndValueList(userIdName, userId);
+    }
+
+    @Override
+    public <T extends IBaseUserRole> List<T> selectRoleListByRoleId(Long roleId) {
+        return selectObjectByKeyAndValueList(roleIdName, roleId);
+    }
+
+    @Override
+    public <T extends IBaseUserRole> T selectRoleListByUserRole(T userRole) {
+        return selectObjectByName1Name2AndValue1Value2(userIdName, roleIdName, userRole.getUserId(), userRole.getRoleId());
+    }
+
+    @Override
+    public <T extends IBaseUserRole> T selectRoleListById(Long id) {
+        return selectObjectByObjectId(id);
+    }
+}

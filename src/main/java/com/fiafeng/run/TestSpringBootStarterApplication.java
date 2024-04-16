@@ -1,11 +1,11 @@
 package com.fiafeng.run;
 
-import com.fiafeng.rbac.annotation.EnableRbacConfig;
+import com.fiafeng.common.annotation.EnableFiafengConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@EnableRbacConfig
 @SpringBootApplication
+@EnableFiafengConfig
 public class TestSpringBootStarterApplication {
 
     public static void main(String[] args) {

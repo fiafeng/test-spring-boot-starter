@@ -2,11 +2,12 @@ package com.fiafeng.common.filter;
 
 import com.fiafeng.common.constant.CacheConstants;
 import com.fiafeng.common.exception.ServiceException;
-import com.fiafeng.common.pojo.Interface.IBaseUserInfo;
+import com.fiafeng.common.pojo.Vo.IBaseUserInfo;
 import com.fiafeng.common.service.ICacheService;
 import com.fiafeng.common.service.ITokenService;
 import com.fiafeng.common.service.IUserRoleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -21,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * 用户更新过滤器
  */
+@Component
 public class RefreshUserFilter  extends OncePerRequestFilter {
 
     @Autowired

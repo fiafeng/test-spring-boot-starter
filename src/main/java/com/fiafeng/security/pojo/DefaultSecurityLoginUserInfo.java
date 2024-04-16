@@ -1,9 +1,10 @@
 package com.fiafeng.security.pojo;
 
 import com.alibaba.fastjson2.annotation.JSONField;
+import com.fiafeng.common.annotation.PojoAnnotation;
 import com.fiafeng.common.pojo.Interface.IBaseUser;
 import com.fiafeng.common.service.IUserRoleService;
-import com.fiafeng.common.utils.SpringUtils;
+import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import com.fiafeng.security.service.IUserDetails;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -11,7 +12,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 @Data
 @Accessors(chain = true)
+@PojoAnnotation
 public class DefaultSecurityLoginUserInfo implements Serializable, IUserDetails {
 
 //    @Autowired
@@ -73,7 +74,7 @@ public class DefaultSecurityLoginUserInfo implements Serializable, IUserDetails 
                     map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toList());
         else {
-            permissionList = SpringUtils.getBean(IUserRoleService.class).queryUserPermissionNameListByUserId(user.getId());
+            permissionList = FiafengSpringUtils.getBean(IUserRoleService.class).queryUserPermissionNameListByUserId(user.getId());
 //            permissionList = new ArrayList<>();
             return permissionList.stream().
                     map(SimpleGrantedAuthority::new)

@@ -2,10 +2,10 @@ package com.fiafeng.security.mapper;
 
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.mysql.mapper.BaseMysqlMapper;
-import com.fiafeng.mysql.properties.FiafengMysqlUserProperties;
-import com.fiafeng.common.mapper.IUserMapper;
+import com.fiafeng.common.mapper.Interface.IUserMapper;
 import com.fiafeng.common.pojo.Interface.IBaseUser;
+import com.fiafeng.common.mapper.mysql.BaseMysqlMapper;
+import com.fiafeng.common.properties.mysql.FiafengMysqlUserProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
