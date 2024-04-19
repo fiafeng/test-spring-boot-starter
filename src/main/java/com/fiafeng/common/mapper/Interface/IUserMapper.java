@@ -17,7 +17,7 @@ public interface IUserMapper extends IMapper {
 
     <T extends IBaseUser> boolean updateUser(T user);
 
-    <T extends IBaseUser> boolean deletedUser(Long userId);
+    <T extends IBaseUser> boolean deletedUserByUserId(Long userId);
 
     <T extends IBaseUser> List<T> selectUserListAll();
 

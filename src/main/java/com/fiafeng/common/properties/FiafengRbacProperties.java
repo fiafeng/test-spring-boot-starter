@@ -27,6 +27,12 @@ public class FiafengRbacProperties implements IEnableProperties {
 
 
     /**
+     * 是否启用权限变更日志
+     */
+    public Boolean enableLog = false;
+
+
+    /**
      * 管理员角色的角色名
      */
     public String roleAdminName = "admin";

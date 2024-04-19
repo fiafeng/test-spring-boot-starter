@@ -72,7 +72,7 @@ public class DefaultUserMapper implements IUserMapper {
     }
 
     @Override
-    public boolean deletedUser(Long userId) {
+    public boolean deletedUserByUserId(Long userId) {
         return getUserMap().remove(userId) != null;
     }
 

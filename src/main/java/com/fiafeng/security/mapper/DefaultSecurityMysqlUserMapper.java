@@ -57,7 +57,7 @@ public class DefaultSecurityMysqlUserMapper extends BaseMysqlMapper implements I
     }
 
     @Override
-    public boolean deletedUser(Long userId) {
+    public boolean deletedUserByUserId(Long userId) {
         return deletedObjectById(userId);
     }
 

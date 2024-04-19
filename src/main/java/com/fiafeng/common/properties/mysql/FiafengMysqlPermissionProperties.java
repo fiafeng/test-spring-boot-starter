@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties("fiafeng.mysql-table.permission")
 @Data
-public class FiafengMysqlPermissionProperties {
+public class FiafengMysqlPermissionProperties implements IMysqlTableProperties {
 
     /**
      * 主键id的字段名称

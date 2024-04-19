@@ -23,8 +23,8 @@ public class MybatisPlusApplicationInit implements ApplicationInit {
     public static void putHashMapMybatisPlusTableName(Class<? extends IMapper> mapperClass, Class<? extends IBasePojo> baseClass) {
         if (!hashMap.containsKey(mapperClass)) {
             hashMap.put(mapperClass, baseClass);
-        }else {
-            throw new RuntimeException( mapperClass +"类已经存在当前集合里面，不允许重复添加，请检查代码！！");
+        } else {
+            throw new RuntimeException(mapperClass + "类已经存在当前集合里面，不允许重复添加，请检查代码！！");
         }
 
     }
@@ -34,8 +34,6 @@ public class MybatisPlusApplicationInit implements ApplicationInit {
         for (Map.Entry<Class<? extends IMapper>, Class<? extends IBasePojo>> classClassEntry : hashMap.entrySet()) {
             MybatisPlusUtils.addMybatisPlusTableNameORM(classClassEntry.getKey(), classClassEntry.getValue());
         }
-
     }
-
 
 }

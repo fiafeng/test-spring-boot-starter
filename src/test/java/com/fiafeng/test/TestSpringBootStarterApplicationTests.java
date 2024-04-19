@@ -2,7 +2,7 @@ package com.fiafeng.test;
 
 import com.fiafeng.common.mapper.Interface.IUserMapper;
 import com.fiafeng.common.pojo.Interface.IBaseUser;
-import com.fiafeng.run.TestSpringBootStarterApplication;
+import com.fiafeng.demo.TestSpringBootStarterApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

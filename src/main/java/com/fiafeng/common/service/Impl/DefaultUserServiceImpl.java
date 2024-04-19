@@ -71,7 +71,7 @@ public class DefaultUserServiceImpl implements IUserService {
 
     @Override
     public boolean deletedUser(Long userId) {
-        return userMapper.deletedUser(userId);
+        return userMapper.deletedUserByUserId(userId);
     }
 
     @Override

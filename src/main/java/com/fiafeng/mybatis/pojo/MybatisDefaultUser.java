@@ -2,17 +2,19 @@ package com.fiafeng.mybatis.pojo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.annotation.PojoAnnotation;
 import com.fiafeng.common.pojo.Interface.IBaseUser;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.springframework.context.annotation.Scope;
 
-@PojoAnnotation
-@TableName()
+
 @Data
 @Accessors(chain = true)
-public class MybatisUser implements IBaseUser {
+@PojoAnnotation
+@BeanDefinitionOrderAnnotation(1)
+public class MybatisDefaultUser implements IBaseUser {
 
 
     /**

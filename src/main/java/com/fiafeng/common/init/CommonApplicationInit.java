@@ -30,7 +30,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 @Component
-public class CommonApplicationInit extends ApplicationProcessor implements ApplicationListener<ContextRefreshedEvent>, Ordered {
+public class CommonApplicationInit implements ApplicationListener<ContextRefreshedEvent>, Ordered {
 
 
     static {
@@ -139,6 +139,8 @@ public class CommonApplicationInit extends ApplicationProcessor implements Appli
             valuesArray[pos] = -9999;
         }
     }
+
+
 
     @Autowired
     FiafengRbacProperties rbacProperties;

@@ -18,7 +18,11 @@ import org.springframework.context.annotation.Import;
         MyBatisSupportConfig.class
 })
 @ComponentScans({
-        @ComponentScan("com.fiafeng.mybatis")
+        @ComponentScan("com.fiafeng.mybatis.config"),
+        @ComponentScan("com.fiafeng.mybatis.factory"),
+        @ComponentScan("com.fiafeng.mybatis.init"),
+        @ComponentScan("com.fiafeng.mybatis.Interceptor"),
+        @ComponentScan("com.fiafeng.mybatis.utils")
 })
 @ConditionalOnClass({SqlSessionFactoryBean.class})
 @ConditionalOnWebApplication

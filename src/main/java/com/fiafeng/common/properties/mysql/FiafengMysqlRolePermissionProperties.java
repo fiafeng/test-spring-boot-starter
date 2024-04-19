@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties("fiafeng.mysql-table.role-permission")
 @Data
-public class FiafengMysqlRolePermissionProperties {
+public class FiafengMysqlRolePermissionProperties implements IMysqlTableProperties {
 
     /**
      * 主键id的字段名称

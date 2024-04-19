@@ -1,4 +1,4 @@
-package com.fiafeng.run;
+package com.fiafeng.demo;
 
 import com.fiafeng.common.annotation.EnableFiafengConfig;
 import org.springframework.boot.SpringApplication;

@@ -3,6 +3,7 @@ package com.fiafeng.common.mapper.mysql;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.common.annotation.AutoFiledAnnotation;
+import com.fiafeng.common.utils.FiafengMysqlUtils;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import com.fiafeng.common.utils.StringUtils;
 import com.fiafeng.common.service.Impl.ConnectionPoolServiceImpl;
@@ -118,7 +119,7 @@ public abstract class BaseMysqlMapper {
      */
     public void checkMysqlTableIsExist(String url) {
 
-        if (connectionPoolService == null){
+        if (connectionPoolService == null) {
             connectionPoolService = FiafengSpringUtils.getBean(ConnectionPoolServiceImpl.class);
         }
 
@@ -134,64 +135,16 @@ public abstract class BaseMysqlMapper {
      */
     private void createdTable(TypeOrmEnum primaryType) {
         String primaryName = idName;
-        StringBuilder sql = new StringBuilder(
-                "Create table  IF NOT EXISTS " + tableName + "(\n"
-                        + "    " + primaryName + " "
-                        + primaryType.mysqlType
-                        + " AUTO_INCREMENT "
-                        + " PRIMARY KEY, "
-                        + "\n");
+        String sql = FiafengMysqlUtils.createdTableSql(primaryName, tableName, primaryType, type);
 
-        for (Field field : type.getDeclaredFields()) {
-            String filedName = field.getName();
-            if (primaryName.equals(filedName)) {
-                continue;
-            }
-
-            AutoFiledAnnotation fieldAnnotation = field.getDeclaredAnnotation(AutoFiledAnnotation.class);
-            if (fieldAnnotation != null) {
-                filedName = filedName.isEmpty() ? filedName : fieldAnnotation.name();
-
-                // TODO1 检查属性名字是否满足mysql 命名规范
-                String comment = fieldAnnotation.comment();
-                int length = fieldAnnotation.length();
-                TypeOrmEnum type = fieldAnnotation.type();
-                String typeName = getTypeName(type, length);
-                sql.append("    ")
-                        .append(filedName)
-                        .append(" ")
-                        .append(typeName)
-                        .append(fieldAnnotation.isNull() ? " null " : " not null ")
-                        .append(comment.isEmpty() ? "" : " comment '" + comment + "' ")
-                        .append(" , \n");
-            } else {
-                filedName = StringUtils.camelToUnderline(field.getName());
-                String typeName = getTypeName(field);
-                sql.append("    ")
-                        .append(filedName)
-                        .append(" ")
-                        .append(typeName)
-                        .append(" null ")
-                        .append(" , \n");
-
-            }
-        }
-        sql = new StringBuilder(
-                sql.substring(0, sql.lastIndexOf(", \n")) + "\n    )"
-        );
-
-        connectionPoolService.executeSql(String.valueOf(sql));
+        connectionPoolService.executeSql(sql);
         log.info("创建表" + tableName + "语句为:\n" + sql);
     }
 
     private boolean checkTableExist(String url) {
         String databaseName = url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("?"));
 
-        String query = "SELECT COLUMN_NAME " +
-                "FROM INFORMATION_SCHEMA.COLUMNS " +
-                "WHERE TABLE_NAME = ? " +
-                " and TABLE_SCHEMA = ?";
-        List<Map<String, Object>> columns = connectionPoolService.queryForList(query, new Object[]{tableName, databaseName});
+        List<Map<String, Object>> columns = connectionPoolService.queryForList(FiafengMysqlUtils.queryTableExistSql, new Object[]{tableName, databaseName});
         return !columns.isEmpty();
     }
 
@@ -200,7 +153,7 @@ public abstract class BaseMysqlMapper {
      * 使用jdbcTemplate新增一条数据
      *
      * @param object 新增对象
-     * @param <T> 对象类型
+     * @param <T>    对象类型
      * @param flag   true时，使用数据库自增主键。false时，使用数据内的id值
      */
     public <T> boolean insertObject(T object, Boolean flag) {
@@ -221,7 +174,7 @@ public abstract class BaseMysqlMapper {
                     insertColsName.append(fieldName).append(",");
                     objectList.add(value);
                 }
-            } catch (IllegalAccessException e) {
+            } catch (IllegalAccessException ignored) {
             }
         }
         insertColsName = new StringBuilder(insertColsName.substring(0, insertColsName.length() - 1) + ") ");
@@ -379,7 +332,7 @@ public abstract class BaseMysqlMapper {
      *
      * @param t          泛型类
      * @param objectList 传递的Object对象list
-     * @param <T> 具体的类
+     * @param <T>        具体的类
      */
     private <T> String getSqlUpdate(T t, List<Object> objectList) {
         Field[] declaredFields = t.getClass().getDeclaredFields();
