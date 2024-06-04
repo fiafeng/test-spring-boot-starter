@@ -9,8 +9,8 @@ import com.fiafeng.mybatis.utils.MybatisPlusUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 
 @Component
@@ -18,20 +18,10 @@ import java.util.Map;
 @ApplicationInitAnnotation(-10000)
 public class MybatisPlusApplicationInit implements ApplicationInit {
 
-    private final static HashMap<Class<? extends IMapper>, Class<? extends IBasePojo>> hashMap = new HashMap<>();
-
-    public static void putHashMapMybatisPlusTableName(Class<? extends IMapper> mapperClass, Class<? extends IBasePojo> baseClass) {
-        if (!hashMap.containsKey(mapperClass)) {
-            hashMap.put(mapperClass, baseClass);
-        } else {
-            throw new RuntimeException(mapperClass + "类已经存在当前集合里面，不允许重复添加，请检查代码！！");
-        }
-
-    }
-
     @Override
     public void init() {
-        for (Map.Entry<Class<? extends IMapper>, Class<? extends IBasePojo>> classClassEntry : hashMap.entrySet()) {
+        Set<Map.Entry<Class<? extends IMapper>, Class<? extends IBasePojo>>> entries = MybatisPlusUtils.getHashMap().entrySet();
+        for (Map.Entry<Class<? extends IMapper>, Class<? extends IBasePojo>> classClassEntry : entries) {
             MybatisPlusUtils.addMybatisPlusTableNameORM(classClassEntry.getKey(), classClassEntry.getValue());
         }
     }

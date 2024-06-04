@@ -53,66 +53,8 @@ public abstract class BaseMysqlMapper {
     }
 
 
-    /**
-     * 根据枚举类型返回mysql创建字段
-     *
-     * @param type   枚举类型
-     * @param length 长度
-     */
-    public static String getTypeName(TypeOrmEnum type, int length) {
-        String typeName;
-        switch (type) {
-            case intType:
-                typeName = "int(" + ((length == 64) ? 11 : length) + ") ";
-                break;
-            case dateType:
-                typeName = "date ";
-                break;
-            case floatType:
-                typeName = "float ";
-                break;
-            default:
-                typeName = "varchar(" + ((length == 11) ? 64 : length) + ") ";
-                break;
-        }
-        return typeName;
-    }
-
-    /**
-     * 根据属性进行
-     *
-     * @param field 属性
-     */
-    public static String getTypeName(Field field) {
-        String typeName = "";
-        Class<?> fieldType = field.getType();
-        if (fieldType == String.class) {
-            typeName = "varchar(" + 64 + ") ";
-        } else if (fieldType == (Long.class)) {
-            typeName = "int(" + 11 + ") ";
-        } else if (fieldType == Date.class) {
-            typeName = "date ";
-        } else if (fieldType == Timestamp.class) {
-            typeName = "datetime ";
-        } else if (fieldType == Time.class) {
-            typeName = "date ";
-        } else if (fieldType == Byte.class) {
-            typeName = "tinyint ";
-        } else if (fieldType == Short.class) {
-            typeName = "smallint ";
-        } else if (fieldType == (Integer.class)) {
-            typeName = "int(" + 11 + ") ";
-        } else if (fieldType == Float.class) {
-            typeName = "float ";
-        } else if (fieldType == Double.class) {
-            typeName = "double ";
-        } else if (fieldType == HashSet.class) {
-            typeName = "varchar(" + 256 + ") ";
 
 
-        }
-        return typeName;
-    }
 
     /**
      * 检查mysql表是否存在（没有检查属性），如果不存在，则创建

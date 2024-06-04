@@ -1,6 +1,7 @@
 package com.fiafeng.security.service.Impl;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.utils.spring.FiafengMessageUtils;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.service.ILoginService;
@@ -31,7 +32,7 @@ import java.util.stream.Collectors;
  */
 
 @Slf4j
-@BeanDefinitionOrderAnnotation(3)
+@BeanDefinitionOrderAnnotation(value = ModelConstant.secondOrdered)
 @Component
 public class DefaultSecurityLoginServiceImpl implements ILoginService {
 

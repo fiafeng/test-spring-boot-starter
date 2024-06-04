@@ -1,6 +1,7 @@
 package com.fiafeng.security.service.Impl;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.mapper.Interface.IUserMapper;
 import com.fiafeng.common.pojo.Interface.IBaseUser;
 import com.fiafeng.common.service.IUserTableInitService;
@@ -11,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
-@BeanDefinitionOrderAnnotation(2)
+@BeanDefinitionOrderAnnotation(value = ModelConstant.secondOrdered)
 @Component
 public class DefaultSecurityUserTableInitServiceImpl implements IUserTableInitService {
 
@@ -26,8 +27,9 @@ public class DefaultSecurityUserTableInitServiceImpl implements IUserTableInitSe
     @Override
     public void init() throws Exception {
         // 检查用户表
-        if (FiafengSpringUtils.getBean(IUserMapper.class) instanceof BaseMysqlMapper) {
-            BaseMysqlMapper baseMysqlMapper = (BaseMysqlMapper) FiafengSpringUtils.getBean(IUserMapper.class);
+        IUserMapper bean = FiafengSpringUtils.getBean(IUserMapper.class);
+        if (bean instanceof BaseMysqlMapper) {
+            BaseMysqlMapper baseMysqlMapper = (BaseMysqlMapper) bean;
             IBaseUser iBaseUser = baseMysqlMapper.selectObjectByObjectId(1L);
             if (iBaseUser == null || !rbacProperties.defaultUserName.equals(iBaseUser.getUsername())) {
 

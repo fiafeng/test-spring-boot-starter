@@ -1,6 +1,7 @@
 package com.fiafeng.common.service.Impl;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.mapper.Interface.IUserMapper;
 import com.fiafeng.common.pojo.Interface.IBaseUser;
@@ -17,7 +18,7 @@ import java.util.List;
  * @description
  */
 @Service
-@BeanDefinitionOrderAnnotation()
+@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
 public class DefaultUserServiceImpl implements IUserService {
 
 

@@ -1,7 +1,9 @@
 package com.fiafeng.redis.service;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.service.ICacheService;
+import com.fiafeng.redis.properties.FiafengRedisProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.core.BoundSetOperations;
@@ -19,13 +21,16 @@ import java.util.concurrent.TimeUnit;
  * @author ruoyi
  **/
 
-@BeanDefinitionOrderAnnotation(3)
+@BeanDefinitionOrderAnnotation(value = ModelConstant.secondOrdered)
 @Primary
 @Component
 public class RedisCacheServiceImpl implements ICacheService {
 
     @Autowired
     RedisTemplate redisTemplate;
+
+    @Autowired
+    FiafengRedisProperties redisProperties;
 
     /**
      * 缓存基本的对象，Integer、String、实体类等
@@ -34,6 +39,15 @@ public class RedisCacheServiceImpl implements ICacheService {
      * @param value 缓存的值
      */
     public <T> void setCacheObject(final String key, final T value) {
+
+        if (redisProperties.expire){
+            if (hasKey(key)){
+                long expire = getExpire(key);
+                redisTemplate.opsForValue().set(key, value, expire , TimeUnit.SECONDS);
+                return;
+            }
+        }
+
         redisTemplate.opsForValue().set(key, value);
     }
 

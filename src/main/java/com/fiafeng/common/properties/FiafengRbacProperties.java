@@ -1,7 +1,6 @@
 package com.fiafeng.common.properties;
 
 
-import com.fiafeng.common.properties.IEnableProperties;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

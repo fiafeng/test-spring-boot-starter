@@ -3,16 +3,16 @@ package com.fiafeng.mapping.pojo;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.annotation.PojoAnnotation;
+import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.mapping.pojo.Interface.IBaseMapping;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.springframework.context.annotation.Scope;
 
 import java.util.HashSet;
 
 @Data
 @Accessors(chain = true)
-@BeanDefinitionOrderAnnotation
+@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
 @PojoAnnotation
 public class DefaultMapping implements IBaseMapping {
 

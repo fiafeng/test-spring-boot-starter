@@ -1,13 +1,14 @@
 package com.fiafeng.common.mapper.mysql;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.mapper.Interface.IRoleMapper;
 import com.fiafeng.common.pojo.Interface.IBaseRole;
 
 import java.util.List;
 
 
-@BeanDefinitionOrderAnnotation(1)
+@BeanDefinitionOrderAnnotation(value = ModelConstant.firstOrdered)
 public class DefaultMysqlRoleMapper extends BaseMysqlMapper implements IRoleMapper {
 
 

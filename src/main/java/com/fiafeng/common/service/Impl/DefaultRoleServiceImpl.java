@@ -2,6 +2,7 @@ package com.fiafeng.common.service.Impl;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.constant.CacheConstants;
+import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.mapper.Interface.IRoleMapper;
 import com.fiafeng.common.mapper.Interface.IUserRoleMapper;
@@ -9,7 +10,6 @@ import com.fiafeng.common.pojo.Interface.IBaseRole;
 import com.fiafeng.common.pojo.Interface.IBaseUserRole;
 import com.fiafeng.common.service.ICacheService;
 import com.fiafeng.common.service.IRoleService;
-import com.fiafeng.common.service.Impl.UpdateCacheServiceImpl;
 import com.fiafeng.common.utils.spring.FiafengMessageUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ import java.util.Objects;
  * @description
  */
 @Service
-@BeanDefinitionOrderAnnotation()
+@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
 public class DefaultRoleServiceImpl implements IRoleService {
 
 

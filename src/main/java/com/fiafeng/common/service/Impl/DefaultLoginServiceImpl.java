@@ -1,6 +1,7 @@
 package com.fiafeng.common.service.Impl;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.pojo.Vo.IBaseUserInfo;
 import com.fiafeng.common.service.ICacheService;
 import com.fiafeng.common.service.ITokenService;
@@ -19,7 +20,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-@BeanDefinitionOrderAnnotation(1)
+@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
 @Primary
 public class DefaultLoginServiceImpl implements ILoginService {
 

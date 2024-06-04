@@ -1,6 +1,7 @@
 package com.fiafeng.security.mapper;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import com.fiafeng.common.mapper.Interface.IUserMapper;
 import com.fiafeng.common.pojo.Interface.IBaseUser;
@@ -21,7 +22,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @description
  */
 
-@BeanDefinitionOrderAnnotation(3)
+@BeanDefinitionOrderAnnotation(value = ModelConstant.secondOrdered)
 @Component
 public class DefaultSecurityUserMapper implements IUserMapper {
 

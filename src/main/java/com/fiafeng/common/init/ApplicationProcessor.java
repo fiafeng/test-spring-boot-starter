@@ -5,9 +5,11 @@ import com.fiafeng.common.annotation.ApplicationProcessorAnnotation;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.core.Ordered;
+import org.springframework.lang.Nullable;
 
 @ApplicationProcessorAnnotation
 public abstract class ApplicationProcessor implements BeanDefinitionRegistryPostProcessor, BeanPostProcessor, Ordered {
@@ -26,6 +28,12 @@ public abstract class ApplicationProcessor implements BeanDefinitionRegistryPost
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 
     }
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        return bean;
+    }
+
+
 
     @Override
     public int getOrder() {

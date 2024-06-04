@@ -3,21 +3,25 @@ package com.fiafeng.blog.mapper;
 import com.fiafeng.blog.pojo.IBaseBlog;
 import com.fiafeng.blog.properties.FiafengMysqlBlogProperties;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.mapper.mysql.BaseMysqlMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-@BeanDefinitionOrderAnnotation
+
+@BeanDefinitionOrderAnnotation(value = ModelConstant.firstOrdered)
 public class DefaultMysqlBlogMapper extends BaseMysqlMapper implements IBlogMapper {
 
     @Autowired
     FiafengMysqlBlogProperties mysqlBlogProperties;
 
     @Override
-    public void setTableColName(String tableColName) {
-        super.setTableColName(mysqlBlogProperties.getTableName());
+    public void setTableName(String tableColName) {
+        super.setTableName(mysqlBlogProperties.getTableName());
     }
+
+
 
     @Override
     public boolean insertBlog(IBaseBlog baseBlog) {

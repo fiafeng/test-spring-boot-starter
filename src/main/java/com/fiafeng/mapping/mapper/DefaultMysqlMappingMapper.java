@@ -1,6 +1,7 @@
 package com.fiafeng.mapping.mapper;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.mapper.mysql.BaseMysqlMapper;
 import com.fiafeng.common.mapper.Interface.IMappingMapper;
 import com.fiafeng.mapping.pojo.Interface.IBaseMapping;
@@ -8,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
 
-@BeanDefinitionOrderAnnotation(2)
+@BeanDefinitionOrderAnnotation(value = ModelConstant.firstOrdered)
 public class DefaultMysqlMappingMapper extends BaseMysqlMapper implements IMappingMapper {
 
 

@@ -12,7 +12,6 @@ import java.util.List;
  * @create 2023/12/08
  * @description
  */
-@BeanDefinitionOrderAnnotation()
 public interface IUserRoleService {
 
     <T extends IBaseUserRole> boolean insertUserRole(T userRole);

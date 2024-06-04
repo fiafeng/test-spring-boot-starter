@@ -4,6 +4,7 @@ import com.fiafeng.common.properties.FiafengI18NProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -12,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Locale;
 
 @Slf4j
+@Component
 public class FiafengI18nInterceptor implements HandlerInterceptor {
 
     @Autowired

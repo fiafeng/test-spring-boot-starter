@@ -9,6 +9,7 @@ import com.fiafeng.mapping.pojo.vo.RequestMappingDataVO;
 import com.fiafeng.common.mapper.Interface.IMappingMapper;
 import com.fiafeng.common.pojo.Vo.FiafengStaticBean;
 import com.fiafeng.mapping.pojo.Interface.IBaseMapping;
+import com.fiafeng.mybatis.utils.MybatisPlusUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.condition.PathPatternsRequestCondition;
@@ -23,8 +24,7 @@ public class MappingApplicationInit implements ApplicationInit {
 
 
     static {
-        ObjectClassUtils.addRemoveBeanDefinitionByClass(IMappingMapper.class);
-
+//        MybatisPlusUtils.putHashMapMybatisPlusTableName(IMappingMapper.class, IBaseMapping.class);
     }
 
     @Override

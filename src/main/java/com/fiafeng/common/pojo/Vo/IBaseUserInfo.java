@@ -1,10 +1,11 @@
 package com.fiafeng.common.pojo.Vo;
 
 import com.fiafeng.common.pojo.Interface.IBaseUser;
+import com.fiafeng.common.pojo.Interface.base.IBasePojo;
 
 import java.util.List;
 
-public interface IBaseUserInfo {
+public interface IBaseUserInfo extends IBasePojo {
 
     String getUuid();
 

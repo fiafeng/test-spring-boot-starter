@@ -2,6 +2,7 @@ package com.fiafeng.common.mapper;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.mapper.Interface.IRoleMapper;
 import com.fiafeng.common.pojo.Interface.IBaseRole;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
@@ -15,8 +16,8 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-@BeanDefinitionOrderAnnotation()
 @Component
+@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
 public class DefaultRoleMapper implements IRoleMapper {
 
     ConcurrentHashMap<Long, IBaseRole> roleMap;

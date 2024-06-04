@@ -2,6 +2,7 @@ package com.fiafeng.common.controller.controller;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import com.fiafeng.common.annotation.HasPermissionAnnotation;
 import com.fiafeng.common.annotation.HasRoleAnnotation;
@@ -21,7 +22,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/user/rbac/role")
-@BeanDefinitionOrderAnnotation
+@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
 public class RBACRoleController implements IRoleController {
 
     @Autowired

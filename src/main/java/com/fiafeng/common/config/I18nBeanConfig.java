@@ -18,12 +18,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class I18nBeanConfig {
 
-    @Bean
-    public FiafengI18nInterceptor i18nInterceptor() {
-        return new FiafengI18nInterceptor();
-    }
-
-
     @Autowired
     FiafengI18NProperties i18nProperties;
 

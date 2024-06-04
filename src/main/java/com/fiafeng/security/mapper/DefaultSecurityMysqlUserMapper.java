@@ -2,6 +2,7 @@ package com.fiafeng.security.mapper;
 
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.mapper.Interface.IUserMapper;
 import com.fiafeng.common.pojo.Interface.IBaseUser;
 import com.fiafeng.common.mapper.mysql.BaseMysqlMapper;
@@ -12,7 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.List;
 
-@BeanDefinitionOrderAnnotation(4)
+@BeanDefinitionOrderAnnotation(value = ModelConstant.thirdOrdered)
 public class DefaultSecurityMysqlUserMapper extends BaseMysqlMapper implements IUserMapper {
 
 

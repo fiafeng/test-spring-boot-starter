@@ -1,6 +1,7 @@
 package com.fiafeng.common.service.Impl;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.service.ICacheService;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  * @description
  */
 @Service
-@BeanDefinitionOrderAnnotation()
+@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
 public class DefaultCacheServiceImpl implements ICacheService {
 
     // <key,[obj,data]>   对象数组第二个元素存储时间，如果没有设置缓存时间，则是Object对象

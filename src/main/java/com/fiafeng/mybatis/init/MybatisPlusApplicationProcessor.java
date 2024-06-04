@@ -1,29 +1,29 @@
 package com.fiafeng.mybatis.init;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.*;
 import com.fiafeng.common.annotation.ApplicationProcessorAnnotation;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.annotation.PojoAnnotation;
+import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.init.ApplicationProcessor;
-import com.fiafeng.common.pojo.DefaultPermission;
-import com.fiafeng.common.pojo.DefaultUser;
+import com.fiafeng.common.mapper.Interface.IMapper;
 import com.fiafeng.common.pojo.Interface.IBasePermission;
 import com.fiafeng.common.pojo.Interface.base.IBasePojo;
-import com.fiafeng.common.properties.mysql.FiafengMysqlPermissionProperties;
-import com.fiafeng.common.properties.mysql.FiafengMysqlUserProperties;
 import com.fiafeng.common.properties.mysql.IMysqlTableProperties;
 import com.fiafeng.common.utils.ObjectClassUtils;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
+import com.fiafeng.mybatis.properties.FiafengMybatisProperties;
+import com.fiafeng.mybatis.utils.MybatisPlusUtils;
 import javassist.*;
 import javassist.bytecode.AnnotationsAttribute;
 import javassist.bytecode.ClassFile;
 import javassist.bytecode.ConstPool;
-import javassist.bytecode.annotation.Annotation;
-import javassist.bytecode.annotation.EnumMemberValue;
+import javassist.bytecode.FieldInfo;
+import javassist.bytecode.annotation.*;
+import org.springframework.beans.BeansException;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Field;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 
@@ -31,24 +31,216 @@ import java.util.Objects;
 @ApplicationProcessorAnnotation(-1)
 public class MybatisPlusApplicationProcessor extends ApplicationProcessor {
 
+    FiafengMybatisProperties mybatisProperties;
+
     @Override
     public void postProcessBeanFactory() {
+        Map<String, IMysqlTableProperties> beansOfType = FiafengSpringUtils.getBeansOfType(IMysqlTableProperties.class);
+        Map<String, FiafengMybatisProperties> mybatisPropertiesMap = FiafengSpringUtils.getBeansOfType(FiafengMybatisProperties.class);
+        for (FiafengMybatisProperties value : mybatisPropertiesMap.values()) {
+            mybatisProperties  = value;
+            break;
+        }
 
-        Map<String, IBasePojo> beansOfType = ObjectClassUtils.beanFactory.getBeansOfType(IBasePojo.class);
 
-        Class<?> aClass = generateClass(DefaultUser.class, FiafengSpringUtils.getBean(FiafengMysqlUserProperties.class));
+        for (Map.Entry<Class<? extends IMapper>, Class<? extends IBasePojo>> classClassEntry : MybatisPlusUtils.getHashMap().entrySet()) {
+            Class<? extends IMapper> mapperClass = classClassEntry.getKey();
+            Class<? extends IBasePojo> pojoClass = classClassEntry.getValue();
+
+            String pojoSubstringName = pojoClass.getSimpleName().substring(5);
+            try {
+                FiafengSpringUtils.getBeansOfType(mapperClass);
+            } catch (BeansException e) {
+                for (String beanName : beansOfType.keySet()) {
+                    String name = beanName;
+                    if (beanName.contains(".")) {
+                        beanName = beanName.substring(beanName.lastIndexOf(".") + 1);
+                    }
+                    if (beanName.equals("FiafengMysql" + pojoSubstringName + "Properties")) {
+                        IMysqlTableProperties tableProperties = beansOfType.get(name);
+                        Map<String, ? extends IBasePojo> beanFactoryBeansOfType = FiafengSpringUtils.beanFactory.getBeansOfType(pojoClass);
+                        for (String pojoName : beanFactoryBeansOfType.keySet()) {
+                            if (pojoName.equals("default" + pojoSubstringName) || pojoName.equals("Default" + pojoSubstringName)) {
+                                try {
+                                    Class<?> aClass = createdMybatisPojoClass(beanFactoryBeansOfType.get(pojoName).getClass(), tableProperties, pojoClass);
+                                    ObjectClassUtils.registerBean(aClass, null);
+
+                                } catch (NotFoundException | CannotCompileException | IOException exception) {
+                                    throw new RuntimeException(exception);
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw e;
+            }
+        }
+    }
 
 
-        FiafengSpringUtils.registerBean(aClass.getSimpleName(),aClass, null);
+    private Class<?> createdMybatisPojoClass(Class<? extends IBasePojo> defaultClass, IMysqlTableProperties properties, Class<? extends IBasePojo> defaultInterface)
+            throws NotFoundException, CannotCompileException, IOException {
+        ClassPool pool = ClassPool.getDefault();
+
+        // 获取源类的CtClass对象
+        CtClass originalClass = null;
+        try {
+            originalClass = pool.get(defaultClass.getName());
+        } catch (NotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        boolean deletedField = false;
+
+
+
+
+        // 创建新类的CtClass对象，这里使用复制构造函数
+        CtClass newClass = pool.makeClass(originalClass.getPackageName() + ".Mybatis" + originalClass.getSimpleName());
+        for (CtField ctField : originalClass.getDeclaredFields()) {
+            ClassFile classFile = newClass.getClassFile();
+            ConstPool constPool = classFile.getConstPool();
+            CtField newCtField = new CtField(ctField.getType(), ctField.getName(), newClass);
+            if (!deletedField && mybatisProperties.getTombstone() && mybatisProperties.getTombstoneFieldName().equals(newCtField.getName())){
+                // 逻辑删除字段
+                setTableLogicAnnotation(ctField);
+                deletedField = true;
+
+            } else if (properties.getIdName().equals(newCtField.getName())) {
+                // 主键字段
+                AnnotationsAttribute ctFieldAnnotationsAttribute = new AnnotationsAttribute(newCtField.getFieldInfo().getConstPool(), AnnotationsAttribute.visibleTag);
+                Annotation tableIdAnnotation = getEnumAnnotation(TableId.class, IdType.class, IdType.AUTO.name(), constPool);
+                ctFieldAnnotationsAttribute.addAnnotation(tableIdAnnotation);
+                newCtField.getFieldInfo().addAttribute(ctFieldAnnotationsAttribute);
+            }
+            // 添加属性
+            newClass.addField(newCtField);
+
+            // 给属性添加对应的set和get方法
+            addSetterGetter(defaultInterface, newCtField, newClass);
+        }
+
+        if (!deletedField && mybatisProperties.getTombstone()){
+            // 原本的类没有添加了逻辑删除属性，
+
+            CtField ctField = new CtField(newClass.getClassPool().get(Boolean.class.getName()), mybatisProperties.getTombstoneFieldName(), newClass);
+            newClass.addField(ctField);
+            setTableLogicAnnotation(ctField);
+
+            addSetterGetter(defaultInterface, ctField, newClass);
+        }
+
+        // 创建对应的构造方法
+        for (CtConstructor constructor : originalClass.getConstructors()) {
+            CtConstructor ctNewConstructor = CtNewConstructor.make(constructor.getParameterTypes(), constructor.getExceptionTypes(), newClass);
+            newClass.addConstructor(ctNewConstructor);
+        }
+
+        // 继承所有的接口
+        for (CtClass anInterface : originalClass.getInterfaces()) {
+            newClass.addInterface(anInterface);
+        }
+
+        ConstPool constPool = newClass.getClassFile().getConstPool();
+
+        AnnotationsAttribute annotationsAttribute = new AnnotationsAttribute(constPool, AnnotationsAttribute.visibleTag);
+        // 添加 @BeanDefinitionOrderAnnotation 注解和值
+        Annotation beanDefinitionOrderAnnotation = getIntegerAnnotation(BeanDefinitionOrderAnnotation.class, ModelConstant.sixthOrdered, constPool);
+        // 添加 @TableName 注解和值
+        Annotation tableNameAnnotation = getStringAnnotation(TableName.class, properties.getTableName(), constPool);
+
+        // 添加 @PojoAnnotation 注解
+        Annotation pojoAnnotationAnnotation = new Annotation(PojoAnnotation.class.getCanonicalName(), constPool);
+
+
+        annotationsAttribute.addAnnotation(tableNameAnnotation);
+        annotationsAttribute.addAnnotation(beanDefinitionOrderAnnotation);
+        annotationsAttribute.addAnnotation(pojoAnnotationAnnotation);
+
+        newClass.getClassFile().addAttribute(annotationsAttribute);
+//        newClass.writeFile("C:\\Users\\issuser\\Desktop\\");
+        newClass.writeFile();
+        return newClass.toClass();
+    }
+
+    private static void addSetterGetter(Class<? extends IBasePojo> defaultInterface, CtField newCtField, CtClass newClass) throws NotFoundException, CannotCompileException {
+
+
+        String ctFieldTypeName = newCtField.getType().getName();
+        String fieldName = newCtField.getName();
+        String method = fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+        String set = "    public " + defaultInterface.getName() + " set" + method + "(" + ctFieldTypeName + " " + fieldName + " ){\n" +
+                "        this." + fieldName + " = " + fieldName + ";\n" +
+                "        return this;\n" +
+                "    }";
+        CtMethod setter = CtMethod.make(set, newClass);
+        newClass.addMethod(setter);
+        String get = "public " + ctFieldTypeName + " get" + method + "() {\n" +
+                "                    return " + fieldName + ";\n" +
+                "                }";
+
+        CtMethod getter = CtMethod.make(get, newClass);
+        newClass.addMethod(getter);
+    }
+
+    /**
+     * 设置逻辑删除的注解
+     * @param ctField 属性信息
+     */
+    private void setTableLogicAnnotation(CtField ctField) {
+
+        AnnotationsAttribute ctFieldAnnotationsAttribute = new AnnotationsAttribute(ctField.getFieldInfo().getConstPool(), AnnotationsAttribute.visibleTag);
+        Annotation tableIdAnnotation = getStringAnnotation(TableLogic.class, "0", ctField.getFieldInfo().getConstPool());
+        StringMemberValue stringMemberValue = new StringMemberValue(ctField.getFieldInfo().getConstPool());
+        stringMemberValue.setValue("1");
+        tableIdAnnotation.addMemberValue("delval", stringMemberValue);
+        ctFieldAnnotationsAttribute.addAnnotation(tableIdAnnotation);
+        ctField.getFieldInfo().addAttribute(ctFieldAnnotationsAttribute);
+    }
+
+    public static Annotation getEnumAnnotation(Class<? extends java.lang.annotation.Annotation> annotationClass,
+                                               Class<?> typeClass, String value, ConstPool constPool) {
+        Annotation annotation = new Annotation(annotationClass.getCanonicalName(), constPool);
+        EnumMemberValue enumMemberValue = new EnumMemberValue(constPool);
+        enumMemberValue.setType(typeClass.getName());
+        enumMemberValue.setValue(value);
+        annotation.addMemberValue("value", enumMemberValue);
+        return annotation;
 
     }
 
 
 
-    public static Class<?> generateClass(Class<? extends IBasePojo> defaultClass, IMysqlTableProperties properties) {
+    public static Annotation getStringAnnotation(Class<? extends java.lang.annotation.Annotation> annotationClass, String value, ConstPool constPool) {
+        Annotation annotation = new Annotation(annotationClass.getCanonicalName(), constPool);
+        StringMemberValue stringMemberValue = new StringMemberValue(constPool);
+        stringMemberValue.setValue(value);
+        annotation.addMemberValue("value", stringMemberValue);
+        return annotation;
+    }
+
+    public static Annotation getLongAnnotation(Class<? extends java.lang.annotation.Annotation> annotationClass, Long value, ConstPool constPool) {
+        Annotation annotation = new Annotation(annotationClass.getCanonicalName(), constPool);
+        LongMemberValue longMemberValue = new LongMemberValue(constPool);
+        longMemberValue.setValue(value);
+        annotation.addMemberValue("value", longMemberValue);
+        return annotation;
+    }
+
+    public static Annotation getIntegerAnnotation(Class<? extends java.lang.annotation.Annotation> annotationClass, Integer value, ConstPool constPool) {
+        Annotation annotation = new Annotation(annotationClass.getCanonicalName(), constPool);
+        IntegerMemberValue longMemberValue = new IntegerMemberValue(constPool);
+        longMemberValue.setValue(value);
+        annotation.addMemberValue("value", longMemberValue);
+        return annotation;
+    }
+
+
+    public static Class<?> generateClass(Class<? extends IBasePojo> defaultClass, IMysqlTableProperties properties, Class<? extends IBasePojo> defaultInterface) {
 
         String packageName = "com.fiafeng.mybatis.pojo.";
-        String className = "MybatisDefaultPermission";
+        String className = "Mybatis" + defaultClass.getSimpleName();
 
         try {        // 添加一个方法到类中
             ClassPool pool = ClassPool.getDefault();
@@ -60,60 +252,70 @@ public class MybatisPlusApplicationProcessor extends ApplicationProcessor {
             ClassFile classFile = ctClass.getClassFile();
             ConstPool constPool = classFile.getConstPool();
             AnnotationsAttribute annotationsAttribute = new AnnotationsAttribute(constPool, AnnotationsAttribute.visibleTag);
-            // 创建要添加的注解
+            // 添加 @BeanDefinitionOrderAnnotation 注解和值
             Annotation beanDefinitionOrderAnnotation = new Annotation(BeanDefinitionOrderAnnotation.class.getCanonicalName(), constPool);
+            EnumMemberValue BeanDefinitionOrderEnumMemberValue = new EnumMemberValue(constPool);
+            BeanDefinitionOrderEnumMemberValue.setType(Integer.class.getName());
+            BeanDefinitionOrderEnumMemberValue.setValue("10");
+            beanDefinitionOrderAnnotation.addMemberValue("value", BeanDefinitionOrderEnumMemberValue);
+
+            // 添加 @TableName 注解和值
+            Annotation tableNameAnnotation = new Annotation(TableName.class.getName(), constPool);
+            EnumMemberValue tableNameEnumMemberValue = new EnumMemberValue(constPool);
+            tableNameEnumMemberValue.setType(String.class.getName());
+            tableNameEnumMemberValue.setValue(properties.getTableName());
+            tableNameAnnotation.addMemberValue("value", tableNameEnumMemberValue);
+
+            // 添加 @PojoAnnotation 注解
             Annotation pojoAnnotationAnnotation = new Annotation(PojoAnnotation.class.getCanonicalName(), constPool);
-            // 设置注解中的属性和值
-            EnumMemberValue value = new EnumMemberValue(constPool);
-            value.setType(Integer.class.getName());
-            value.setValue("10");
+
+            CtClass pojoCtClass = pool.get(defaultClass.getName());
+            for (CtField ctField : pojoCtClass.getDeclaredFields()) {
+                FieldInfo fieldInfo = ctField.getFieldInfo();
+                String fieldName = ctField.getName();
+                String method = fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+                if (properties.getIdName().equals(fieldName)) {
+                    AnnotationsAttribute ctFieldAnnotationsAttribute = new AnnotationsAttribute(fieldInfo.getConstPool(), AnnotationsAttribute.visibleTag);
+                    Annotation tableIdAnnotation = new Annotation(TableId.class.getCanonicalName(), constPool);
+                    EnumMemberValue tableIdEnumMemberValue = new EnumMemberValue(constPool);
+                    tableIdEnumMemberValue.setType(IdType.class.getName());
+                    tableIdEnumMemberValue.setValue(IdType.AUTO.name());
+                    tableIdAnnotation.addMemberValue("value", tableIdEnumMemberValue);
+                    ctFieldAnnotationsAttribute.addAnnotation(tableIdAnnotation);
+                    fieldInfo.addAttribute(ctFieldAnnotationsAttribute);
+                }
+                // 添加属性
+                classFile.addField(fieldInfo);
+
+                String set = "    public " + defaultInterface.getName() + " set" + method + "(Long " + fieldName + " ){\n" +
+                        "        this." + fieldName + " = " + fieldName + ";\n" +
+                        "        return this;\n" +
+                        "    }";
+                CtMethod setter = CtMethod.make(set, ctClass);
+                ctClass.addMethod(setter);
+                CtClass ctFieldType = ctField.getType();
+                String get = "public " + ctFieldType + " get" + method + "() {\n" +
+                        "                    return " + fieldName + ";\n" +
+                        "                }";
+                CtMethod getter = CtMethod.make(get, ctClass);
+                ctClass.addMethod(getter);
+
+            }
+
+
+            annotationsAttribute.addAnnotation(tableNameAnnotation);
             annotationsAttribute.addAnnotation(beanDefinitionOrderAnnotation);
             annotationsAttribute.addAnnotation(pojoAnnotationAnnotation);
 
-            ctClass.getClassFile().addAttribute(annotationsAttribute);
+            classFile.addAttribute(annotationsAttribute);
 
-            //添加toString方法
-            StringBuilder builder = new StringBuilder();
-            builder.append("return \"" + className + " { \n");
-            for (Field declaredField : defaultClass.getDeclaredFields()) {
-                String fieldName = declaredField.getName();
-                builder.append("                   \" " + fieldName + " = \" +" + fieldName + " + \n ");
-                CtField ctField = new CtField(pool.get(declaredField.getType().getCanonicalName()), fieldName + "", ctClass);
-                ctField.setModifiers(Modifier.PUBLIC);
-                ctClass.addField(ctField);
-                if (properties.getIdName().equals(fieldName)) {
-                    AnnotationsAttribute fieldAnnotationsAttribute = new AnnotationsAttribute(constPool, AnnotationsAttribute.visibleTag);
-                    // 创建要添加的注解
-                    Annotation jsonFileAnnotation = new Annotation(TableId.class.getCanonicalName(), constPool);
-                    // 设置注解中的属性和值
-                    EnumMemberValue enumMemberValue = new EnumMemberValue(constPool);
-                    enumMemberValue.setValue("AUTO");
-                    enumMemberValue.setType(IdType.class.getName());
-
-                    jsonFileAnnotation.addMemberValue("type", enumMemberValue);
-
-                    // 把这个注解放到一个AnnotationsAttribute对象里面
-                    fieldAnnotationsAttribute.addAnnotation(jsonFileAnnotation);
-                    // 把这个对象怼到要打上这个注解的字段/类上面
-                    ctField.getFieldInfo().addAttribute(fieldAnnotationsAttribute);
-                }
-
-                fieldName = fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
-
-                CtMethod setter = new CtMethod(pool.get(IBasePermission.class.getName()), "set" + fieldName, null, ctClass);
-                setter.setBody("return this;");
-                CtMethod getter = CtNewMethod.getter("get" + fieldName, ctField);
-                ctClass.addMethod(setter);
-                ctClass.addMethod(getter);
-            }
-            builder.append("                \"}\";");
 
             ctClass.addMethod(ToStringMethod(ctClass));
             ctClass.addMethod(EqualsMethod(ctClass));
             ctClass.addMethod(HashCodeMethod(ctClass));
             ctClass.addMethod(CanEqualMethod(ctClass));
 
-//            ctClass.writeFile("E:\\project\\java\\test-spring-boot-starter\\target\\");
+            ctClass.writeFile("C:\\Users\\issuser\\Desktop\\");
             return ctClass.toClass(ClassPool.getDefault().getClassLoader(), Class.class.getProtectionDomain());
         } catch (Exception e) {
             throw new RuntimeException(e);

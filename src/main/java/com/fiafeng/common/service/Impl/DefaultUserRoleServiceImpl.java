@@ -2,8 +2,8 @@ package com.fiafeng.common.service.Impl;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.constant.CacheConstants;
+import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.mapper.Interface.*;
-import com.fiafeng.common.service.Impl.UpdateCacheServiceImpl;
 import com.fiafeng.common.utils.spring.FiafengMessageUtils;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.pojo.Interface.IBasePermission;
@@ -24,7 +24,7 @@ import java.util.List;
  * @description
  */
 @Service
-@BeanDefinitionOrderAnnotation(1)
+@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
 public class DefaultUserRoleServiceImpl implements IUserRoleService{
 
     @Autowired

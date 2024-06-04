@@ -2,9 +2,11 @@ package com.fiafeng.security.filter;
 
 import com.alibaba.fastjson2.JSON;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.filter.IJwtAuthenticationTokenFilter;
 import com.fiafeng.common.pojo.Dto.AjaxResult;
+import com.fiafeng.security.properties.FiafengSecurityProperties;
 import com.fiafeng.security.service.IUserDetails;
 import com.fiafeng.common.service.ICacheService;
 import com.fiafeng.common.service.ITokenService;
@@ -32,7 +34,7 @@ import java.io.IOException;
  */
 
 
-@BeanDefinitionOrderAnnotation(3)
+@BeanDefinitionOrderAnnotation(value = ModelConstant.secondOrdered)
 @Component
 public class DefaultSecurityJwtAuthenticationTokenFilter extends OncePerRequestFilter implements IJwtAuthenticationTokenFilter {
 
@@ -42,9 +44,24 @@ public class DefaultSecurityJwtAuthenticationTokenFilter extends OncePerRequestF
     @Autowired
     ICacheService cacheService;
 
+    @Autowired
+    FiafengSecurityProperties fiafengSecurityProperties;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
+        String requestURI = request.getRequestURI();
+        if (requestURI.startsWith("/login") || requestURI.startsWith("/captchaImage") || requestURI.startsWith("/register")){
+            chain.doFilter(request, response);
+            return;
+        }
+        for (String string : fiafengSecurityProperties.permitAllList) {
+            if (requestURI.startsWith(string.replace("/**",""))){
+                chain.doFilter(request, response);
+                return;
+            }
+        }
+
 
         IUserDetails userDetails;
         try {
@@ -52,7 +69,7 @@ public class DefaultSecurityJwtAuthenticationTokenFilter extends OncePerRequestF
             // 从请求中获取用户信息
             userDetails = tokenService.getLoginUser();
         } catch (ServiceException e) {
-            ServletUtils.renderString(response, JSON.toJSONString(AjaxResult.error(e.getMessage(), e.getCode())));
+            ServletUtils.renderString(response, JSON.toJSONString(AjaxResult.error(e.getCode(), e.getMessage())));
             return;
         }
 
@@ -66,6 +83,9 @@ public class DefaultSecurityJwtAuthenticationTokenFilter extends OncePerRequestF
 
             authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        } else {
+            ServletUtils.renderString(response, JSON.toJSONString(AjaxResult.error(403, "获取token失败")));
+            return;
         }
         try {
 
@@ -78,11 +98,12 @@ public class DefaultSecurityJwtAuthenticationTokenFilter extends OncePerRequestF
                 Throwable cause = e.getCause();
                 if (cause instanceof ServiceException) {
                     ServiceException serviceException = (ServiceException) cause;
-                    ServletUtils.renderString(response, JSON.toJSONString(AjaxResult.error(serviceException.getCode(),serviceException.getMessage())));
+                    ServletUtils.renderString(response, JSON.toJSONString(AjaxResult.error(serviceException.getCode(), serviceException.getMessage())));
                     return;
                 }
             }
             throw e;
         }
+
     }
 }

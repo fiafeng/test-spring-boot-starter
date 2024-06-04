@@ -1,7 +1,7 @@
 package com.fiafeng.common.service.Impl;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.common.service.Impl.UpdateCacheServiceImpl;
+import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.utils.spring.FiafengMessageUtils;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.mapper.Interface.IPermissionMapper;
@@ -27,7 +27,7 @@ import java.util.List;
  */
 
 @Service
-@BeanDefinitionOrderAnnotation()
+@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
 public class DefaultRolePermissionServiceImpl implements IRolePermissionService {
     @Autowired
     ICacheService cacheService;

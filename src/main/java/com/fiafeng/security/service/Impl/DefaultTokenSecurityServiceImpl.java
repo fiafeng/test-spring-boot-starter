@@ -4,7 +4,11 @@ import com.alibaba.fastjson2.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.constant.ModelConstant;
+import com.fiafeng.common.pojo.Interface.IBaseUser;
+import com.fiafeng.common.pojo.Vo.IBaseUserInfo;
 import com.fiafeng.common.properties.FiafengTokenProperties;
+import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import com.fiafeng.security.service.ITokenSecurityService;
 import com.fiafeng.common.constant.CacheConstants;
 import com.fiafeng.common.exception.ServiceException;
@@ -33,7 +37,7 @@ import java.util.concurrent.TimeUnit;
  * @description token服务类
  */
 @Slf4j
-@BeanDefinitionOrderAnnotation(3)
+@BeanDefinitionOrderAnnotation(value = ModelConstant.secondOrdered)
 @Component
 public class DefaultTokenSecurityServiceImpl implements ITokenSecurityService {
 
@@ -126,8 +130,14 @@ public class DefaultTokenSecurityServiceImpl implements ITokenSecurityService {
                 // 解析对应的权限以及用户信息
                 String uuid = (String) claims.get(CacheConstants.TOKEN_LOGIN_USER_KEY);
                 String userKey = getTokenKey(uuid);
+//                IBaseUserInfo defaultSecurityLoginUserInfo = cacheService.getCacheObject(userKey);
                 JSONObject jsonObject = cacheService.getCacheObject(userKey);
-                DefaultSecurityLoginUserInfo defaultSecurityLoginUserInfo = JSONObject.parseObject(jsonObject.toJSONString(), DefaultSecurityLoginUserInfo.class);
+//
+//                IUserDetails defaultSecurityLoginUserInfo = jsonObject.toJavaObject(FiafengSpringUtils.getBean(IUserDetails.class).getClass());
+                IUserDetails defaultSecurityLoginUserInfo = JSONObject.parseObject(jsonObject.toJSONString(), FiafengSpringUtils.getBean(IUserDetails.class).getClass());
+
+                defaultSecurityLoginUserInfo.setUser(jsonObject.getJSONObject("user").toJavaObject(FiafengSpringUtils.getBean(IBaseUser.class).getClass()));
+
                 if (defaultSecurityLoginUserInfo == null) {
                     throw new ServiceException("token不存在", 403);
                 }
@@ -175,12 +185,12 @@ public class DefaultTokenSecurityServiceImpl implements ITokenSecurityService {
         userDetails.setExpireTime(userDetails.getLoginTime() + expireTime * MILLIS_MINUTE);
         String uuidKey = CacheConstants.USERNAME_UUID + userDetails.getUser().getUsername();
         // 根据uuid将loginUser缓存
-        String userKey = getTokenKey(userDetails.getUuid());
         ObjectMapper objectMapper = new ObjectMapper();
+        String userKey = getTokenKey(userDetails.getUuid());
         try {
             String jsonString = objectMapper.writeValueAsString(userDetails);
             JSONObject jsonObject = JSONObject.parse(jsonString);
-            cacheService.setCacheObject(userKey, jsonObject, expireTime, TimeUnit.MINUTES);
+            cacheService.setCacheObject(userKey, jsonObject, tokenProperties.expireTime, TimeUnit.MINUTES);
             cacheService.setCacheObject(uuidKey, userDetails.getUuid(), tokenProperties.expireTime, TimeUnit.MINUTES);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);

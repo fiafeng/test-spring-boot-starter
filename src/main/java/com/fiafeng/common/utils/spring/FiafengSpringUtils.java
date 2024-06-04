@@ -1,6 +1,7 @@
 package com.fiafeng.common.utils.spring;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeansException;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.Ordered;
 import org.springframework.lang.Nullable;
 
 import java.util.Map;
@@ -21,12 +23,12 @@ import java.util.Map;
  *
  * @author ruoyi
  */
-public final class FiafengSpringUtils implements BeanFactoryPostProcessor, ApplicationContextAware {
+public final class FiafengSpringUtils implements BeanFactoryPostProcessor, ApplicationContextAware, Ordered {
     /**
      * Spring应用上下文环境
      */
     @Getter
-    private static ConfigurableListableBeanFactory beanFactory;
+    public static ConfigurableListableBeanFactory beanFactory;
 
     public static ApplicationContext applicationContext;
 
@@ -179,5 +181,10 @@ public final class FiafengSpringUtils implements BeanFactoryPostProcessor, Appli
      */
     public static String getRequiredProperty(String key) {
         return applicationContext.getEnvironment().getRequiredProperty(key);
+    }
+
+    @Override
+    public int getOrder() {
+        return -1;
     }
 }

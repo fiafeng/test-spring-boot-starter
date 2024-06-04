@@ -2,6 +2,7 @@ package com.fiafeng.common.mapper;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.mapper.Interface.IUserMapper;
 import com.fiafeng.common.pojo.Interface.IBaseUser;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
@@ -21,7 +22,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * @create 2023/12/07
  * @description
  */
-@BeanDefinitionOrderAnnotation()
+
+@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
 @Component
 @Primary
 public class DefaultUserMapper implements IUserMapper {
@@ -37,6 +39,9 @@ public class DefaultUserMapper implements IUserMapper {
     private ConcurrentHashMap<Long, IBaseUser> getUserMap() {
         if (userMap == null){
             userMap = new ConcurrentHashMap<>();
+            if (rbacProperties == null){
+                rbacProperties = FiafengSpringUtils.getBean(FiafengRbacProperties.class);
+            }
 
             IBaseUser defaultUser = FiafengSpringUtils.getBean(IBaseUser.class);
             defaultUser.setId(1L);

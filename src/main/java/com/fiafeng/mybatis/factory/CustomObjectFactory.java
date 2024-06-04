@@ -15,19 +15,6 @@ import java.util.stream.Collectors;
 
 public class CustomObjectFactory extends DefaultObjectFactory {
 
-
-    @Bean
-    public MybatisPlusInterceptor mybatisPlusInterceptor() {
-        MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
-        DynamicTableNameInnerInterceptor dynamicTableNameInnerInterceptor = new DynamicTableNameInnerInterceptor();
-        dynamicTableNameInnerInterceptor.setTableNameHandler((sql, tableName) -> {
-            String newTable = "user1";
-            return newTable;
-        });
-        interceptor.addInnerInterceptor(dynamicTableNameInnerInterceptor);
-        return interceptor;
-    }
-
     @Override
     public <T> T create(Class<T> type) {
         return create(type, null, null);

@@ -2,12 +2,15 @@ package com.fiafeng.common.utils;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -543,6 +546,7 @@ public class ConvertUtils {
         return toEnum(clazz, value, null);
     }
 
+
     /**
      * 转换为BigInteger<br>
      * 如果给定的值为空，或者转换失败，返回默认值<br>
@@ -851,4 +855,45 @@ public class ConvertUtils {
         }
         return head + s.replaceAll("(零.)*零元", "元").replaceFirst("(零.)+", "").replaceAll("(零.)+", "零").replaceAll("^整$", "零元整");
     }
+
+
+    /**
+     * 将obj转换成为targetClass类型，并且将名字和类型同时一直的属性赋值到新生成的实例对象里面
+     */
+    public static <D, W> W toObject(D obj, Class<W> targetClass) {
+        Class<?> objClass = obj.getClass();
+        W instance;
+        try {
+            instance = targetClass.newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("反射获取" + targetClass + "实例对象失败");
+        }
+        for (Field targetClassField : targetClass.getFields()) {
+            String targetClassFieldName = targetClassField.getName();
+            Class<?> targetClassFieldType = targetClassField.getType();
+            Field objClassDeclaredField;
+            try {
+                objClassDeclaredField = objClass.getDeclaredField(targetClassFieldName);
+            } catch (NoSuchFieldException e) {
+                continue;
+            }
+            if (objClassDeclaredField.getType() != targetClassFieldType) {
+                continue;
+            }
+            try {
+                targetClassField.set(instance, objClassDeclaredField.get(obj));
+            } catch (IllegalAccessException e) {
+            }
+        }
+        return instance;
+    }
+
+    public static <D, W> List<W> toObjectList(List<D> obj, Class<W> targetClass) {
+        List<W> list = new ArrayList<>();
+        for (D d : obj) {
+            list.add(toObject(d, targetClass));
+        }
+        return list;
+    }
+
 }

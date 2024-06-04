@@ -1,6 +1,7 @@
 package com.fiafeng.common.service.Impl;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.mapper.Interface.IUserMapper;
 import com.fiafeng.common.pojo.Interface.IBaseUser;
 import com.fiafeng.common.service.IUserTableInitService;
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Service;
 
 
 @Service
-@BeanDefinitionOrderAnnotation(1)
+@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
 public class DefaultUserTableInitServiceServiceImpl implements IUserTableInitService {
 
     @Autowired

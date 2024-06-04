@@ -2,6 +2,7 @@ package com.fiafeng.common.mapper;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.mapper.Interface.IRolePermissionMapper;
 import com.fiafeng.common.pojo.Interface.IBaseRolePermission;
@@ -14,7 +15,8 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-@BeanDefinitionOrderAnnotation()
+
+@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
 @Component
 public class DefaultRolePermissionMapper implements IRolePermissionMapper {
 

@@ -1,16 +1,15 @@
 package com.fiafeng.mapping.pojo;
 
-import com.fiafeng.common.annotation.PojoAnnotation;
-import com.fiafeng.mapping.pojo.DefaultMapping;
 import com.fiafeng.mapping.pojo.vo.RequestMappingDataVO;
 import lombok.Data;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 @Data
-@PojoAnnotation
+@Component
 public class RequestMappingBean {
 
     List<RequestMappingDataVO> defaultMappingList = new ArrayList<>();

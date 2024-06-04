@@ -1,11 +1,9 @@
 package com.fiafeng.mapping.mapper;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.common.annotation.PojoAnnotation;
+import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.mapper.Interface.IMappingMapper;
 import com.fiafeng.mapping.pojo.Interface.IBaseMapping;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -13,7 +11,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-@BeanDefinitionOrderAnnotation()
+@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
 @Component
 public class DefaultMappingMapper implements IMappingMapper {
 

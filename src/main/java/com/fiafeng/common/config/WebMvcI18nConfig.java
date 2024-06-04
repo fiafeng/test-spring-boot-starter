@@ -1,7 +1,9 @@
 package com.fiafeng.common.config;
 
 import com.fiafeng.common.Interceptor.FiafengI18nInterceptor;
+import com.fiafeng.mybatis.Interceptor.PageHelperInterceptor;
 import com.fiafeng.common.properties.FiafengI18NProperties;
+import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -33,6 +35,11 @@ public class WebMvcI18nConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(i18nInterceptor).addPathPatterns("/**");
+        try {
+            PageHelperInterceptor bean = FiafengSpringUtils.getBean(PageHelperInterceptor.class);
+            registry.addInterceptor(bean).addPathPatterns("/**");
+        }catch (Exception ignored) {
+        }
     }
 
 }

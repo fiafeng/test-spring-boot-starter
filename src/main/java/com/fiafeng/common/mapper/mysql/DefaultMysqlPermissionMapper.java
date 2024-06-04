@@ -2,12 +2,14 @@ package com.fiafeng.common.mapper.mysql;
 
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.mapper.Interface.IPermissionMapper;
 import com.fiafeng.common.pojo.Interface.IBasePermission;
 
 import java.util.List;
 
-@BeanDefinitionOrderAnnotation(1)
+
+@BeanDefinitionOrderAnnotation(value = ModelConstant.firstOrdered)
 public class DefaultMysqlPermissionMapper extends BaseMysqlMapper implements IPermissionMapper {
 
     public <T extends IBasePermission> boolean insertPermission(T permission) {

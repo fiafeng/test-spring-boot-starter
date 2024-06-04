@@ -36,35 +36,35 @@ public class DefaultSecurityLoginUserInfo implements Serializable, IUserDetails 
     /**
      * 用户唯一标识
      */
-    private String uuid;
+    public String uuid;
 
 
     /**
      * 登录时间
      */
-    private Long loginTime;
+    public Long loginTime;
 
 
     /**
      * 过期时间
      */
-    private Long expireTime;
+    public Long expireTime;
 
 
     /**
      * 用户信息
      */
-    private IBaseUser user;
+    public IBaseUser user;
 
     /**
      * 用户权限列表
      */
-    private List<String> permissionList;
+    public List<String> permissionList;
 
     /**
      * 用户角色列表
      */
-    private List<String> roleList;
+    public List<String> roleList;
 
 
     @Override

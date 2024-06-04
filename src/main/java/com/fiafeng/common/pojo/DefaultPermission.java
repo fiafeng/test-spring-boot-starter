@@ -2,6 +2,7 @@ package com.fiafeng.common.pojo;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.annotation.PojoAnnotation;
+import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.pojo.Interface.IBasePermission;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -18,7 +19,7 @@ import java.util.List;
 @Data
 @Accessors(chain = true)
 @PojoAnnotation
-@BeanDefinitionOrderAnnotation
+@BeanDefinitionOrderAnnotation()
 public class DefaultPermission implements IBasePermission {
 
     public Long id;

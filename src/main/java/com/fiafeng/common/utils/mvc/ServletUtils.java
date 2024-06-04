@@ -4,6 +4,7 @@ package com.fiafeng.common.utils.mvc;
 import com.fiafeng.common.constant.Constants;
 import com.fiafeng.common.utils.ConvertUtils;
 import com.fiafeng.common.utils.StringUtils;
+import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -25,6 +26,7 @@ import java.util.Map;
  *
  * @author ruoyi
  */
+@Component
 public class ServletUtils {
     /**
      * 获取String参数

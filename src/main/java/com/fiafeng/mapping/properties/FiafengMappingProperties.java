@@ -10,7 +10,6 @@ import java.util.List;
 
 @ConfigurationProperties("fiafeng.mapping")
 @Data
-@Component
 public class FiafengMappingProperties implements IEnableProperties {
 
     /**

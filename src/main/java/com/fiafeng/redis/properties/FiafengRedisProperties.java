@@ -8,5 +8,15 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Data
 public class FiafengRedisProperties implements IEnableProperties {
 
+    /**
+     * 是否开启redis配置
+     */
     public Boolean enable = true;
+
+
+    /**
+     * 重新set是否需要更新有效期
+     */
+    public Boolean expire = true;
+
 }

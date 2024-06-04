@@ -1,5 +1,6 @@
 package com.fiafeng.common.config.bean;
 
+import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -48,6 +49,10 @@ public class DefaultDataSource implements DataSource {
             }
         }
         try {
+
+            if (environment == null){
+                environment = FiafengSpringUtils.getBean(Environment.class);
+            }
 
             if (url == null ){
                 url = environment.getProperty("spring.datasource.url");

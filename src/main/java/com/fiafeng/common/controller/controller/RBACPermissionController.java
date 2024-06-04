@@ -2,6 +2,7 @@ package com.fiafeng.common.controller.controller;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import com.fiafeng.common.annotation.HasPermissionAnnotation;
 import com.fiafeng.common.annotation.HasRoleAnnotation;
@@ -23,7 +24,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/user/rbac/permission")
-@BeanDefinitionOrderAnnotation
+@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
 public class RBACPermissionController implements IPermissionController {
 
     @Autowired
@@ -37,8 +38,8 @@ public class RBACPermissionController implements IPermissionController {
 
 
     @PostMapping("/insert")
-    @HasPermissionAnnotation("rbac:role:insert")
-    @HasRoleAnnotation("rbac:role")
+    @HasPermissionAnnotation("rbac:permission:insert")
+    @HasRoleAnnotation("rbac:permission")
     public AjaxResult insertRole(@RequestBody JSONObject jsonObject){
         IBasePermission bean = FiafengSpringUtils.getBean(IBasePermission.class);
         IBasePermission iBasePermission = jsonObject.toJavaObject(bean.getClass());
@@ -47,7 +48,7 @@ public class RBACPermissionController implements IPermissionController {
     }
 
     @PostMapping("/deleted/{permissionId}")
-    @HasPermissionAnnotation("rbac:role:deleted")
+    @HasPermissionAnnotation("rbac:permission:deleted")
     public AjaxResult deletedRole(@PathVariable Long permissionId){
         // 如果还有角色拥有这个权限，则不允许删除
         permissionService.deletedPermission(permissionId);
@@ -55,7 +56,7 @@ public class RBACPermissionController implements IPermissionController {
     }
 
     @PostMapping("/update")
-    @HasPermissionAnnotation("rbac:role:update")
+    @HasPermissionAnnotation("rbac:permission:update")
     public AjaxResult updateRole(@RequestBody  JSONObject jsonObject){
         IBasePermission bean = FiafengSpringUtils.getBean(IBasePermission.class);
         IBasePermission iBasePermission = jsonObject.toJavaObject(bean.getClass());
@@ -64,7 +65,7 @@ public class RBACPermissionController implements IPermissionController {
     }
 
     @GetMapping("/queryList")
-    @HasPermissionAnnotation("rbac:role:all")
+    @HasPermissionAnnotation("rbac:permission:all")
     public AjaxResult queryRoleList(){
         List<IBasePermission> permissionList = permissionService.queryPermissionListALl();
         return AjaxResult.success(permissionList);

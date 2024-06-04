@@ -2,16 +2,18 @@ package com.fiafeng.common.service.Impl;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import com.fiafeng.common.utils.StringUtils;
 import com.fiafeng.common.config.bean.DefaultDataSource;
 import com.fiafeng.common.properties.mysql.FiafengMysqlProperties;
+import com.fiafeng.common.utils.FiafengMysqlUtils;
+import com.fiafeng.common.utils.ObjectClassUtils;
+import com.fiafeng.common.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
-import java.sql.*;
 import java.sql.Date;
+import java.sql.*;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -55,6 +57,29 @@ public class ConnectionPoolServiceImpl {
         }
 
         this.mysqlProperties = mysqlProperties;
+    }
+
+    public boolean checkTableExist(String tableName) {
+        return checkTableExist(ObjectClassUtils.url, tableName);
+    }
+
+    public boolean checkTableExist(String url, String tableName) {
+        String databaseName = url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("?"));
+
+        List<Map<String, Object>> columns = queryForList(FiafengMysqlUtils.queryTableExistSql, new Object[]{tableName, databaseName});
+        boolean flag = !columns.isEmpty();
+        return flag;
+    }
+
+    public void checkMysqlTableIsExist(String tableName, Class<?> typeClass){
+        checkMysqlTableIsExist(tableName, ObjectClassUtils.url, typeClass);
+    }
+
+    public void checkMysqlTableIsExist(String tableName,String url, Class<?> typeClass) {
+        if (!checkTableExist(url)) {
+            String createdTableSql = FiafengMysqlUtils.createdTableSql(tableName, typeClass);
+            executeSql(createdTableSql);
+        }
     }
 
 
@@ -364,7 +389,7 @@ public class ConnectionPoolServiceImpl {
                         if (string.length() > 1) {
                             string = string.substring(0, string.length() - 1);
                             statement.setString(i + 1, string);
-                        }else {
+                        } else {
                             statement.setObject(i + 1, null);
                         }
                     } else {

@@ -1,25 +1,25 @@
-package com.fiafeng.demo;
+package com.fiafeng.mybatis.demo;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.fiafeng.common.mapper.Interface.IUserMapper;
+import com.fiafeng.common.pojo.DefaultUser;
 import com.fiafeng.common.pojo.Interface.IBaseUser;
-import com.fiafeng.mybatis.pojo.MybatisDefaultUser;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
-@Mapper
-public interface UserDaoMybatisPlusDemo extends BaseMapper<MybatisDefaultUser>, IUserMapper {
+//@Mapper
+public interface UserDaoMybatisPlusDemo extends BaseMapper<DefaultUser>, IUserMapper {
 
     default <T extends IBaseUser> boolean insertUser(T user) {
-        return insert((MybatisDefaultUser) user) == 1;
+        return insert((DefaultUser) user) == 1;
     }
 
     default <T extends IBaseUser> boolean updateUser(T user) {
 
 
-        return updateById((MybatisDefaultUser) user) == 1;
+        return updateById((DefaultUser) user) == 1;
     }
 
     default boolean deletedUserByUserId(Long userId) {
@@ -28,14 +28,12 @@ public interface UserDaoMybatisPlusDemo extends BaseMapper<MybatisDefaultUser>, 
     }
 
     default <T extends IBaseUser> List<T> selectUserListAll() {
-        QueryWrapper<MybatisDefaultUser> queryWrapper = new QueryWrapper<>();
-        List<MybatisDefaultUser> iBaseUsers = selectList(queryWrapper);
-
-        return (List<T>) iBaseUsers;
+        QueryWrapper<DefaultUser> queryWrapper = new QueryWrapper<>();
+        return (List<T>) selectList(queryWrapper);
     }
 
     default <T extends IBaseUser> T selectUserByUserName(String username) {
-        QueryWrapper<MybatisDefaultUser> queryWrapper = new QueryWrapper<>();
+        QueryWrapper<DefaultUser> queryWrapper = new QueryWrapper<>();
         IBaseUser baseUser = selectOne(queryWrapper);
         return (T) baseUser;
     }

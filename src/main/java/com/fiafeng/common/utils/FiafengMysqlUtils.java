@@ -42,7 +42,7 @@ public class FiafengMysqlUtils {
     }
 
     /**
-     * 根据属性进行
+     * 根据属性获取对应的mysql数据库类型
      *
      * @param field 属性
      */
@@ -55,7 +55,7 @@ public class FiafengMysqlUtils {
             typeName = "int(" + 11 + ") ";
         } else if (fieldType == Date.class) {
             typeName = "date ";
-        } else if (fieldType == Timestamp.class) {
+        } else if (fieldType == Timestamp.class || fieldType == java.util.Date.class) {
             typeName = "datetime ";
         } else if (fieldType == Time.class) {
             typeName = "date ";
@@ -71,8 +71,16 @@ public class FiafengMysqlUtils {
             typeName = "double ";
         } else if (fieldType == HashSet.class) {
             typeName = "varchar(" + 256 + ") ";
+        } else if (fieldType == Boolean.class) {
+            typeName = "tinyint(1) ";
         }
         return typeName;
+    }
+
+
+
+    public static String createdTableSql( String tableName, Class<?> type){
+        return createdTableSql("id", tableName, TypeOrmEnum.intType, type);
     }
 
     public static String createdTableSql(String primaryName, String tableName, TypeOrmEnum primaryType, Class<?> type) {

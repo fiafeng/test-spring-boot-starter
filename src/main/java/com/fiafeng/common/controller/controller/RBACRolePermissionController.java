@@ -2,6 +2,7 @@ package com.fiafeng.common.controller.controller;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.pojo.Dto.AjaxResult;
 import com.fiafeng.common.pojo.Interface.IBaseRolePermission;
@@ -21,7 +22,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/user/rbac/rolePermission")
-@BeanDefinitionOrderAnnotation
+@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
 public class RBACRolePermissionController implements IRolePermissionController {
 
     @Autowired

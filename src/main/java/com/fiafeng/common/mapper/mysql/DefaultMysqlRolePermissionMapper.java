@@ -1,6 +1,7 @@
 package com.fiafeng.common.mapper.mysql;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.mapper.Interface.IRolePermissionMapper;
 import com.fiafeng.common.pojo.Interface.IBaseRolePermission;
@@ -10,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@BeanDefinitionOrderAnnotation(1)
+@BeanDefinitionOrderAnnotation(value = ModelConstant.firstOrdered)
 public class DefaultMysqlRolePermissionMapper extends BaseMysqlMapper implements IRolePermissionMapper {
 
 
