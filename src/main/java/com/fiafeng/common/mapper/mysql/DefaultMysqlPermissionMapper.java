@@ -5,12 +5,21 @@ import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.mapper.Interface.IPermissionMapper;
 import com.fiafeng.common.pojo.Interface.IBasePermission;
+import com.fiafeng.common.properties.mysql.FiafengMysqlPermissionProperties;
+import com.fiafeng.common.properties.mysql.IMysqlTableProperties;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 
 @BeanDefinitionOrderAnnotation(value = ModelConstant.firstOrdered)
+//@Component
+//@Primary
 public class DefaultMysqlPermissionMapper extends BaseMysqlMapper implements IPermissionMapper {
+
+
 
     public <T extends IBasePermission> boolean insertPermission(T permission) {
         return insertObject(permission);
@@ -42,15 +51,10 @@ public class DefaultMysqlPermissionMapper extends BaseMysqlMapper implements IPe
     }
 
     public <T extends IBasePermission> T selectPermissionByPermissionName(String permissionName) {
-        return selectObjectByObjectName(permissionName);
+        return selectObjectByObjectName(permissionName, getTableColName());
     }
 
     public <T extends IBasePermission> T selectPermissionByPermissionId(Long permissionId) {
         return selectObjectByObjectId(permissionId);
     }
-
-
-
-
-
 }

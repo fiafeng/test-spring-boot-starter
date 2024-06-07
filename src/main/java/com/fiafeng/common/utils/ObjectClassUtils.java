@@ -210,8 +210,9 @@ public class ObjectClassUtils {
      * @param createTable  是否需要创建表
      */
     public static void refreshBaseMysqlMapperType(Class<?> iMapperClass, Class<?> iBaseObject, boolean createTable) {
+        Object bean;
         try {
-            Object bean = FiafengSpringUtils.getBean(iMapperClass);
+            bean = FiafengSpringUtils.getBean(iMapperClass);
             if (bean instanceof BaseMysqlMapper) {
                 BaseMysqlMapper mapper = (BaseMysqlMapper) bean;
 

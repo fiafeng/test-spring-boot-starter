@@ -5,6 +5,7 @@ import com.fiafeng.blog.mapper.DefaultMysqlBlogMapper;
 import com.fiafeng.blog.pojo.DefaultBlog;
 import com.fiafeng.blog.properties.*;
 import com.fiafeng.common.annotation.conditional.ConditionalEnableProperty;
+import com.fiafeng.common.annotation.conditional.ConditionalOnClassList;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -24,11 +25,11 @@ public class BlogConfig {
 
 
     @Bean
-    @ConditionalOnExpression("#{(FiafengStaticEnvironment.security == true) }")
+    @ConditionalOnClassList(name = {"com.mysql.cj.jdbc.Driver", "com.mysql.jdbc.Driver"})
+    @ConditionalEnableProperty("fiafeng.mysql.enable")
     DefaultMysqlBlogMapper defaultMysqlBlogMapper(FiafengMysqlBlogProperties properties){
         DefaultMysqlBlogMapper mapper = new DefaultMysqlBlogMapper();
-        mapper.tableName = properties.tableName;
-        mapper.userIdName = properties.userIdName;
+        mapper.setProperties(properties);
         return mapper;
     }
 

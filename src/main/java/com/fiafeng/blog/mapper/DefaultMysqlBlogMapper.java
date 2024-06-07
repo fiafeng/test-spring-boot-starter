@@ -5,6 +5,7 @@ import com.fiafeng.blog.properties.FiafengMysqlBlogProperties;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.mapper.mysql.BaseMysqlMapper;
+import com.fiafeng.common.properties.mysql.IMysqlTableProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -15,11 +16,6 @@ public class DefaultMysqlBlogMapper extends BaseMysqlMapper implements IBlogMapp
 
     @Autowired
     FiafengMysqlBlogProperties mysqlBlogProperties;
-
-    @Override
-    public void setTableName(String tableColName) {
-        super.setTableName(mysqlBlogProperties.getTableName());
-    }
 
 
 
@@ -53,4 +49,5 @@ public class DefaultMysqlBlogMapper extends BaseMysqlMapper implements IBlogMapp
     public <T extends IBaseBlog> T selectBlogById(Long blogId) {
         return selectObjectByObjectId(blogId);
     }
+
 }

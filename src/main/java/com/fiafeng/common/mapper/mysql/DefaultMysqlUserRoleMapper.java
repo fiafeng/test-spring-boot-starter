@@ -4,6 +4,12 @@ import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.mapper.Interface.IUserRoleMapper;
 import com.fiafeng.common.pojo.Interface.IBaseUserRole;
+import com.fiafeng.common.properties.mysql.FiafengMysqlUserRoleProperties;
+import com.fiafeng.common.properties.mysql.IMysqlTableProperties;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -11,6 +17,8 @@ import java.util.List;
 
 
 @BeanDefinitionOrderAnnotation(value = ModelConstant.firstOrdered)
+//@Component
+//@Primary
 public class DefaultMysqlUserRoleMapper extends BaseMysqlMapper implements IUserRoleMapper {
 
 
@@ -31,11 +39,11 @@ public class DefaultMysqlUserRoleMapper extends BaseMysqlMapper implements IUser
         List<IBaseUserRole> userRoleList = new ArrayList<>();
         for (Long permissionId : roleIdList) {
             try {
-                Object o = type.newInstance();
-                Field field = o.getClass().getDeclaredField(userIdName);
+                Object o = getType().newInstance();
+                Field field = o.getClass().getDeclaredField(getUserIdName());
                 field.setAccessible(true);
                 field.set(o, userId);
-                field = o.getClass().getDeclaredField(roleIdName);
+                field = o.getClass().getDeclaredField(getRoleIdName());
                 field.setAccessible(true);
                 field.set(o, permissionId);
                 userRoleList.add((IBaseUserRole) o);
@@ -85,17 +93,17 @@ public class DefaultMysqlUserRoleMapper extends BaseMysqlMapper implements IUser
 
     @Override
     public <T extends IBaseUserRole> List<T> selectRoleListByUserRole(Long userId) {
-        return selectObjectByKeyAndValueList(userIdName, userId);
+        return selectObjectByKeyAndValueList(getUserIdName(), userId);
     }
 
     @Override
     public <T extends IBaseUserRole> List<T> selectRoleListByRoleId(Long roleId) {
-        return selectObjectByKeyAndValueList(roleIdName, roleId);
+        return selectObjectByKeyAndValueList(getRoleIdName(), roleId);
     }
 
     @Override
     public <T extends IBaseUserRole> T selectRoleListByUserRole(T userRole) {
-        return selectObjectByName1Name2AndValue1Value2(userIdName, roleIdName, userRole.getUserId(), userRole.getRoleId());
+        return selectObjectByName1Name2AndValue1Value2(getUserIdName(), getRoleIdName(), userRole.getUserId(), userRole.getRoleId());
     }
 
     @Override

@@ -31,15 +31,13 @@ import org.springframework.context.annotation.ComponentScans;
 @ConditionalOnWebApplication
 public class MappingAutoConfig {
 
-
-
     @Bean
     @ConditionalOnProperty(prefix = "spring.datasource", name = {"url", "username", "password"})
     @ConditionalOnClassList(name = {"com.mysql.cj.jdbc.Driver", "com.mysql.jdbc.Driver"})
     DefaultMysqlMappingMapper defaultMysqlMappingMapper(FiafengMysqlMappingProperties properties) {
         DefaultMysqlMappingMapper mapper = new DefaultMysqlMappingMapper();
-        mapper.tableName = properties.tableName;
-        mapper.idName = properties.idName;
+        mapper.setProperties(properties);
+
         return mapper;
     }
 }

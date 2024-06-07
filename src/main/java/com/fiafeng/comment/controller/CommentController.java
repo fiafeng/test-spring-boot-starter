@@ -10,9 +10,7 @@ import com.fiafeng.common.service.ITokenService;
 import com.fiafeng.common.utils.StringUtils;
 import com.fiafeng.validation.annotation.ValidationAnnotation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,9 +27,9 @@ public class CommentController {
     CommentMybatisServiceImpl commentService;
 
 
-    @GetMapping("/send")
+    @PostMapping("/send")
     @ValidationAnnotation
-    public AjaxResult sendComment(BaseComment baseComment) {
+    public AjaxResult sendCommentPost(@RequestBody BaseComment baseComment) {
         // 如果是回复的评论，检查回复评论名字和Id
         if (!"-1".equals(baseComment.getParentId()) && (StringUtils.strIsEmpty(baseComment.getReceiverName()) && StringUtils.strIsEmpty(baseComment.getReceiverUserId()))) {
             throw new ServiceException("回复评论参数不正确");
@@ -44,20 +42,36 @@ public class CommentController {
     }
 
 
+    @GetMapping("/send")
+    @ValidationAnnotation
+    public AjaxResult sendCommentGet(BaseComment baseComment) {
+        // 如果是回复的评论，检查回复评论名字和Id
+        if (!"-1".equals(baseComment.getParentId()) && (StringUtils.strIsEmpty(baseComment.getReceiverName()) && StringUtils.strIsEmpty(baseComment.getReceiverUserId()))) {
+            throw new ServiceException("回复评论参数不正确");
+        }
+        IBaseUserInfo loginUserInfo = tokenService.getLoginUser();
+        baseComment.setSenderUserId(loginUserInfo.getUser().getId());
+        baseComment.setSenderName(loginUserInfo.getUser().getUsername());
+        commentService.sendComment(baseComment);
+        return AjaxResult.success();
+    }
+
     @GetMapping("/query")
     public AjaxResult query(String commentObjectId, String commentObjectType) {
         List<CommentDTO> dtoList = new ArrayList<>();
+        int count = 0;
         List<BaseComment> baseCommentParentIdList = commentService.queryCommentTreeByParentId("-1", commentObjectType, commentObjectId);
         for (BaseComment baseComment : baseCommentParentIdList) {
             List<BaseComment> baseCommentTreeByIdTree = commentService.queryCommentTreeById(String.valueOf(baseComment.id));
-            Integer count = commentService.queryReplyTreeByIdCount(String.valueOf(baseComment.id));
+            count += commentService.queryReplyTreeByIdCount(String.valueOf(baseComment.id));
             CommentDTO dto = CommentDTO.convertDto(baseComment);
             dto.setChildrenCount(count);
             dto.setChildren(CommentDTO.convertDto(baseCommentTreeByIdTree, dto.layer + 1));
             dtoList.add(dto);
-
         }
-        return AjaxResult.success(dtoList);
+        AjaxResult success = AjaxResult.success(dtoList);
+        success.put("total", count);
+        return success;
     }
 
 

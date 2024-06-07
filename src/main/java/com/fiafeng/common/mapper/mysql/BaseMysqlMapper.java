@@ -3,6 +3,7 @@ package com.fiafeng.common.mapper.mysql;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.common.annotation.AutoFiledAnnotation;
+import com.fiafeng.common.properties.mysql.IMysqlTableProperties;
 import com.fiafeng.common.utils.FiafengMysqlUtils;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import com.fiafeng.common.utils.StringUtils;
@@ -18,42 +19,46 @@ import java.sql.Date;
 import java.util.*;
 
 @Slf4j
-//@Service
 public abstract class BaseMysqlMapper {
 
     @Getter
     public Class<?> type;
 
-    @Setter
-    public String tableName;
-
-    @Setter
-    public String idName = "id"; // 主键名字
-
     public ConnectionPoolServiceImpl connectionPoolService;
 
-    /**
-     * 数据库内表的名字映射
-     */
+    @Getter
     @Setter
-    public String tableColName = "name";
+    public IMysqlTableProperties properties;
 
-    @Setter
-    public String roleIdName = "roleId";
+    public String getTableName() {
+        return getProperties().getTableName();
+    }
 
-    @Setter
-    public String permissionIdName = "permissionId";
+    public String getIdName() {
+        return getProperties().getIdName();
+    }
 
-    @Setter
-    public String userIdName = "userId";
+    public String getTableColName() {
+        return getProperties().getTableColName();
+    }
+
+    public String getPermissionIdName() {
+        return getProperties().getPermissionIdName();
+    }
+
+    public String getRoleIdName() {
+        return getProperties().getRoleIdName();
+    }
+
+    public String getUserIdName() {
+        return getProperties().getUserIdName();
+    }
+
 
 
     public void setType(Class type) {
         this.type = type;
     }
-
-
-
 
 
     /**
@@ -76,17 +81,17 @@ public abstract class BaseMysqlMapper {
      * @param primaryType 主键类型
      */
     private void createdTable(TypeOrmEnum primaryType) {
-        String primaryName = idName;
-        String sql = FiafengMysqlUtils.createdTableSql(primaryName, tableName, primaryType, type);
+        String primaryName = getIdName();
+        String sql = FiafengMysqlUtils.createdTableSql(primaryName, getTableName(), primaryType, type);
 
         connectionPoolService.executeSql(sql);
-        log.info("创建表" + tableName + "语句为:\n" + sql);
+        log.info("创建表" + getTableName() + "语句为:\n" + sql);
     }
 
     private boolean checkTableExist(String url) {
         String databaseName = url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("?"));
 
-        List<Map<String, Object>> columns = connectionPoolService.queryForList(FiafengMysqlUtils.queryTableExistSql, new Object[]{tableName, databaseName});
+        List<Map<String, Object>> columns = connectionPoolService.queryForList(FiafengMysqlUtils.queryTableExistSql, new Object[]{getTableName(), databaseName});
         return !columns.isEmpty();
     }
 
@@ -105,7 +110,7 @@ public abstract class BaseMysqlMapper {
         StringBuilder insertColsName = new StringBuilder(" ( ");
         for (Field declaredField : declaredFields) {
             String fieldName = declaredField.getName();
-            if (flag && idName.equals(fieldName)) {
+            if (flag && getIdName().equals(fieldName)) {
                 continue;
             }
             fieldName = StringUtils.camelToUnderline(fieldName);
@@ -127,7 +132,7 @@ public abstract class BaseMysqlMapper {
         }
         values = new StringBuilder(values.substring(0, values.length() - 1) + ")");
 
-        String sql = "insert into " + tableName + insertColsName + values;
+        String sql = "insert into " + getTableName() + insertColsName + values;
 
         Object[] objects = objectList.toArray(new Object[objectList.size()]);
         return connectionPoolService.updateSql(sql, objects) == 1;
@@ -147,7 +152,7 @@ public abstract class BaseMysqlMapper {
             for (Field declaredField : declaredFields) {
                 String fieldName = declaredField.getName();
                 fieldName = StringUtils.camelToUnderline(fieldName);
-                if (flag && idName.equals(fieldName)) {
+                if (flag && getIdName().equals(fieldName)) {
                     continue;
                 }
                 try {
@@ -168,7 +173,7 @@ public abstract class BaseMysqlMapper {
                     values.append("?,");
                 }
 
-                sql = "insert into " + tableName + insertColsName + values.substring(0, values.length() - 1) + ")";
+                sql = "insert into " + getTableName() + insertColsName + values.substring(0, values.length() - 1) + ")";
             }
             list.add(parameterObjectList.toArray(new Object[parameterObjectList.size()]));
         }
@@ -184,7 +189,7 @@ public abstract class BaseMysqlMapper {
 
 
     public boolean deletedObjectById(Long ObjectId) {
-        return connectionPoolService.updateSql("delete from " + StringUtils.camelToUnderline(tableName) + " where " + StringUtils.camelToUnderline(idName) + " = ?", new Object[]{ObjectId}) == 1;
+        return connectionPoolService.updateSql("delete from " + StringUtils.camelToUnderline(getTableName()) + " where " + StringUtils.camelToUnderline(getIdName()) + " = ?", new Object[]{ObjectId}) == 1;
     }
 
 
@@ -192,7 +197,7 @@ public abstract class BaseMysqlMapper {
         if (objectIdList == null || objectIdList.isEmpty()) {
             return true;
         }
-        StringBuilder sql = new StringBuilder("delete from " + StringUtils.camelToUnderline(tableName) + " where  " + StringUtils.camelToUnderline(idName) + " in (");
+        StringBuilder sql = new StringBuilder("delete from " + StringUtils.camelToUnderline(getTableName()) + " where  " + StringUtils.camelToUnderline(getIdName()) + " in (");
         for (Long objectId : objectIdList) {
             sql.append(objectId).append(",");
         }
@@ -231,13 +236,13 @@ public abstract class BaseMysqlMapper {
 
 
     public <T> List<T> selectObjectListAll() {
-        String sql = "select * from " + StringUtils.camelToUnderline(tableName);
+        String sql = "select * from " + StringUtils.camelToUnderline(getTableName());
         List<Map<String, Object>> maps = connectionPoolService.queryForList(sql);
         return ConnectionPoolServiceImpl.getObjectList(maps, type);
     }
 
-    public <T> T selectObjectByObjectName(String objectName) {
-        String sql = "select * from " + StringUtils.camelToUnderline(tableName) + " where " + StringUtils.camelToUnderline(tableColName) + "= ?";
+    public <T> T selectObjectByObjectName(String objectName, String tableColName) {
+        String sql = "select * from " + StringUtils.camelToUnderline(getTableName()) + " where " + StringUtils.camelToUnderline(tableColName) + "= ?";
         List<Map<String, Object>> maps = connectionPoolService.queryForList(sql, new Object[]{objectName});
         if (maps.size() != 1) {
             return null;
@@ -247,7 +252,7 @@ public abstract class BaseMysqlMapper {
 
 
     public <T> List<T> selectObjectListByObjectIdList(List<Long> ObjectIdList) {
-        StringBuilder sql = new StringBuilder("select * from " + StringUtils.camelToUnderline(tableName) + " where " + StringUtils.camelToUnderline(idName) + " in (");
+        StringBuilder sql = new StringBuilder("select * from " + StringUtils.camelToUnderline(getTableName()) + " where " + StringUtils.camelToUnderline(getIdName()) + " in (");
         for (Long objectId : ObjectIdList) {
             sql.append(objectId).append(",");
         }
@@ -259,7 +264,7 @@ public abstract class BaseMysqlMapper {
 
 
     public <T> T selectObjectByObjectId(Long objectId) {
-        String sql = "select * from " + StringUtils.camelToUnderline(tableName) + " where " + StringUtils.camelToUnderline(idName) + " = ?";
+        String sql = "select * from " + StringUtils.camelToUnderline(getTableName()) + " where " + StringUtils.camelToUnderline(getIdName()) + " = ?";
         List<Map<String, Object>> maps = connectionPoolService.queryForList(sql, new Object[]{objectId});
         if (maps.size() != 1) {
             return null;
@@ -278,11 +283,11 @@ public abstract class BaseMysqlMapper {
      */
     private <T> String getSqlUpdate(T t, List<Object> objectList) {
         Field[] declaredFields = t.getClass().getDeclaredFields();
-        StringBuilder insertColsName = new StringBuilder("update " + StringUtils.camelToUnderline(tableName) + " set ");
+        StringBuilder insertColsName = new StringBuilder("update " + StringUtils.camelToUnderline(getTableName()) + " set ");
         for (Field declaredField : declaredFields) {
             String fieldName = declaredField.getName();
             declaredField.setAccessible(true);
-            if (idName.equals(fieldName)) {
+            if (getIdName().equals(fieldName)) {
                 continue;
             }
             fieldName = StringUtils.camelToUnderline(fieldName);
@@ -297,32 +302,32 @@ public abstract class BaseMysqlMapper {
         }
         for (Field declaredField : declaredFields) {
             String fieldName = declaredField.getName();
-            if (idName.equals(fieldName)) {
+            if (getIdName().equals(fieldName)) {
                 try {
                     objectList.add(declaredField.get(t));
                 } catch (IllegalAccessException e) {
                 }
             }
         }
-        insertColsName = new StringBuilder(insertColsName.substring(0, insertColsName.length() - 1) + " where " + StringUtils.camelToUnderline(idName) + "=?;");
+        insertColsName = new StringBuilder(insertColsName.substring(0, insertColsName.length() - 1) + " where " + StringUtils.camelToUnderline(getIdName()) + "=?;");
         return insertColsName.toString();
     }
 
 
     public <T, W> List<T> selectObjectByKeyAndValueList(String key, W value) {
-        String sql = "select * from " + StringUtils.camelToUnderline(tableName) + " where " + StringUtils.camelToUnderline(key) + "=?";
+        String sql = "select * from " + StringUtils.camelToUnderline(getTableName()) + " where " + StringUtils.camelToUnderline(key) + "=?";
         List<Map<String, Object>> maps = connectionPoolService.queryForList(sql, new Object[]{value});
         return ConnectionPoolServiceImpl.getObjectList(maps, type);
     }
 
     public <T, W> T selectObjectByKeyAndValue(String key, W value) {
-        String sql = "select * from " + StringUtils.camelToUnderline(tableName) + " where " + StringUtils.camelToUnderline(key) + "=?";
+        String sql = "select * from " + StringUtils.camelToUnderline(getTableName()) + " where " + StringUtils.camelToUnderline(key) + "=?";
         List<Map<String, Object>> maps = connectionPoolService.queryForList(sql, new Object[]{value});
         return (T) ConnectionPoolServiceImpl.getObjectList(maps, type).get(0);
     }
 
     public <T, D, W> T selectObjectByName1Name2AndValue1Value2(String name1, String name2, D value1, W value2) {
-        String sql = "select * from " + StringUtils.camelToUnderline(tableName) + " where " + StringUtils.camelToUnderline(name1) + "=? and " +
+        String sql = "select * from " + StringUtils.camelToUnderline(getTableName()) + " where " + StringUtils.camelToUnderline(name1) + "=? and " +
                 StringUtils.camelToUnderline(name2) + "=?";
 
         List<Map<String, Object>> maps = connectionPoolService.queryForList(sql, new Object[]{value1, value2});
@@ -348,7 +353,7 @@ public abstract class BaseMysqlMapper {
         if (keyList.size() == 1) {
             return selectObjectByKeyAndValue(keyList.get(0), objectList.get(0));
         } else {
-            StringBuilder sql = new StringBuilder("select " + cols + " from " + StringUtils.camelToUnderline(tableName) + " where " + StringUtils.camelToUnderline(keyList.get(0)) + "=? ");
+            StringBuilder sql = new StringBuilder("select " + cols + " from " + StringUtils.camelToUnderline(getTableName()) + " where " + StringUtils.camelToUnderline(keyList.get(0)) + "=? ");
             for (int i = 1; i < keyList.size(); i++) {
                 sql.append("and ").append(StringUtils.camelToUnderline(keyList.get(0))).append("=? ");
             }

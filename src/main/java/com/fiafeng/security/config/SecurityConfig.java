@@ -27,9 +27,7 @@ public class SecurityConfig {
     @Bean
     DefaultSecurityMysqlUserMapper defaultSecurityMysqlUserMapper(FiafengMysqlUserProperties properties) {
         DefaultSecurityMysqlUserMapper mapper = new DefaultSecurityMysqlUserMapper();
-        mapper.tableName = properties.tableName;
-        mapper.idName = properties.idName;
-        mapper.tableColName = properties.tableColName;
+        mapper.setProperties(properties);
         return mapper;
     }
 

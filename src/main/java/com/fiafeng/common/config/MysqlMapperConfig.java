@@ -40,9 +40,8 @@ public class MysqlMapperConfig {
     @Primary
     DefaultMysqlRoleMapper defaultMysqlRoleMapper(FiafengMysqlRoleProperties properties) {
         DefaultMysqlRoleMapper mapper = new DefaultMysqlRoleMapper();
-        mapper.tableName = properties.tableName;
-        mapper.idName = properties.idName;
-        mapper.tableColName = properties.tableColName;
+
+        mapper.setProperties(properties);
         return mapper;
     }
 
@@ -51,11 +50,7 @@ public class MysqlMapperConfig {
     @Primary
     DefaultMysqlRolePermissionMapper defaultMysqlRolePermissionMapper(FiafengMysqlRolePermissionProperties properties) {
         DefaultMysqlRolePermissionMapper mapper = new DefaultMysqlRolePermissionMapper();
-
-        mapper.tableName = properties.tableName;
-        mapper.idName = properties.idName;
-        mapper.roleIdName = properties.roleIdName;
-        mapper.permissionIdName = properties.permissionIdName;
+        mapper.setProperties(properties);
         return mapper;
     }
 
@@ -63,9 +58,7 @@ public class MysqlMapperConfig {
     @Bean
     DefaultMysqlUserMapper defaultMysqlUserMapper(FiafengMysqlUserProperties properties) {
         DefaultMysqlUserMapper mapper = new DefaultMysqlUserMapper();
-        mapper.tableName = properties.tableName;
-        mapper.idName = properties.idName;
-        mapper.tableColName = properties.tableColName;
+        mapper.setProperties(properties);
         return mapper;
     }
 
@@ -74,10 +67,7 @@ public class MysqlMapperConfig {
     @Primary
     DefaultMysqlUserRoleMapper defaultMysqlUserRoleMapper(FiafengMysqlUserRoleProperties properties) {
         DefaultMysqlUserRoleMapper mapper = new DefaultMysqlUserRoleMapper();
-        mapper.tableName = properties.tableName;
-        mapper.idName = properties.idName;
-        mapper.roleIdName = properties.roleIdName;
-        mapper.userIdName = properties.userIdName;
+        mapper.setProperties(properties);
         return mapper;
     }
 
@@ -85,9 +75,7 @@ public class MysqlMapperConfig {
     @Primary
     DefaultMysqlPermissionMapper defaultMysqlPermissionMapper(FiafengMysqlPermissionProperties properties) {
         DefaultMysqlPermissionMapper mapper = new DefaultMysqlPermissionMapper();
-        mapper.tableName = properties.tableName;
-        mapper.idName = properties.idName;
-        mapper.tableColName = properties.tableColName;
+        mapper.setProperties(properties);
         return mapper;
     }
 

@@ -4,12 +4,23 @@ import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.mapper.Interface.IRoleMapper;
 import com.fiafeng.common.pojo.Interface.IBaseRole;
+import com.fiafeng.common.properties.mysql.FiafengMysqlRoleProperties;
+import com.fiafeng.common.properties.mysql.FiafengMysqlUserProperties;
+import com.fiafeng.common.properties.mysql.IMysqlTableProperties;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 
 @BeanDefinitionOrderAnnotation(value = ModelConstant.firstOrdered)
+//@Component
+//@Primary
 public class DefaultMysqlRoleMapper extends BaseMysqlMapper implements IRoleMapper {
+
+    @Autowired
+    FiafengMysqlRoleProperties properties;
 
 
     @Override
@@ -34,7 +45,7 @@ public class DefaultMysqlRoleMapper extends BaseMysqlMapper implements IRoleMapp
 
     @Override
     public <T extends IBaseRole> T selectRoleByRoleName(String roleName) {
-        return selectObjectByObjectName(roleName);
+        return selectObjectByObjectName(roleName, getTableColName());
     }
 
     @Override

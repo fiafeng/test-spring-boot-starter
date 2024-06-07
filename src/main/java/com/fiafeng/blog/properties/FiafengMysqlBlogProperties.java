@@ -1,17 +1,22 @@
 package com.fiafeng.blog.properties;
 
+import com.fiafeng.common.properties.mysql.IMysqlTableProperties;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties("fiafeng.blog.mysql")
 @Data
-public class FiafengMysqlBlogProperties {
+public class FiafengMysqlBlogProperties implements IMysqlTableProperties {
 
 
     /**
      * 博客表的表名
      */
     public String tableName = "base_blog";
+    /**
+     * 博客表的表名
+     */
+    public String idName = "base_blog";
 
     /**
      * 博客关系表

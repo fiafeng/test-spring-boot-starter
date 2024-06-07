@@ -73,6 +73,26 @@ public class StringUtils {
     }
 
     /**
+     * 将输入字符串的驼峰命名转换成为短横线命名法
+     * @param camel 输入的驼峰风格字符串
+     * @return 下划线风格方法的字符串
+     */
+    public static String camelToKebab(String camel){
+        if (camel == null ||camel.isEmpty())
+            return camel;
+
+        Matcher matcher = Pattern.compile("([A-W])").matcher(camel.substring(1));
+        StringBuffer underline = new StringBuffer(camel.substring(0,1));
+
+        while (matcher.find()){
+            matcher.appendReplacement(underline, "-" + matcher.group(0).toLowerCase());
+        }
+        matcher.appendTail(underline);
+        String lowerCase = underline.toString().toLowerCase();
+        return lowerCase.isEmpty()? camel: lowerCase;
+    }
+
+    /**
      * * 判断一个字符串是否为空串
      *
      * @param str String

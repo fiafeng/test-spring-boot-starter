@@ -65,7 +65,9 @@ public class DefaultLoginController implements ILoginController {
     @GetMapping("/getInfo")
     public AjaxResult getUserInfo() {
         IBaseUserInfo loginUser = tokenService.getLoginUser();
-        return AjaxResult.success(loginUser);
+        loginUser.getUser().setPassword(null);
+//        loginUser.getUser().setId(null);
+        return AjaxResult.success(loginUser.getUser());
     }
 
     @PostMapping("/logout")
