@@ -9,8 +9,6 @@ import com.fiafeng.common.filter.IJwtAuthenticationTokenFilter;
 import com.fiafeng.common.mapper.Interface.*;
 import com.fiafeng.common.pojo.Interface.*;
 import com.fiafeng.common.properties.IFiafengProperties;
-import com.fiafeng.common.properties.mysql.FiafengMysqlPermissionProperties;
-import com.fiafeng.common.properties.mysql.IMysqlTableProperties;
 import com.fiafeng.common.service.*;
 import com.fiafeng.common.utils.ObjectClassUtils;
 import com.fiafeng.common.utils.StringUtils;
@@ -18,10 +16,8 @@ import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import com.fiafeng.mapping.pojo.Interface.IBaseMapping;
 import com.fiafeng.mybatis.utils.MybatisPlusUtils;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -29,12 +25,10 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
 import java.util.Map;
-import java.util.Properties;
 
 @Component
 public class CommonApplicationInitBefore implements BeanDefinitionRegistryPostProcessor, BeanPostProcessor, ApplicationListener<ContextRefreshedEvent>, Ordered {
@@ -132,7 +126,7 @@ public class CommonApplicationInitBefore implements BeanDefinitionRegistryPostPr
             String value = annotation.value();
             for (Field field : propertiesClass.getFields()) {
                 String key = value + "." + StringUtils.camelToKebab(field.getName());
-                Object property = environment.getProperty(key + "", field.getType());
+                Object property = environment.getProperty(key, field.getType());
                 if (property != null) {
                     field.setAccessible(true);
                     try {

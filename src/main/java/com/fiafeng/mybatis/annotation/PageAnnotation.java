@@ -16,5 +16,5 @@ public @interface PageAnnotation {
      */
     int pageSize() default -1;
 
-    String suffix() default "";
+    int suffix() default 0;
 }

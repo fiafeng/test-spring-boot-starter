@@ -37,6 +37,12 @@ public class BaseComment implements IBaseComment {
      */
     public String senderName;
 
+
+    /**
+     * 评论发布人的头像
+     */
+    public String senderAvatar;
+
     /**
      * 回复人的用户名
      */
@@ -47,6 +53,10 @@ public class BaseComment implements IBaseComment {
      */
     public String receiverUserId;
 
+    /**
+     * 回复人的用户头像
+     */
+    public String receiverUserAvatar;
 
     /**
      * 回复的评论id
@@ -57,7 +67,7 @@ public class BaseComment implements IBaseComment {
     /**
      * 回复评论内容
      */
-    public String comment;
+    public String commentContent;
 
 
     /**
@@ -75,15 +85,16 @@ public class BaseComment implements IBaseComment {
      */
     public Date createDate = new Date();
 
-    public String getCreateDate() {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
-        return simpleDateFormat.format(this.createDate);
-    }
-
     /**
      * 逻辑删除
      */
     @TableLogic
     @JSONField(serialize = false)
     public Integer deleted ;
+
+
+    public String getCreateDate() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return simpleDateFormat.format(this.createDate);
+    }
 }

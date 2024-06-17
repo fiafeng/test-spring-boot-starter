@@ -88,7 +88,7 @@ public class CommentDTO {
 
     public static CommentDTO convertDto(BaseComment baseComment, Integer layer) {
         CommentDTO dto = new CommentDTO();
-        dto.setComment(baseComment.getComment());
+        dto.setComment(baseComment.getCommentContent());
         dto.setId(baseComment.getId());
         dto.setCommentObjectId(baseComment.getCommentObjectId());
         dto.setCommentObjectType(baseComment.getCommentObjectType());

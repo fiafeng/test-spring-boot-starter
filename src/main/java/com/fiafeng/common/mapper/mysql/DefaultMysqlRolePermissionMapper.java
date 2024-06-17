@@ -5,11 +5,6 @@ import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.mapper.Interface.IRolePermissionMapper;
 import com.fiafeng.common.pojo.Interface.IBaseRolePermission;
-import com.fiafeng.common.properties.mysql.FiafengMysqlPermissionProperties;
-import com.fiafeng.common.properties.mysql.IMysqlTableProperties;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -17,8 +12,6 @@ import java.util.List;
 
 
 @BeanDefinitionOrderAnnotation(value = ModelConstant.firstOrdered)
-//@Component
-//@Primary
 public class DefaultMysqlRolePermissionMapper extends BaseMysqlMapper implements IRolePermissionMapper {
 
 
@@ -74,8 +67,6 @@ public class DefaultMysqlRolePermissionMapper extends BaseMysqlMapper implements
 
     @Override
     public List<Long> selectPermissionIdListByRoleId(Long roleId) {
-
-
         List<IBaseRolePermission> objectList = selectObjectByKeyAndValueList(getRoleIdName(), roleId);
         List<Long> permissionIdList = new ArrayList<>();
         for (IBaseRolePermission iBaseRolePermission : objectList) {

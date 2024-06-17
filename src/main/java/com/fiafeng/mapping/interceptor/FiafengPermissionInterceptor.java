@@ -22,6 +22,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 
+/**
+ * mapping映射url权限拦截器
+ */
 @Slf4j
 @Component
 public class FiafengPermissionInterceptor implements HandlerInterceptor {

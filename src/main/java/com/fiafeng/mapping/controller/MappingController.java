@@ -51,8 +51,7 @@ public class MappingController {
 
     @PostMapping("/addPermission")
     public AjaxResult addMappingPermission(@RequestBody JSONObject jsonObject) {
-        IBaseMapping bean = FiafengSpringUtils.getBean(IBaseMapping.class);
-        IBaseMapping defaultMapping = jsonObject.toJavaObject(bean.getClass());
+        IBaseMapping defaultMapping = jsonObject.toJavaObject(FiafengSpringUtils.getBean(IBaseMapping.class).getClass());
         IBaseMapping iBaseMapping = checkPermissionList(defaultMapping);
         // 添加权限
         iBaseMapping.getPermissionHashSet().addAll(defaultMapping.getPermissionHashSet());

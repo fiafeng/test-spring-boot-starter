@@ -44,7 +44,6 @@ public class ConnectionPoolServiceImpl {
 
 
     private int maxSize = 10;
-    private int minSize = 4;
 
     private static boolean flag = false;
 
@@ -66,7 +65,7 @@ public class ConnectionPoolServiceImpl {
     public boolean checkTableExist(String url, String tableName) {
         String databaseName = url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("?"));
 
-        List<Map<String, Object>> columns = queryForList(FiafengMysqlUtils.queryTableExistSql, new Object[]{tableName, databaseName});
+        List<Map<String, Object>> columns = queryForList(FiafengMysqlUtils.queryTableExistSql(), new Object[]{tableName, databaseName});
         boolean flag = !columns.isEmpty();
         return flag;
     }

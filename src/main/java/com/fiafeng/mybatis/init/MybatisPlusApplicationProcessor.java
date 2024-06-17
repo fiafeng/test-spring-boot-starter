@@ -146,7 +146,7 @@ public class MybatisPlusApplicationProcessor extends ApplicationProcessor {
 
         AnnotationsAttribute annotationsAttribute = new AnnotationsAttribute(constPool, AnnotationsAttribute.visibleTag);
         // 添加 @BeanDefinitionOrderAnnotation 注解和值
-        Annotation beanDefinitionOrderAnnotation = getIntegerAnnotation(BeanDefinitionOrderAnnotation.class, ModelConstant.sixthOrdered, constPool);
+        Annotation beanDefinitionOrderAnnotation = getIntegerAnnotation(BeanDefinitionOrderAnnotation.class, ModelConstant.fifthOrdered, constPool);
         // 添加 @TableName 注解和值
         Annotation tableNameAnnotation = getStringAnnotation(TableName.class, properties.getTableName(), constPool);
 

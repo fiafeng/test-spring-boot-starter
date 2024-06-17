@@ -11,10 +11,15 @@ import java.util.HashSet;
 
 public class FiafengMysqlUtils {
 
-    public static String queryTableExistSql = "SELECT COLUMN_NAME " +
-            "FROM INFORMATION_SCHEMA.COLUMNS " +
-            "WHERE TABLE_NAME = ? " +
-            " and TABLE_SCHEMA = ?";
+    /**
+     * 返回查询表是否存在与指定数据库的sql
+     */
+    public static String queryTableExistSql() {
+        return "SELECT COLUMN_NAME " +
+                "FROM INFORMATION_SCHEMA.COLUMNS " +
+                "WHERE TABLE_NAME = ? " +
+                " and TABLE_SCHEMA = ?";
+    }
 
     /**
      * 根据枚举类型返回mysql创建字段
@@ -78,18 +83,20 @@ public class FiafengMysqlUtils {
     }
 
 
-
-    public static String createdTableSql( String tableName, Class<?> type){
+    public static String createdTableSql(String tableName, Class<?> type) {
         return createdTableSql("id", tableName, TypeOrmEnum.intType, type);
     }
 
     public static String createdTableSql(String primaryName, String tableName, TypeOrmEnum primaryType, Class<?> type) {
         StringBuilder sql = new StringBuilder(
                 "Create table  IF NOT EXISTS " + tableName + "(\n"
-                        + "    " + primaryName + " "
-                        + primaryType.mysqlType
-                        + " AUTO_INCREMENT "
-                        + " PRIMARY KEY, "
+                        + "    " + primaryName + " ");
+        if (primaryType == TypeOrmEnum.intType) {
+            sql.append(primaryType.mysqlType
+                    + " AUTO_INCREMENT ");
+        }
+
+        sql.append(" PRIMARY KEY, "
                         + "\n");
 
         for (Field field : type.getDeclaredFields()) {

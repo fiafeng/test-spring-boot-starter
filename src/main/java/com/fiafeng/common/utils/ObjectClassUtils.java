@@ -26,7 +26,7 @@ public class ObjectClassUtils {
     public static BeanDefinitionRegistry registry;
     public static ConfigurableListableBeanFactory beanFactory;
 
-    public static HashMap<Class, HashSet<String>> mybatisClassMap = new HashMap<>();
+    public static HashMap<Class<?>, HashSet<String>> mybatisClassMap = new HashMap<>();
 
     private static HashSet<Class<?>> classList = new HashSet<>();
 
@@ -50,6 +50,7 @@ public class ObjectClassUtils {
         for (Class<?> aClass : ObjectClassUtils.classList) {
             ObjectClassUtils.removeBeanDefinitions(registry, beanFactory, aClass);
         }
+        classList = null;
     }
 
     /**
@@ -92,6 +93,7 @@ public class ObjectClassUtils {
                 }
             }
 
+            assert rawClass != null;
             BeanDefinitionOrderAnnotation annotation = rawClass.getDeclaredAnnotation(BeanDefinitionOrderAnnotation.class);
             if (annotation != null) {
                 int value = annotation.value();
@@ -211,19 +213,15 @@ public class ObjectClassUtils {
      */
     public static void refreshBaseMysqlMapperType(Class<?> iMapperClass, Class<?> iBaseObject, boolean createTable) {
         Object bean;
-        try {
-            bean = FiafengSpringUtils.getBean(iMapperClass);
-            if (bean instanceof BaseMysqlMapper) {
-                BaseMysqlMapper mapper = (BaseMysqlMapper) bean;
+        bean = FiafengSpringUtils.getBean(iMapperClass);
+        if (bean instanceof BaseMysqlMapper) {
+            BaseMysqlMapper mapper = (BaseMysqlMapper) bean;
 
-                mapper.type = FiafengSpringUtils.getBean(iBaseObject).getClass();
-                if (createTable) {
-                    mapper.checkMysqlTableIsExist(url);
-                }
-
+            mapper.setType(FiafengSpringUtils.getBean(iBaseObject).getClass());
+            if (createTable) {
+                mapper.checkMysqlTableIsExist(url);
             }
-        } catch (Exception e) {
-            throw e;
+
         }
     }
 

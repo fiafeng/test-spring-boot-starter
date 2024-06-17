@@ -35,6 +35,8 @@ public class PageAspect {
     FiafengMybatisPageProperties pageProperties;
 
 
+    ThreadLocal<Integer>  suffixThreadLocal= new ThreadLocal<>();
+
     @Before(value = "@annotation(com.fiafeng.mybatis.annotation.PageAnnotation)")
     public void pageHelperSet(JoinPoint joinPoint) {
 
@@ -49,10 +51,14 @@ public class PageAspect {
 
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
+        // 获取注解
         PageAnnotation pageAnnotation = method.getAnnotation(PageAnnotation.class);
+        // 获取默认页码
         int page = pageAnnotation.page() == -1 ? pageProperties.getPage() : pageAnnotation.page();
+        // 获取默认页面大小
         int pageSize = pageAnnotation.pageSize() == -1 ? pageProperties.getPageSize() : pageAnnotation.pageSize();
-        String suffix = pageAnnotation.suffix();
+        // 获取默认后缀
+        int suffix = pageAnnotation.suffix();
         HttpServletRequest request = pageHelperInterceptor.getRequestThreadLocal().get();
         if (request == null) {
             return;
@@ -61,9 +67,13 @@ public class PageAspect {
         Map<String, String[]> parameterMap = request.getParameterMap();
         String pageName = pageProperties.getPageName();
         String pageSizeName = pageProperties.getPageSizeName();
-        if (StringUtils.strNotEmpty(suffix)) {
+
+
+        if (suffix > 0) {
             pageName += suffix;
-            pageSizeName += suffix;
+            pageSizeName += suffix--;
+            suffixThreadLocal.set(suffix);
+
         }
         if (parameterMap.containsKey(pageSizeName)) {
             pageSize = Integer.parseInt(request.getParameter(pageSizeName));
@@ -73,7 +83,8 @@ public class PageAspect {
         }
 
         if (pageSize != 0) {
-            PageHelper.startPage(page, pageSize);
+            Page<Object> objects = PageHelper.startPage(page, pageSize);
+
         } else {
             PageHelper.clearPage();
         }

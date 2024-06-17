@@ -1,12 +1,14 @@
 package com.fiafeng.comment.controller;
 
 import com.fiafeng.comment.pojo.BaseComment;
+import com.fiafeng.comment.pojo.Interface.IBaseComment;
 import com.fiafeng.comment.pojo.dto.CommentDTO;
 import com.fiafeng.comment.service.Impl.mybatis.CommentMybatisServiceImpl;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.pojo.Dto.AjaxResult;
 import com.fiafeng.common.pojo.Vo.IBaseUserInfo;
 import com.fiafeng.common.service.ITokenService;
+import com.fiafeng.common.utils.ObjectUtils;
 import com.fiafeng.common.utils.StringUtils;
 import com.fiafeng.validation.annotation.ValidationAnnotation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/comment")
@@ -27,6 +30,7 @@ public class CommentController {
     CommentMybatisServiceImpl commentService;
 
 
+
     @PostMapping("/send")
     @ValidationAnnotation
     public AjaxResult sendCommentPost(@RequestBody BaseComment baseComment) {
@@ -38,6 +42,25 @@ public class CommentController {
         baseComment.setSenderUserId(loginUserInfo.getUser().getId());
         baseComment.setSenderName(loginUserInfo.getUser().getUsername());
         commentService.sendComment(baseComment);
+        return AjaxResult.success();
+    }
+
+    @PostMapping("/checkUserId/deletedById")
+    public AjaxResult deletedComment(@RequestBody BaseComment baseComment) {
+        if (ObjectUtils.isNull(baseComment.getId()) || StringUtils.strIsEmpty(baseComment.getId() + "")){
+            throw new ServiceException("删除，id不允许为空");
+        }
+        IBaseComment queryCommentById = commentService.queryCommentById(baseComment.getId());
+        if (!Objects.equals(queryCommentById.getSenderUserId(), baseComment.getSenderUserId())){
+            throw new ServiceException("删除时发现传递数据出现错误！！！");
+        }
+
+        IBaseUserInfo loginUserInfo = tokenService.getLoginUser();
+        if (!Objects.equals(loginUserInfo.getUser().getId(), queryCommentById.getSenderUserId())){
+            throw new ServiceException("当前评论不是你发送的，删除失败！！！");
+        }
+
+        commentService.deletedById(baseComment.getId());
         return AjaxResult.success();
     }
 
@@ -59,18 +82,20 @@ public class CommentController {
     @GetMapping("/query")
     public AjaxResult query(String commentObjectId, String commentObjectType) {
         List<CommentDTO> dtoList = new ArrayList<>();
-        int count = 0;
+        int total = 0;
         List<BaseComment> baseCommentParentIdList = commentService.queryCommentTreeByParentId("-1", commentObjectType, commentObjectId);
         for (BaseComment baseComment : baseCommentParentIdList) {
             List<BaseComment> baseCommentTreeByIdTree = commentService.queryCommentTreeById(String.valueOf(baseComment.id));
-            count += commentService.queryReplyTreeByIdCount(String.valueOf(baseComment.id));
+            total++;
+            Integer count = commentService.queryReplyTreeByIdCount(String.valueOf(baseComment.id));
+            total += count;
             CommentDTO dto = CommentDTO.convertDto(baseComment);
             dto.setChildrenCount(count);
             dto.setChildren(CommentDTO.convertDto(baseCommentTreeByIdTree, dto.layer + 1));
             dtoList.add(dto);
         }
         AjaxResult success = AjaxResult.success(dtoList);
-        success.put("total", count);
+        success.put("total", total);
         return success;
     }
 
@@ -86,14 +111,14 @@ public class CommentController {
             dtoList.add(dto);
             dtoList1.add(dto);
 
-            for (int i = 0; i < baseCommentTreeByIdTree.size(); i++) {
-                CommentDTO treeDto = CommentDTO.convertDto(baseCommentTreeByIdTree.get(i));
+            for (BaseComment comment : baseCommentTreeByIdTree) {
+                CommentDTO treeDto = CommentDTO.convertDto(comment);
                 String parentId = treeDto.getParentId();
                 for (int j = 0; j < dtoList.size(); j++) {
                     CommentDTO commentDTO = dtoList1.get(j);
                     String id = String.valueOf(commentDTO.getId());
                     if (parentId.equalsIgnoreCase(id)) {
-                        treeDto.setLayer(commentDTO.getLayer() +1 );
+                        treeDto.setLayer(commentDTO.getLayer() + 1);
                         dtoList1.add(treeDto);
                         commentDTO.getChildren().add(treeDto);
                         break;
@@ -103,36 +128,8 @@ public class CommentController {
         }
 
 
-        for (CommentDTO commentDTO : dtoList) {
-            ddd(commentDTO, String.valueOf(commentDTO.getId()));
-        }
-
         return AjaxResult.success(dtoList);
     }
-
-    public void ddd(CommentDTO dto, String string) {
-        if (dto.getChildren().isEmpty()) {
-            System.out.println(string);
-            return;
-        }
-        for (CommentDTO child : dto.getChildren()) {
-            ddd(child, string + "," + child.getId());
-        }
-    }
-
-
-    public void xx(List<BaseComment> baseCommentList, List<CommentDTO> dtoList) {
-        for (int i = 0; i < baseCommentList.size(); i++) {
-            CommentDTO treeDto = CommentDTO.convertDto(baseCommentList.get(i));
-            for (int j = 0; j < dtoList.size(); j++) {
-                CommentDTO commentDTO = dtoList.get(i);
-                if (treeDto.getParentId().equalsIgnoreCase(String.valueOf(commentDTO.getId()))) {
-                    commentDTO.getChildren().add(treeDto);
-                }
-            }
-        }
-    }
-
 
     @GetMapping("/queryChildren")
     public AjaxResult queryChildren(String commentId) {
@@ -141,7 +138,7 @@ public class CommentController {
         }
 
         List<CommentDTO> dtoList;
-        BaseComment baseComment = commentService.queryCommentById(commentId);
+        IBaseComment baseComment = commentService.queryCommentById(commentId);
         if (baseComment == null) {
             throw new ServiceException("找不到主评论");
         }

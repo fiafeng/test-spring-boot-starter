@@ -16,6 +16,8 @@ public enum TypeOrmEnum {
     floatType("float", Float.class),
     bigIntType("bigint", Long.class),
     varcharType("varchar", new Class[]{String.class}, 64),
+    StringType("char", new Class[]{String.class}, 64),
+
     dateType("date", Date.class),
 
 
