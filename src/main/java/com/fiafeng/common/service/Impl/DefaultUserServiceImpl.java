@@ -8,6 +8,7 @@ import com.fiafeng.common.pojo.Interface.IBaseUser;
 import com.fiafeng.common.service.IUserService;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,21 +27,16 @@ public class DefaultUserServiceImpl implements IUserService {
     IUserMapper userMapper;
 
     @Override
+    @Nullable
     public <T extends IBaseUser> T selectUserByUserName(String username) {
         IBaseUser user = userMapper.selectUserByUserName(username);
-        if (user == null){
-            throw new ServiceException("用户不存在");
-        }
-
         return (T) user;
     }
 
     @Override
-    public <T extends IBaseUser> T selectUserByUserId(Long userId) {
+    @Nullable
+    public <T extends IBaseUser> T selectUserByUserId(Long userId) throws ServiceException{
         IBaseUser user = userMapper.selectUserByUserId(userId);
-        if (user == null){
-            throw new ServiceException("没有找到该用户");
-        }
         return (T) user;
     }
 
@@ -64,7 +60,7 @@ public class DefaultUserServiceImpl implements IUserService {
     @Override
     public <T extends IBaseUser> boolean updateUser(T user) {
         if (selectUserByUserId(user.getId()) == null){
-            throw new ServiceException("没有找到用户");
+            throw new ServiceException("更新用户信息时,根据Id没有找到对应的用户信息");
         }
 
         return userMapper.updateUser(user);

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fiafeng.comment.pojo.Interface.IBaseComment;
+import com.fiafeng.common.annotation.AutoFiledAnnotation;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.constant.ModelConstant;
 import lombok.Data;
@@ -90,7 +91,8 @@ public class BaseComment implements IBaseComment {
      */
     @TableLogic
     @JSONField(serialize = false)
-    public Integer deleted ;
+    @AutoFiledAnnotation(defaultValue = "0")
+    public Integer deleted = 0;
 
 
     public String getCreateDate() {

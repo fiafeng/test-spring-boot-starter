@@ -12,7 +12,6 @@ public @interface PageAnnotation {
 
     /**
      * -1 时取系统默认值，0时不进行分页
-     * @return
      */
     int pageSize() default -1;
 

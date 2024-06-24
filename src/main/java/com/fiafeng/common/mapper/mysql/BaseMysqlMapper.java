@@ -8,8 +8,7 @@ import com.fiafeng.common.service.Impl.ConnectionPoolServiceImpl;
 import com.fiafeng.common.utils.FiafengMysqlUtils;
 import com.fiafeng.common.utils.StringUtils;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
@@ -19,18 +18,15 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
+@Data
 public abstract class BaseMysqlMapper {
 
-    @Getter
-    @Setter
+
     public Class<?> type;
 
-    @Getter
-    @Setter
+
     private ConnectionPoolServiceImpl connectionPoolService;
 
-    @Getter
-    @Setter
     public IMysqlTableProperties properties;
 
     public String getTableName() {
@@ -128,7 +124,7 @@ public abstract class BaseMysqlMapper {
         insertColsName = new StringBuilder(insertColsName.substring(0, insertColsName.length() - 1) + ") ");
 
         StringBuilder values = new StringBuilder("VALUES (");
-        for (Object o : objectList) {
+        for (Object ignored : objectList) {
             values.append("?,");
         }
         values = new StringBuilder(values.substring(0, values.length() - 1) + ")");
@@ -163,7 +159,7 @@ public abstract class BaseMysqlMapper {
                         insertColsName.append(fieldName).append(",");
                         parameterObjectList.add(value);
                     }
-                } catch (IllegalAccessException e) {
+                } catch (IllegalAccessException ignore) {
                 }
             }
             if (sql == null) {
@@ -298,7 +294,7 @@ public abstract class BaseMysqlMapper {
                     insertColsName.append(fieldName).append("=?,");
                     objectList.add(value);
                 }
-            } catch (IllegalAccessException e) {
+            } catch (IllegalAccessException ignore) {
             }
         }
         for (Field declaredField : declaredFields) {
@@ -339,16 +335,16 @@ public abstract class BaseMysqlMapper {
     }
 
     public <T> T selectObjectByHashMap(HashMap<String, Object> hashMap) {
-        String sql = "select * from " + StringUtils.camelToUnderline(getTableName()) + " where  1 = 1";
+        StringBuilder sql = new StringBuilder("select * from " + StringUtils.camelToUnderline(getTableName()) + " where  1 = 1");
         List<Object> objectList = new ArrayList<>();
         for (String key : hashMap.keySet()) {
             if (hashMap.get(key) != null) {
                 objectList.add(hashMap.get(key));
             }
-            sql += " and " + StringUtils.camelToUnderline(key) + "=? ";
+            sql.append(" and ").append(StringUtils.camelToUnderline(key)).append("=? ");
         }
 
-        List<Map<String, Object>> maps = getConnectionPoolService().queryForList(sql, objectList.toArray());
+        List<Map<String, Object>> maps = getConnectionPoolService().queryForList(sql.toString(), objectList.toArray());
         if (maps.size() != 1) {
             return null;
         }

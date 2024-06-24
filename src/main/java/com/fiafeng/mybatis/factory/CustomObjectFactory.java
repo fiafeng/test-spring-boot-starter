@@ -1,15 +1,14 @@
 package com.fiafeng.mybatis.factory;
 
-import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
-import com.baomidou.mybatisplus.extension.plugins.inner.DynamicTableNameInnerInterceptor;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import org.apache.ibatis.reflection.ReflectionException;
 import org.apache.ibatis.reflection.Reflector;
 import org.apache.ibatis.reflection.factory.DefaultObjectFactory;
-import org.springframework.context.annotation.Bean;
 
 import java.lang.reflect.Constructor;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 

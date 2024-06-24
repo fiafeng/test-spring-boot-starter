@@ -3,13 +3,12 @@ package com.fiafeng.blog.pojo;
 
 import com.alibaba.fastjson2.annotation.JSONField;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.common.constant.ModelConstant;
 import lombok.Data;
 
 import java.sql.Date;
 
 @Data
-@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
+@BeanDefinitionOrderAnnotation()
 public class DefaultBlog implements IBaseBlog{
 
     private Long id;

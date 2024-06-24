@@ -98,7 +98,7 @@ public abstract class BaseRelationshipMysqlMapper {
         insertColsName = new StringBuilder(insertColsName.substring(0, insertColsName.length() - 1) + ") ");
 
         StringBuilder values = new StringBuilder("VALUES (");
-        for (Object o : objectList) {
+        for (Object ignored : objectList) {
             values.append("?,");
         }
         values = new StringBuilder(values.substring(0, values.length() - 1) + ")");

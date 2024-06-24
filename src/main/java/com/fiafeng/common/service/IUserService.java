@@ -1,6 +1,7 @@
 package com.fiafeng.common.service;
 
 import com.fiafeng.common.pojo.Interface.IBaseUser;
+import org.springframework.lang.Nullable;
 
 import java.util.List;
 
@@ -23,7 +24,11 @@ public interface IUserService {
 
     <T extends IBaseUser> List<T> selectUserListAll();
 
+
+    @Nullable
     <T extends IBaseUser> T selectUserByUserName(String username);
 
+
+    @Nullable
     <T extends IBaseUser> T selectUserByUserId(Long userId);
 }

@@ -25,7 +25,7 @@ public class MyBatisSupportConfig {
     @Autowired
     CustomObjectFactory customObjectFactory;
 
-    @Bean(name = "sqlSessionFactory")
+    @Bean(name = "mySqlSessionFactory")
     @ConditionalOnClass(SqlSessionFactoryBean.class)
     @ConditionalOnMissingClass("com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean")
     public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
@@ -41,7 +41,7 @@ public class MyBatisSupportConfig {
     }
 
 
-    @Bean(name = "mybatisSqlSessionFactoryBean")
+    @Bean(name = "mySqlSessionFactory")
     @ConditionalOnClass({MybatisSqlSessionFactoryBean.class, SqlSessionFactoryBean.class})
     public SqlSessionFactory MybatisPlusSqlSessionFactory(DataSource dataSource) throws Exception {
         Class.forName("com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean");

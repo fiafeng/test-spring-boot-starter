@@ -33,13 +33,14 @@ import org.springframework.context.annotation.Import;
         @ComponentScan("com.fiafeng.mybatis.Interceptor"),
         @ComponentScan("com.fiafeng.mybatis.utils"),
         @ComponentScan("com.fiafeng.mybatis.aop")
-//        , @ComponentScan("com.fiafeng.mybatis.dao")
+        , @ComponentScan("com.fiafeng.mybatis.dao")
 })
 @MapperScans({
         @MapperScan("com.fiafeng.mybatis.dao")
 })
 @ConditionalOnClass({SqlSessionFactoryBean.class})
 @ConditionalOnWebApplication
+//@MapperScan(basePackages = {"com.fiafeng.**.dao","com.fiafeng.**.mapper"}, sqlSessionFactoryRef = "mySqlSessionFactory")
 public class MyBatisConfig {
 
     @Bean

@@ -66,8 +66,7 @@ public class ConnectionPoolServiceImpl {
         String databaseName = url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("?"));
 
         List<Map<String, Object>> columns = queryForList(FiafengMysqlUtils.queryTableExistSql(), new Object[]{tableName, databaseName});
-        boolean flag = !columns.isEmpty();
-        return flag;
+        return !columns.isEmpty();
     }
 
     public void checkMysqlTableIsExist(String tableName, Class<?> typeClass){

@@ -1,4 +1,4 @@
-package com.fiafeng.mybatis.demo;
+package com.fiafeng.mybatis.dao;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -9,7 +9,7 @@ import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
-//@Mapper
+@Mapper
 public interface UserDaoMybatisPlusDemo extends BaseMapper<DefaultUser>, IUserMapper {
 
     default <T extends IBaseUser> boolean insertUser(T user) {

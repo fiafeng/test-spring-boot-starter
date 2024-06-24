@@ -41,7 +41,7 @@ public class MappingApplicationInit implements ApplicationInit {
 
         RequestMappingBean requestMappingBean = FiafengSpringUtils.getBean(RequestMappingBean.class);
 
-        // 获取数据库内所有连接
+        // 获取数据库内所有映射
         List<IBaseMapping> baseMappingList = mappingMapper.selectMappingListAll();
         boolean flag = baseMappingList != null && !baseMappingList.isEmpty();
         HashMap<String, IBaseMapping> hashMap = null;

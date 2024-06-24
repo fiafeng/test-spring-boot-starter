@@ -19,6 +19,8 @@ public @interface AutoFiledAnnotation {
     TypeOrmEnum type() default TypeOrmEnum.varcharType; // 对应的类型
     String comment() default "" ; //  注释
 
+    String defaultValue() default "" ; //  注释
+
     int length() default 11;
 
     /**

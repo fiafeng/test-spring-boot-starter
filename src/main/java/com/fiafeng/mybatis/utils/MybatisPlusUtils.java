@@ -11,6 +11,7 @@ import com.fiafeng.mybatis.Interceptor.MyDynamicTableNameInnerInterceptor;
 import lombok.Getter;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 public class MybatisPlusUtils {
@@ -44,9 +45,13 @@ public class MybatisPlusUtils {
                     IMysqlTableProperties properties = beansOfType.get(key);
                     String tableName = properties.getTableName();
                     MyDynamicTableNameInnerInterceptor.hashMap.put(oldName, tableName);
-                    for (String beanName : ObjectClassUtils.mybatisClassMap.get(baseClass)) {
-                        MyDynamicTableNameInnerInterceptor.hashMap.put(StringUtils.camelToUnderline(beanName), tableName);
+                    HashSet<String> hashSet = ObjectClassUtils.mybatisClassMap.get(baseClass);
+                    if (hashSet != null){
+                        for (String beanName : hashSet) {
+                            MyDynamicTableNameInnerInterceptor.hashMap.put(StringUtils.camelToUnderline(beanName), tableName);
+                        }
                     }
+
                 }
             }
         }

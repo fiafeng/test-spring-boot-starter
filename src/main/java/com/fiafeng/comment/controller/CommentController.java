@@ -6,8 +6,10 @@ import com.fiafeng.comment.pojo.dto.CommentDTO;
 import com.fiafeng.comment.service.Impl.mybatis.CommentMybatisServiceImpl;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.pojo.Dto.AjaxResult;
+import com.fiafeng.common.pojo.Interface.IBaseUser;
 import com.fiafeng.common.pojo.Vo.IBaseUserInfo;
 import com.fiafeng.common.service.ITokenService;
+import com.fiafeng.common.service.IUserService;
 import com.fiafeng.common.utils.ObjectUtils;
 import com.fiafeng.common.utils.StringUtils;
 import com.fiafeng.validation.annotation.ValidationAnnotation;
@@ -64,14 +66,38 @@ public class CommentController {
         return AjaxResult.success();
     }
 
+    @Autowired
+    IUserService userService;
+
 
     @GetMapping("/send")
     @ValidationAnnotation
     public AjaxResult sendCommentGet(BaseComment baseComment) {
-        // 如果是回复的评论，检查回复评论名字和Id
-        if (!"-1".equals(baseComment.getParentId()) && (StringUtils.strIsEmpty(baseComment.getReceiverName()) && StringUtils.strIsEmpty(baseComment.getReceiverUserId()))) {
+        // 如果是回复的评论，则消息父id不允许为-1
+        if (!"-1".equals(baseComment.getParentId()) && (StringUtils.strIsEmpty(baseComment.getReceiverName()) || StringUtils.strIsEmpty(baseComment.getReceiverUserId()))) {
             throw new ServiceException("回复评论参数不正确");
         }
+
+        if (!"-1".equals(baseComment.getParentId())){
+            IBaseComment iBaseComment = commentService.queryCommentById(baseComment.getParentId());
+            if (iBaseComment == null){
+                throw new ServiceException("找不到回复的评论信息");
+            }
+        }
+
+
+
+
+        if (!StringUtils.strIsEmpty(baseComment.getReceiverName()) && !StringUtils.strIsEmpty(baseComment.getReceiverUserId())){
+            IBaseUser baseUser = userService.selectUserByUserId(Long.valueOf(baseComment.getReceiverUserId()));
+            if (baseUser == null){
+                throw new ServiceException("找不到需要回复的用户");
+            }
+            if (!baseComment.getReceiverName().equals(baseUser.getUsername())){
+                throw new ServiceException("回复用户的信息不正确！！");
+            }
+        }
+
         IBaseUserInfo loginUserInfo = tokenService.getLoginUser();
         baseComment.setSenderUserId(loginUserInfo.getUser().getId());
         baseComment.setSenderName(loginUserInfo.getUser().getUsername());

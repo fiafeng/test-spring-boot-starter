@@ -1,5 +1,6 @@
 package com.fiafeng.mapping.config;
 
+import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.mapping.interceptor.FiafengPermissionInterceptor;
 import com.fiafeng.mapping.properties.FiafengMappingProperties;
 import com.fiafeng.security.properties.FiafengSecurityProperties;
@@ -30,7 +31,7 @@ public class MappingWebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         List<String> list = mappingProperties.getInterceptor().isEmpty() ? securityProperties.permitAllList : mappingProperties.getInterceptor();
         if (mappingProperties.permissionInterceptorEnable) {
-            registry.addInterceptor(permissionInterceptor).addPathPatterns("/**").excludePathPatterns(list);
+            registry.addInterceptor(permissionInterceptor).addPathPatterns("/**").order(ModelConstant.secondOrdered).excludePathPatterns(list);
         }
     }
 }

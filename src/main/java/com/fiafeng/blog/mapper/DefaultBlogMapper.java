@@ -3,7 +3,6 @@ package com.fiafeng.blog.mapper;
 import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.blog.pojo.IBaseBlog;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.common.constant.ModelConstant;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

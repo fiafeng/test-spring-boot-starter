@@ -117,6 +117,15 @@ public class CommonApplicationInitBefore implements BeanDefinitionRegistryPostPr
             FiafengSpringUtils.applicationContext = event.getApplicationContext();
         }
 
+//        Map<String, SqlSessionFactory> beansOfType1 = FiafengSpringUtils.getBeansOfType(SqlSessionFactory.class);
+//        CustomObjectFactory customObjectFactory = FiafengSpringUtils.getBean(CustomObjectFactory.class);
+//        for (SqlSessionFactory sqlSessionFactory : beansOfType1.values()) {
+//            if (sqlSessionFactory.getConfiguration().getObjectFactory().getClass() != CustomObjectFactory.class){
+//                sqlSessionFactory.getConfiguration().setObjectFactory(customObjectFactory);
+//            }
+//        }
+
+
         // 注入配置文件里面的属性
         Environment environment = event.getApplicationContext().getEnvironment();
         Map<String, IFiafengProperties> beansOfType = FiafengSpringUtils.getBeansOfType(IFiafengProperties.class);

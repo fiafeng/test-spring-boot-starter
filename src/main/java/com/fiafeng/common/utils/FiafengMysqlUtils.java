@@ -107,18 +107,25 @@ public class FiafengMysqlUtils {
 
             AutoFiledAnnotation fieldAnnotation = field.getDeclaredAnnotation(AutoFiledAnnotation.class);
             if (fieldAnnotation != null) {
-                filedName = filedName.isEmpty() ? filedName : fieldAnnotation.name();
+                filedName = fieldAnnotation.name().isEmpty() ? filedName : fieldAnnotation.name();
 
                 // TODO1 检查属性名字是否满足mysql 命名规范
                 String comment = fieldAnnotation.comment();
                 int length = fieldAnnotation.length();
                 TypeOrmEnum typed = fieldAnnotation.type();
+                String defaultValue = fieldAnnotation.defaultValue();
+
+                if (defaultValue != null && !defaultValue.isEmpty()){
+
+                }
+
                 String typeName = getColsTypeName(typed, length);
                 sql.append("    ")
                         .append(filedName)
                         .append(" ")
                         .append(typeName)
                         .append(fieldAnnotation.isNull() ? " null " : " not null ")
+                        .append(defaultValue != null && !defaultValue.isEmpty() ? " default " + defaultValue : " ")
                         .append(comment.isEmpty() ? "" : " comment '" + comment + "' ")
                         .append(" , \n");
             } else {

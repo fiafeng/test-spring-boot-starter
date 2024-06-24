@@ -1,6 +1,5 @@
 package com.fiafeng.mybatis.aop;
 
-import com.fiafeng.common.utils.StringUtils;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import com.fiafeng.mybatis.Interceptor.PageHelperInterceptor;
 import com.fiafeng.mybatis.annotation.PageAnnotation;

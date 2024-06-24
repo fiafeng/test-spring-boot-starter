@@ -35,7 +35,7 @@ public class FiafengValidationAspect {
                 try {
                     objectValue = field.get(arg);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    continue;
                 }
                 if (fieldType == String.class && field.isAnnotationPresent(StringValidationAnnotation.class)) {
                     //存在某个注解就进行对应的处理

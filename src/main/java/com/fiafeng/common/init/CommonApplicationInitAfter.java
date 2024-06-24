@@ -20,7 +20,6 @@ import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
-import java.security.AccessControlContext;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -92,15 +91,11 @@ public class CommonApplicationInitAfter implements BeanDefinitionRegistryPostPro
         ApplicationInit[] applicationInitArray = beansOfType.values().toArray(new ApplicationInit[beansOfType.values().size()]);
         for (int i = 0; i < applicationInitArray.length; i++) {
             ApplicationInit applicationInit = applicationInitArray[i];
-            try {
-                Method method = applicationInit.getClass().getMethod("init", null);
-                ApplicationInitAnnotation annotation = method.getAnnotation(ApplicationInitAnnotation.class);
-                if (annotation != null) {
-                    valuesArray[i] = annotation.value();
-                } else {
-                    valuesArray[i] = 0;
-                }
-            } catch (NoSuchMethodException ignored) {
+            ApplicationInitAnnotation annotation = applicationInit.getClass().getAnnotation(ApplicationInitAnnotation.class);
+            if (annotation != null) {
+                valuesArray[i] = annotation.value();
+            } else {
+                valuesArray[i] = 0;
             }
         }
 
