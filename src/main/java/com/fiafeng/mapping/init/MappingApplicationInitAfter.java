@@ -1,6 +1,6 @@
 package com.fiafeng.mapping.init;
 
-import com.fiafeng.common.init.ApplicationInit;
+import com.fiafeng.common.init.ApplicationInitAfter;
 import com.fiafeng.common.utils.ObjectClassUtils;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import com.fiafeng.mapping.pojo.DefaultMapping;
@@ -9,7 +9,6 @@ import com.fiafeng.mapping.pojo.vo.RequestMappingDataVO;
 import com.fiafeng.common.mapper.Interface.IMappingMapper;
 import com.fiafeng.common.pojo.Vo.FiafengStaticBean;
 import com.fiafeng.mapping.pojo.Interface.IBaseMapping;
-import com.fiafeng.mybatis.utils.MybatisPlusUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.condition.PathPatternsRequestCondition;
@@ -20,12 +19,9 @@ import org.springframework.web.util.pattern.PathPattern;
 import java.util.*;
 
 @Component
-public class MappingApplicationInit implements ApplicationInit {
+public class MappingApplicationInitAfter implements ApplicationInitAfter {
 
 
-    static {
-//        MybatisPlusUtils.putHashMapMybatisPlusTableName(IMappingMapper.class, IBaseMapping.class);
-    }
 
     @Override
     public void init() {

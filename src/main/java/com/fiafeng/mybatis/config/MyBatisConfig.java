@@ -1,8 +1,6 @@
 package com.fiafeng.mybatis.config;
 
 
-import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
-import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.fiafeng.mybatis.factory.CustomObjectFactory;
 import com.fiafeng.mybatis.factory.ObjectFactoryConverter;
 import com.fiafeng.mybatis.properties.FiafengMybatisPageProperties;
@@ -20,7 +18,6 @@ import org.springframework.context.annotation.Import;
 
 
 @Import({
-        MyBatisSupportConfig.class
 })
 @EnableConfigurationProperties({
         FiafengMybatisProperties.class,
@@ -36,20 +33,21 @@ import org.springframework.context.annotation.Import;
         , @ComponentScan("com.fiafeng.mybatis.dao")
 })
 @MapperScans({
-        @MapperScan("com.fiafeng.mybatis.dao")
+        @MapperScan(basePackages = {"com.**.dao"}, sqlSessionTemplateRef = "sqlSessionTemplate",
+                sqlSessionFactoryRef = "sqlSessionFactory")
 })
 @ConditionalOnClass({SqlSessionFactoryBean.class})
 @ConditionalOnWebApplication
-//@MapperScan(basePackages = {"com.fiafeng.**.dao","com.fiafeng.**.mapper"}, sqlSessionFactoryRef = "mySqlSessionFactory")
+
 public class MyBatisConfig {
 
     @Bean
-    public CustomObjectFactory customObjectFactory(){
+    public CustomObjectFactory customObjectFactory() {
         return new CustomObjectFactory();
     }
 
     @Bean
-    ObjectFactoryConverter objectFactoryConverter(){
+    ObjectFactoryConverter objectFactoryConverter() {
         return new ObjectFactoryConverter();
     }
 

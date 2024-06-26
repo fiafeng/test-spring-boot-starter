@@ -6,6 +6,7 @@ import com.fiafeng.captcha.config.CaptchaConfig;
 import com.fiafeng.comment.config.CommentConfig;
 import com.fiafeng.common.config.CommonConfig;
 import com.fiafeng.dynamicClass.config.DynamicClassConfig;
+import com.fiafeng.flowable.config.FlowableConfig;
 import com.fiafeng.mapping.config.MappingAutoConfig;
 import com.fiafeng.mybatis.config.MyBatisConfig;
 import com.fiafeng.redis.config.RedisConfig;
@@ -26,7 +27,8 @@ import java.lang.annotation.*;
         CommonConfig.class,
         CommentConfig.class,
         ValidationConfig.class,
-        DynamicClassConfig.class
+        DynamicClassConfig.class,
+        FlowableConfig.class
 })
 @Inherited
 @ConditionalOnWebApplication

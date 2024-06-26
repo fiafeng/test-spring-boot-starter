@@ -1,5 +1,6 @@
 package com.fiafeng.common.init;
 
+import com.fiafeng.common.annotation.ApplicationInitAnnotation;
 import com.fiafeng.common.controller.ILoginController;
 import com.fiafeng.common.controller.controller.Interface.IPermissionController;
 import com.fiafeng.common.controller.controller.Interface.IRoleController;
@@ -14,7 +15,12 @@ import com.fiafeng.common.utils.ObjectClassUtils;
 import com.fiafeng.common.utils.StringUtils;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import com.fiafeng.mapping.pojo.Interface.IBaseMapping;
+import com.fiafeng.mybatis.factory.CustomObjectFactory;
 import com.fiafeng.mybatis.utils.MybatisPlusUtils;
+import org.apache.ibatis.plugin.Interceptor;
+import org.apache.ibatis.reflection.factory.ObjectFactory;
+import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -25,9 +31,12 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.Environment;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -74,14 +83,14 @@ public class CommonApplicationInitBefore implements BeanDefinitionRegistryPostPr
     }
 
     @Override
-    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+    public void postProcessBeanDefinitionRegistry(@Nullable BeanDefinitionRegistry registry) throws BeansException {
         if (ObjectClassUtils.registry == null) {
             ObjectClassUtils.registry = registry;
         }
     }
 
     @Override
-    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+    public void postProcessBeanFactory(@Nullable ConfigurableListableBeanFactory beanFactory) throws BeansException {
 
         if (ObjectClassUtils.beanFactory == null) {
             ObjectClassUtils.beanFactory = beanFactory;
@@ -94,7 +103,7 @@ public class CommonApplicationInitBefore implements BeanDefinitionRegistryPostPr
     }
 
     @Override
-    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+    public Object postProcessBeforeInitialization(@Nullable Object bean,@Nullable  String beanName) throws BeansException {
         return bean;
     }
 
@@ -106,7 +115,12 @@ public class CommonApplicationInitBefore implements BeanDefinitionRegistryPostPr
 
 
     @Override
-    public void onApplicationEvent(ContextRefreshedEvent event) {
+    public void onApplicationEvent(@Nullable ContextRefreshedEvent event) {
+
+        assert event != null;
+        if (event.getApplicationContext().getParent() != null) {
+            return;
+        }
 
         if (ObjectClassUtils.url == null) {
             Environment environment = event.getApplicationContext().getEnvironment();
@@ -117,19 +131,11 @@ public class CommonApplicationInitBefore implements BeanDefinitionRegistryPostPr
             FiafengSpringUtils.applicationContext = event.getApplicationContext();
         }
 
-//        Map<String, SqlSessionFactory> beansOfType1 = FiafengSpringUtils.getBeansOfType(SqlSessionFactory.class);
-//        CustomObjectFactory customObjectFactory = FiafengSpringUtils.getBean(CustomObjectFactory.class);
-//        for (SqlSessionFactory sqlSessionFactory : beansOfType1.values()) {
-//            if (sqlSessionFactory.getConfiguration().getObjectFactory().getClass() != CustomObjectFactory.class){
-//                sqlSessionFactory.getConfiguration().setObjectFactory(customObjectFactory);
-//            }
-//        }
-
 
         // 注入配置文件里面的属性
         Environment environment = event.getApplicationContext().getEnvironment();
-        Map<String, IFiafengProperties> beansOfType = FiafengSpringUtils.getBeansOfType(IFiafengProperties.class);
-        for (IFiafengProperties properties : beansOfType.values()) {
+        Map<String, IFiafengProperties> beansProperties = FiafengSpringUtils.getBeansOfType(IFiafengProperties.class);
+        for (IFiafengProperties properties : beansProperties.values()) {
             Class<? extends IFiafengProperties> propertiesClass = properties.getClass();
             ConfigurationProperties annotation = propertiesClass.getAnnotation(ConfigurationProperties.class);
             String value = annotation.value();
@@ -147,6 +153,54 @@ public class CommonApplicationInitBefore implements BeanDefinitionRegistryPostPr
 
             }
         }
+
+
+        Map<String, SqlSessionFactory> beansOfType1 = FiafengSpringUtils.getBeansOfType(SqlSessionFactory.class);
+        CustomObjectFactory customObjectFactory = FiafengSpringUtils.getBean(CustomObjectFactory.class);
+        Map<String, Interceptor> interceptorMap = FiafengSpringUtils.getBeanFactory().getBeansOfType(Interceptor.class);
+        List<Interceptor> values = new ArrayList<>(interceptorMap.values());
+
+        for (SqlSessionFactory sqlSessionFactory : beansOfType1.values()) {
+            Configuration configuration = sqlSessionFactory.getConfiguration();
+            ObjectFactory objectFactory = configuration.getObjectFactory();
+            if (objectFactory.getClass() != CustomObjectFactory.class) {
+                configuration.setObjectFactory(customObjectFactory);
+                for (Interceptor value : values) {
+                    configuration.addInterceptor(value);
+                }
+            }
+        }
+
+
+        Map<String, ApplicationInitBefore> beansOfType = FiafengSpringUtils.getBeanFactory().getBeansOfType(ApplicationInitBefore.class);
+        Integer[] valuesArray = new Integer[beansOfType.size()];
+        ApplicationInitBefore[] applicationInitAfterArray = beansOfType.values().toArray(new ApplicationInitBefore[0]);
+        for (int i = 0; i < applicationInitAfterArray.length; i++) {
+            ApplicationInitBefore applicationInitAfter = applicationInitAfterArray[i];
+            ApplicationInitAnnotation annotation = applicationInitAfter.getClass().getAnnotation(ApplicationInitAnnotation.class);
+            if (annotation != null) {
+                valuesArray[i] = annotation.value();
+            } else {
+                valuesArray[i] = 0;
+            }
+        }
+
+        for (int i = 0; i < valuesArray.length; i++) {
+            int max = -9998;
+            int pos = -1;
+            for (int j = 0; j < valuesArray.length; j++) {
+                if (valuesArray[j] > max) {
+                    max = valuesArray[j];
+                    pos = j;
+                }
+            }
+            applicationInitAfterArray[pos].init();
+            valuesArray[pos] = -9999;
+        }
+
+
+
+
     }
 
 

@@ -2,7 +2,7 @@ package com.fiafeng.mybatis.init;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.fiafeng.common.annotation.ApplicationInitAnnotation;
-import com.fiafeng.common.init.ApplicationInit;
+import com.fiafeng.common.init.ApplicationInitAfter;
 import com.fiafeng.common.mapper.Interface.IMapper;
 import com.fiafeng.common.pojo.Interface.base.IBasePojo;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
@@ -22,7 +22,7 @@ import java.util.Set;
 @Component
 @ConditionalOnClass(BaseMapper.class)
 @ApplicationInitAnnotation(10000)
-public class MybatisPlusApplicationInit implements ApplicationInit {
+public class MybatisPlusApplicationInitAfter implements ApplicationInitAfter {
 
     @Override
     public void init() {
@@ -34,7 +34,7 @@ public class MybatisPlusApplicationInit implements ApplicationInit {
             for (Interceptor value : values) {
                 bean.getConfiguration().addInterceptor(value);
             }
-        }catch (Exception e){
+        }catch (Exception ignore){
 
         }
 

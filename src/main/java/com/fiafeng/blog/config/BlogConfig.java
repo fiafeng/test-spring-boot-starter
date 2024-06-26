@@ -1,6 +1,6 @@
 package com.fiafeng.blog.config;
 
-import com.fiafeng.blog.init.BlogApplicationInit;
+import com.fiafeng.blog.init.BlogApplicationInitAfter;
 import com.fiafeng.blog.mapper.DefaultMysqlBlogMapper;
 import com.fiafeng.blog.pojo.DefaultBlog;
 import com.fiafeng.blog.properties.FiafengBlogProperties;
@@ -39,7 +39,7 @@ public class BlogConfig {
     }
 
     @Bean
-    BlogApplicationInit blogApplicationInit(){
-        return new BlogApplicationInit();
+    BlogApplicationInitAfter blogApplicationInit(){
+        return new BlogApplicationInitAfter();
     }}
 
