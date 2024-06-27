@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Import;
 
 
 @Import({
+        MyBatisSupportConfig.class
 })
 @EnableConfigurationProperties({
         FiafengMybatisProperties.class,
@@ -30,15 +31,13 @@ import org.springframework.context.annotation.Import;
         @ComponentScan("com.fiafeng.mybatis.Interceptor"),
         @ComponentScan("com.fiafeng.mybatis.utils"),
         @ComponentScan("com.fiafeng.mybatis.aop")
-        , @ComponentScan("com.fiafeng.mybatis.dao")
 })
 @MapperScans({
-        @MapperScan(basePackages = {"com.**.dao"}, sqlSessionTemplateRef = "sqlSessionTemplate",
+        @MapperScan(basePackages = {"com.**.**.dao"}, sqlSessionTemplateRef = "sqlSessionTemplate",
                 sqlSessionFactoryRef = "sqlSessionFactory")
 })
 @ConditionalOnClass({SqlSessionFactoryBean.class})
 @ConditionalOnWebApplication
-
 public class MyBatisConfig {
 
     @Bean

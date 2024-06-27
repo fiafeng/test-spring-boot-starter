@@ -271,6 +271,48 @@ public class ConnectionPoolServiceImpl {
     }
 
 
+
+    /**
+     * 使用jdbcTemplate新增一条数据
+     *
+     * @param object 新增对象
+     * @param <T>    对象类型
+     * @param flag   true时，使用数据库自增主键。false时，使用数据内的id值
+     */
+    public <T> boolean insertObject(T object,String idName , String tableName,Boolean flag) {
+        Field[] declaredFields = object.getClass().getDeclaredFields();
+        List<Object> objectList = new ArrayList<>();
+        StringBuilder insertColsName = new StringBuilder(" ( ");
+        for (Field declaredField : declaredFields) {
+            String fieldName = declaredField.getName();
+            if (flag &&idName.equals(fieldName)) {
+                continue;
+            }
+            fieldName = StringUtils.camelToUnderline(fieldName);
+            try {
+                declaredField.setAccessible(true);
+                Object value = declaredField.get(object);
+                if (value != null) {
+                    insertColsName.append(fieldName).append(",");
+                    objectList.add(value);
+                }
+            } catch (IllegalAccessException ignored) {
+            }
+        }
+        insertColsName = new StringBuilder(insertColsName.substring(0, insertColsName.length() - 1) + ") ");
+
+        StringBuilder values = new StringBuilder(" VALUES (");
+        for (Object ignored : objectList) {
+            values.append("?,");
+        }
+        values = new StringBuilder(values.substring(0, values.length() - 1) + ") ");
+
+        String sql = "insert into " + tableName + insertColsName + values;
+
+        Object[] objects = objectList.toArray(new Object[objectList.size()]);
+        return updateSql(sql, objects) == 1;
+    }
+
     public int updateSql(String sql, Object[] objects) {
         PreparedStatement statement = null;
         int result = 0;

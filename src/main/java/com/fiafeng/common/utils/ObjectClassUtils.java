@@ -9,7 +9,10 @@ import com.fiafeng.common.pojo.Interface.IBaseRolePermission;
 import com.fiafeng.common.pojo.Interface.IBaseUserRole;
 import com.fiafeng.common.pojo.Interface.base.IBasePojo;
 import com.fiafeng.common.properties.FiafengRbacProperties;
+import com.fiafeng.common.properties.mysql.FiafengMysqlUserProperties;
+import com.fiafeng.common.properties.mysql.IMysqlTableProperties;
 import com.fiafeng.common.service.IUserTableInitService;
+import com.fiafeng.common.service.Impl.ConnectionPoolServiceImpl;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -35,7 +38,7 @@ public class ObjectClassUtils {
     }
 
 
-    public static void registerBean(Class<?> aClass, Object[] args){
+    public static void registerBean(Class<?> aClass, Object[] args) {
         BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(aClass);
         BeanDefinition beanDefinition = beanDefinitionBuilder.getRawBeanDefinition();
         if (args != null) {
@@ -43,7 +46,7 @@ public class ObjectClassUtils {
                 beanDefinitionBuilder.addConstructorArgValue(arg);
             }
         }
-        registry.registerBeanDefinition(aClass.getSimpleName(),beanDefinition);
+        registry.registerBeanDefinition(aClass.getSimpleName(), beanDefinition);
     }
 
     public static void removeBeanDefinitions() {
@@ -83,13 +86,12 @@ public class ObjectClassUtils {
                         break;
                     }
                 } else {
-                    Map<String, ?> beansOfTypeMap = beanFactory.getBeansOfType(objectClass);
-                    for (String string : beansOfTypeMap.keySet()) {
-                        if (beanName.equals(string)) {
-                            Object o = beansOfTypeMap.get(beanName);
-                            rawClass = o.getClass();
-                        }
+                    try {
+                        Object bean = beanFactory.getBean(beanName);
+                        rawClass = bean.getClass();
+                    } catch (Exception ignore) {
                     }
+
                 }
             }
 
@@ -129,10 +131,13 @@ public class ObjectClassUtils {
         }
 
     }
+
     /**
      * 初始化mysql数据库，用户，角色，权限。默认添加管理员和管理员角色和管理员权限
      */
     public static void mysqlMapperInit(FiafengRbacProperties rbacProperties) {
+
+
 
         // 检查用户表
         try {
@@ -214,14 +219,38 @@ public class ObjectClassUtils {
     public static void refreshBaseMysqlMapperType(Class<?> iMapperClass, Class<?> iBaseObject, boolean createTable) {
         Object bean;
         bean = FiafengSpringUtils.getBean(iMapperClass);
+        Object baseObject = FiafengSpringUtils.getBean(iBaseObject);
         if (bean instanceof BaseMysqlMapper) {
             BaseMysqlMapper mapper = (BaseMysqlMapper) bean;
 
-            mapper.setType(FiafengSpringUtils.getBean(iBaseObject).getClass());
+            mapper.setType(baseObject.getClass());
             if (createTable) {
                 mapper.checkMysqlTableIsExist(url);
             }
+        }else {
+            try {
+                // TODO 添加对应的属性，判断是否创建对应的表
+                // TODO 是否创建默认用户
 
+                ConnectionPoolServiceImpl connectionPoolService = FiafengSpringUtils.getBean(ConnectionPoolServiceImpl.class);
+                IMysqlTableProperties tableProperties = new FiafengMysqlUserProperties();
+                Map<String, IMysqlTableProperties> mysqlTablePropertiesMap = FiafengSpringUtils.getBeansOfType(IMysqlTableProperties.class);
+                String pojoSubstringName = iBaseObject.getSimpleName().substring(5);
+                for (String key : mysqlTablePropertiesMap.keySet()) {
+                    String beanName = key;
+                    if (beanName.contains(".")) {
+                        beanName = beanName.substring(beanName.lastIndexOf(".") + 1);
+                    }
+                    if (beanName.equals("FiafengMysql" + pojoSubstringName + "Properties")){
+                        tableProperties = mysqlTablePropertiesMap.get(key);
+                    }
+                }
+                String tableName = tableProperties.getTableName();
+                connectionPoolService.checkMysqlTableIsExist(tableName, baseObject.getClass());
+
+            }catch (Exception ignore){
+
+            }
         }
     }
 

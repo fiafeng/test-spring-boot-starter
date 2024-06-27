@@ -9,7 +9,6 @@ import com.fiafeng.common.service.ICacheService;
 import com.fiafeng.common.service.Impl.DefaultCacheServiceImpl;
 import com.fiafeng.common.utils.ObjectClassUtils;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
-import com.sun.istack.internal.NotNull;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -120,7 +119,7 @@ public class CommonApplicationInitAfter implements BeanDefinitionRegistryPostPro
                 private final AtomicInteger threadNumber = new AtomicInteger(1);
 
                 @Override
-                public Thread newThread(@NotNull Runnable r) {
+                public Thread newThread(Runnable r) {
                     Thread t = new Thread(r);
                     t.setName("默认缓存定时清理过期key任务线程-" + threadNumber.getAndIncrement());
                     return t;

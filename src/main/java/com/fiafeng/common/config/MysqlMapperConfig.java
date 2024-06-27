@@ -7,8 +7,8 @@ import com.fiafeng.common.config.bean.DefaultDataSource;
 import com.fiafeng.common.mapper.mysql.*;
 import com.fiafeng.common.properties.mysql.*;
 import com.fiafeng.common.service.Impl.ConnectionPoolServiceImpl;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -28,7 +28,7 @@ import javax.sql.DataSource;
 @ConditionalOnClassList(name = {"com.mysql.cj.jdbc.Driver", "com.mysql.jdbc.Driver"})
 @ConditionalEnableProperty("fiafeng.mysql.enable")
 @ConditionalOnWebApplication
-@ConditionalOnExpression("!'${spring.datasource.url}'.isEmpty() && !'${spring.datasource.username}'.isEmpty() && !'${spring.datasource.password}'.isEmpty()")
+@ConditionalOnProperty(name = {"spring.datasource.url", "spring.datasource.username", "spring.datasource.password"})
 public class MysqlMapperConfig {
 
 

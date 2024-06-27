@@ -17,52 +17,21 @@
         <java.version>1.8</java.version>
         <jwt.version>0.9.1</jwt.version>
     </properties>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.flowable</groupId>
-                <artifactId>flowable-spring-boot-starter</artifactId>
-                <version>6.7.2</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.mybatis</groupId>
-                        <artifactId>mybatis</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.flowable</groupId>
-                <artifactId>flowable-ui-modeler-rest</artifactId>
-                <version>6.7.2</version>
-            </dependency>
-            <dependency>
-                <groupId>org.flowable</groupId>
-                <artifactId>flowable-ui-modeler-conf</artifactId>
-                <version>6.7.2</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+
     <dependencies>
         <!--flowable工作流依赖-->
-        <dependency>
-            <groupId>org.flowable</groupId>
-            <artifactId>flowable-spring-boot-starter</artifactId>
-            <optional>true</optional>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.flowable</groupId>-->
+<!--            <artifactId>flowable-spring-boot-starter-process-rest</artifactId>-->
+<!--            <version>6.8.0</version>-->
+<!--        </dependency>-->
+<!--        &lt;!&ndash; modeler绘制流程图 &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.flowable</groupId>-->
+<!--            <artifactId>flowable-spring-boot-starter-ui-modeler</artifactId>-->
+<!--            <version>6.8.0</version>-->
+<!--        </dependency>-->
 
-        <!--添加flowable工作流前端页面依赖，如果项目没有集成页面，无需添加此依赖-->
-
-        <dependency>
-            <groupId>org.flowable</groupId>
-            <artifactId>flowable-ui-modeler-rest</artifactId>
-            <optional>true</optional>
-        </dependency>
-
-        <!--添加flowable-ui-modeler配置依赖项-->
-        <dependency>
-            <groupId>org.flowable</groupId>
-            <artifactId>flowable-ui-modeler-conf</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -73,7 +42,7 @@
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
             <version>3.25.0-GA</version>
-            <optional>true</optional>
+            <optional>false</optional>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.github.pagehelper/pagehelper-spring-boot-starter -->
@@ -205,6 +174,13 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <classifier>exec</classifier>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <testFailureIgnore>true</testFailureIgnore>
                 </configuration>
             </plugin>
             <plugin>

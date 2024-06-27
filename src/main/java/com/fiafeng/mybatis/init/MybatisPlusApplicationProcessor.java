@@ -48,8 +48,9 @@ public class MybatisPlusApplicationProcessor extends ApplicationProcessor {
             Class<? extends IBasePojo> pojoClass = classClassEntry.getValue();
 
             String pojoSubstringName = pojoClass.getSimpleName().substring(5);
+            Map<String, ? extends IMapper> beansOfType1;
             try {
-                FiafengSpringUtils.getBeansOfType(mapperClass);
+                beansOfType1 = FiafengSpringUtils.getBeansOfType(mapperClass);
             } catch (BeansException e) {
                 for (String beanName : beansOfType.keySet()) {
                     String name = beanName;

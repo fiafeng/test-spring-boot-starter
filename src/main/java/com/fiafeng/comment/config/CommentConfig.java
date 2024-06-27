@@ -6,6 +6,7 @@ import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.annotation.MapperScans;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScans;
@@ -20,5 +21,6 @@ import org.springframework.context.annotation.ComponentScans;
         @MapperScan("com.fiafeng.comment.dao")
 })
 @ConditionalOnClass({SqlSessionFactoryBean.class})
+@ConditionalOnProperty(name = {"spring.datasource.url", "spring.datasource.username", "spring.datasource.password"})
 public class CommentConfig {
 }
