@@ -99,7 +99,6 @@ public class CommonApplicationInitBefore implements BeanDefinitionRegistryPostPr
             FiafengSpringUtils.beanFactory = beanFactory;
         }
 
-
     }
 
     @Override
@@ -120,11 +119,6 @@ public class CommonApplicationInitBefore implements BeanDefinitionRegistryPostPr
         assert event != null;
         if (event.getApplicationContext().getParent() != null) {
             return;
-        }
-
-        if (ObjectClassUtils.url == null) {
-            Environment environment = event.getApplicationContext().getEnvironment();
-            ObjectClassUtils.url = environment.getProperty("spring.datasource.url");
         }
 
         if (FiafengSpringUtils.applicationContext == null) {

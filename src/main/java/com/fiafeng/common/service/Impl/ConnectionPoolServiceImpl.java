@@ -5,9 +5,9 @@ import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.common.config.bean.DefaultDataSource;
 import com.fiafeng.common.properties.mysql.FiafengMysqlProperties;
 import com.fiafeng.common.utils.FiafengMysqlUtils;
-import com.fiafeng.common.utils.ObjectClassUtils;
 import com.fiafeng.common.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
 
 import javax.sql.DataSource;
@@ -22,6 +22,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ConnectionPoolServiceImpl {
 
     DataSource dataSource;
+
+    @Value("${spring.datasource.url}")
+    public String url;
 
     public static volatile List<Connection> connectionPool = new ArrayList<>();
 
@@ -58,28 +61,34 @@ public class ConnectionPoolServiceImpl {
         this.mysqlProperties = mysqlProperties;
     }
 
+    /**
+     * 检查对应数据库里面是否存在指定表名的表
+     *
+     * @param tableName 表名
+     */
     public boolean checkTableExist(String tableName) {
-        return checkTableExist(ObjectClassUtils.url, tableName);
+        try {
+            String schema = dataSource.getConnection().getSchema();
+            List<Map<String, Object>> columns = queryForList(FiafengMysqlUtils.queryTableExistSql(), new Object[]{tableName, schema});
+            return !columns.isEmpty();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
-    public boolean checkTableExist(String url, String tableName) {
-        String databaseName = url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("?"));
-
-        List<Map<String, Object>> columns = queryForList(FiafengMysqlUtils.queryTableExistSql(), new Object[]{tableName, databaseName});
-        return !columns.isEmpty();
-    }
-
-    public void checkMysqlTableIsExist(String tableName, Class<?> typeClass){
-        checkMysqlTableIsExist(tableName, ObjectClassUtils.url, typeClass);
-    }
-
-    public void checkMysqlTableIsExist(String tableName,String url, Class<?> typeClass) {
-        if (!checkTableExist(url)) {
+    /**
+     * 根据表名，和对应的实体类检查表是否存在，如不存在则创建
+     *
+     * @param tableName 表名
+     * @param typeClass 实体类
+     */
+    public void createdMysqlTable(String tableName, Class<?> typeClass) {
+        if (!checkTableExist(tableName)) {
             String createdTableSql = FiafengMysqlUtils.createdTableSql(tableName, typeClass);
             executeSql(createdTableSql);
         }
     }
-
 
     public Connection getConnection() {
         // 如果没有连接池，使用自定义的连接池
@@ -271,7 +280,6 @@ public class ConnectionPoolServiceImpl {
     }
 
 
-
     /**
      * 使用jdbcTemplate新增一条数据
      *
@@ -279,13 +287,13 @@ public class ConnectionPoolServiceImpl {
      * @param <T>    对象类型
      * @param flag   true时，使用数据库自增主键。false时，使用数据内的id值
      */
-    public <T> boolean insertObject(T object,String idName , String tableName,Boolean flag) {
+    public <T> boolean insertObject(T object, String idName, String tableName, Boolean flag) {
         Field[] declaredFields = object.getClass().getDeclaredFields();
         List<Object> objectList = new ArrayList<>();
         StringBuilder insertColsName = new StringBuilder(" ( ");
         for (Field declaredField : declaredFields) {
             String fieldName = declaredField.getName();
-            if (flag &&idName.equals(fieldName)) {
+            if (flag && idName.equals(fieldName)) {
                 continue;
             }
             fieldName = StringUtils.camelToUnderline(fieldName);
@@ -312,6 +320,99 @@ public class ConnectionPoolServiceImpl {
         Object[] objects = objectList.toArray(new Object[objectList.size()]);
         return updateSql(sql, objects) == 1;
     }
+
+    public <T> boolean insertObjectList(List<T> objectList, String idName, String tableName, Boolean flag) {
+        List<Object[]> list = new ArrayList<>();
+        String sql = null;
+        for (T object : objectList) {
+            Field[] declaredFields = object.getClass().getDeclaredFields();
+            List<Object> parameterObjectList = new ArrayList<>();
+            StringBuilder insertColsName = new StringBuilder(" ( ");
+            for (Field declaredField : declaredFields) {
+                String fieldName = declaredField.getName();
+                fieldName = StringUtils.camelToUnderline(fieldName);
+                if (flag && idName.equals(fieldName)) {
+                    continue;
+                }
+                try {
+                    declaredField.setAccessible(true);
+                    Object value = declaredField.get(object);
+                    if (value != null) {
+                        insertColsName.append(fieldName).append(",");
+                        parameterObjectList.add(value);
+                    }
+                } catch (IllegalAccessException ignore) {
+                }
+            }
+            if (sql == null) {
+                insertColsName = new StringBuilder(insertColsName.substring(0, insertColsName.length() - 1) + ") ");
+
+                StringBuilder values = new StringBuilder("VALUES (");
+                for (Object ignored : parameterObjectList) {
+                    values.append("?,");
+                }
+
+                sql = "insert into " + tableName + insertColsName + values.substring(0, values.length() - 1) + ")";
+            }
+            list.add(parameterObjectList.toArray(new Object[parameterObjectList.size()]));
+        }
+
+
+        return updateBatchByListSql(sql, list) == 1;
+    }
+
+
+    public boolean deletedObjectById(Long objectId, String idName, String tableName) {
+        return updateSql("delete from " + StringUtils.camelToUnderline(tableName) + " where " + StringUtils.camelToUnderline(idName) + " = ?",
+                new Object[]{objectId}) == 1;
+    }
+
+    public boolean deletedObjectByIdList(List<Long> objectIdList, String idName, String tableName) {
+        if (objectIdList == null || objectIdList.isEmpty()) {
+            return true;
+        }
+        StringBuilder sql = new StringBuilder("delete from " + StringUtils.camelToUnderline(tableName) + " where  " + StringUtils.camelToUnderline(idName) + " in (");
+        for (Long objectId : objectIdList) {
+            sql.append(objectId).append(",");
+        }
+        sql = new StringBuilder(sql.substring(0, sql.length() - 1) + ")");
+        String string = sql.toString();
+        return updateSql(string) == objectIdList.size();
+    }
+
+
+    public <T> boolean updateObject(T Object, String idName, String tableName) {
+        List<Object> objectList = new ArrayList<>();
+        String sql = getSqlUpdate(Object, objectList, idName, tableName);
+        Object[] objects = objectList.toArray(new Object[0]);
+        return updateSql(sql, objects) == 1;
+    }
+
+    public <T> boolean updateObjectList(List<T> objecList, String idName, String tableName) {
+        if (objecList == null || objecList.isEmpty()) {
+            return false;
+        }
+        List<Object[]> list = new ArrayList<>();
+        String sql = "";
+        for (T t : objecList) {
+            List<Object> objectList = new ArrayList<>();
+            String updateColsName = getSqlUpdate(t, objectList, idName, tableName);
+            Object[] objects = objectList.toArray(new Object[0]);
+            list.add(objects);
+            if (sql.isEmpty()) {
+                sql = updateColsName;
+            }
+        }
+        int result = updateBatchByListSql(sql, list);
+        return result == objecList.size();
+    }
+
+    public <T> List<T> selectObjectListAll(Class<?> type, String tableName) {
+        String sql = "select * from " + StringUtils.camelToUnderline(tableName);
+        List<Map<String, Object>> maps = queryForList(sql);
+        return ConnectionPoolServiceImpl.getObjectList(maps, type);
+    }
+
 
     public int updateSql(String sql, Object[] objects) {
         PreparedStatement statement = null;
@@ -520,5 +621,46 @@ public class ConnectionPoolServiceImpl {
         }
         return (T) object;
     }
+
+
+    /**
+     * 获取更新语句的sql,同时根据objectList的引用更新需要修改的值
+     *
+     * @param t          泛型类
+     * @param objectList 传递的Object对象list
+     * @param <T>        具体的类
+     */
+    private <T> String getSqlUpdate(T t, List<Object> objectList, String idName, String tableName) {
+        Field[] declaredFields = t.getClass().getDeclaredFields();
+        StringBuilder insertColsName = new StringBuilder("update " + StringUtils.camelToUnderline(tableName) + " set ");
+        for (Field declaredField : declaredFields) {
+            String fieldName = declaredField.getName();
+            declaredField.setAccessible(true);
+            if (idName.equals(fieldName)) {
+                continue;
+            }
+            fieldName = StringUtils.camelToUnderline(fieldName);
+            try {
+                Object value = declaredField.get(t);
+                if (value != null) {
+                    insertColsName.append(fieldName).append("=?,");
+                    objectList.add(value);
+                }
+            } catch (IllegalAccessException ignore) {
+            }
+        }
+        for (Field declaredField : declaredFields) {
+            String fieldName = declaredField.getName();
+            if (idName.equals(fieldName)) {
+                try {
+                    objectList.add(declaredField.get(t));
+                } catch (IllegalAccessException ignored) {
+                }
+            }
+        }
+        insertColsName = new StringBuilder(insertColsName.substring(0, insertColsName.length() - 1) + " where " + StringUtils.camelToUnderline(idName) + "=?;");
+        return insertColsName.toString();
+    }
+
 
 }

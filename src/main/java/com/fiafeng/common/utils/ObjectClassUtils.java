@@ -24,8 +24,6 @@ import java.util.*;
 
 public class ObjectClassUtils {
 
-    public static String url;
-
     public static BeanDefinitionRegistry registry;
     public static ConfigurableListableBeanFactory beanFactory;
 
@@ -138,7 +136,6 @@ public class ObjectClassUtils {
     public static void mysqlMapperInit(FiafengRbacProperties rbacProperties) {
 
 
-
         // 检查用户表
         try {
             IUserTableInitService userTableInitService = FiafengSpringUtils.getBean(IUserTableInitService.class);
@@ -225,9 +222,12 @@ public class ObjectClassUtils {
 
             mapper.setType(baseObject.getClass());
             if (createTable) {
-                mapper.checkMysqlTableIsExist(url);
+                if (mapper.getConnectionPoolService() == null) {
+                    mapper.setConnectionPoolService(FiafengSpringUtils.getBean(ConnectionPoolServiceImpl.class));
+                }
+                mapper.getConnectionPoolService().checkTableExist(mapper.getProperties().getTableName());
             }
-        }else {
+        } else {
             try {
                 // TODO 添加对应的属性，判断是否创建对应的表
                 // TODO 是否创建默认用户
@@ -241,14 +241,14 @@ public class ObjectClassUtils {
                     if (beanName.contains(".")) {
                         beanName = beanName.substring(beanName.lastIndexOf(".") + 1);
                     }
-                    if (beanName.equals("FiafengMysql" + pojoSubstringName + "Properties")){
+                    if (beanName.equals("FiafengMysql" + pojoSubstringName + "Properties")) {
                         tableProperties = mysqlTablePropertiesMap.get(key);
                     }
                 }
                 String tableName = tableProperties.getTableName();
-                connectionPoolService.checkMysqlTableIsExist(tableName, baseObject.getClass());
+                connectionPoolService.createdMysqlTable(tableName, baseObject.getClass());
 
-            }catch (Exception ignore){
+            } catch (Exception ignore) {
 
             }
         }
