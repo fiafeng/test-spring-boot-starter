@@ -6,7 +6,7 @@ import com.fiafeng.common.mapper.Interface.IUserMapper;
 import com.fiafeng.common.pojo.Interface.IBaseUser;
 import com.fiafeng.common.service.IUserTableInitService;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
-import com.fiafeng.common.mapper.mysql.BaseMysqlMapper;
+import com.fiafeng.common.mapper.mysql.BaseObjectMysqlMapper;
 import com.fiafeng.common.properties.FiafengRbacProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -28,8 +28,8 @@ public class DefaultSecurityUserTableInitServiceImpl implements IUserTableInitSe
     public void init() throws Exception {
         // 检查用户表
         IUserMapper bean = FiafengSpringUtils.getBean(IUserMapper.class);
-        if (bean instanceof BaseMysqlMapper) {
-            BaseMysqlMapper baseMysqlMapper = (BaseMysqlMapper) bean;
+        if (bean instanceof BaseObjectMysqlMapper) {
+            BaseObjectMysqlMapper baseMysqlMapper = (BaseObjectMysqlMapper) bean;
             IBaseUser iBaseUser = baseMysqlMapper.selectObjectByObjectId(1L);
             if (iBaseUser == null || !rbacProperties.defaultUserName.equals(iBaseUser.getUsername())) {
 
