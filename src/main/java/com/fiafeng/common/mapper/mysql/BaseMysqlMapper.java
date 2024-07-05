@@ -2,15 +2,11 @@ package com.fiafeng.common.mapper.mysql;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import com.fiafeng.common.Enum.TypeOrmEnum;
 import com.fiafeng.common.properties.mysql.IMysqlTableProperties;
 import com.fiafeng.common.service.Impl.ConnectionPoolServiceImpl;
-import com.fiafeng.common.utils.FiafengMysqlUtils;
 import com.fiafeng.common.utils.StringUtils;
-import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.env.Environment;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -91,7 +87,7 @@ public abstract class BaseMysqlMapper {
 
         String sql = "insert into " + getTableName() + insertColsName + values;
 
-        Object[] objects = objectList.toArray(new Object[objectList.size()]);
+        Object[] objects = objectList.toArray();
         return getConnectionPoolService().updateSql(sql, objects) == 1;
     }
 
@@ -132,11 +128,11 @@ public abstract class BaseMysqlMapper {
 
                 sql = "insert into " + getTableName() + insertColsName + values.substring(0, values.length() - 1) + ")";
             }
-            list.add(parameterObjectList.toArray(new Object[parameterObjectList.size()]));
+            list.add(parameterObjectList.toArray());
         }
 
 
-        return getConnectionPoolService().updateBatchByListSql(sql, list) == 1;
+        return getConnectionPoolService().batchExecuteSql(sql, list) == 1;
     }
 
 
@@ -188,7 +184,7 @@ public abstract class BaseMysqlMapper {
                 sql = updateColsName;
             }
         }
-        int result = getConnectionPoolService().updateBatchByListSql(sql, list);
+        int result = getConnectionPoolService().batchExecuteSql(sql, list);
         return result == objecList.size();
     }
 
@@ -311,37 +307,5 @@ public abstract class BaseMysqlMapper {
         return ConnectionPoolServiceImpl.getObject(maps.get(0), getType());
     }
 
-
-    public <T> T selectObjectByNameListAndValueList(String cols, List<String> keyList, List<Object> objectList) {
-        if (keyList == null || keyList.isEmpty() || objectList == null || objectList.isEmpty()) {
-            log.error("输入参数为空,keyList=>" + keyList + "。valueList=>" + objectList);
-            return null;
-        }
-        if (keyList.size() != objectList.size()) {
-            log.error("输入参数长度不一致,keyList.size=>" + keyList.size() + "。valueList.size=>" + objectList.size());
-            return null;
-        }
-        if (cols == null || cols.isEmpty()) {
-            cols = "*";
-        }
-
-        if (keyList.size() == 1) {
-            return selectObjectByKeyAndValue(keyList.get(0), objectList.get(0));
-        } else {
-            StringBuilder sql = new StringBuilder("select " + cols + " from " + StringUtils.camelToUnderline(getTableName()) + " where "
-                    + StringUtils.camelToUnderline(keyList.get(0)) + "=? ");
-            for (int i = 1; i < keyList.size(); i++) {
-                sql.append("and ").append(StringUtils.camelToUnderline(keyList.get(0))).append("=? ");
-            }
-            Object[] objects = objectList.toArray();
-            List<Map<String, Object>> maps = getConnectionPoolService().queryForList(sql.toString(), objects);
-            if (maps.size() != 1) {
-                return null;
-            }
-            return ConnectionPoolServiceImpl.getObject(maps.get(0), getType());
-        }
-
-
-    }
 
 }

@@ -3,12 +3,14 @@ package com.fiafeng.common.service.Impl;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.common.config.bean.DefaultDataSource;
+import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.properties.mysql.FiafengMysqlProperties;
 import com.fiafeng.common.utils.FiafengMysqlUtils;
 import com.fiafeng.common.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
@@ -46,7 +48,7 @@ public class ConnectionPoolServiceImpl {
     }
 
 
-    private int maxSize = 10;
+    private final int maxSize = 10;
 
     private static boolean flag = false;
 
@@ -155,12 +157,9 @@ public class ConnectionPoolServiceImpl {
         PreparedStatement statement = null;
         Connection connection = getConnection();
         try {
-            if (sql != null) {
+            statement = connection.prepareStatement(sql);
 
-                statement = connection.prepareStatement(sql);
-            }
-
-        } catch (Exception e) {
+        } catch (Exception ignore) {
 
         }
         return (T) statement;
@@ -218,10 +217,27 @@ public class ConnectionPoolServiceImpl {
     }
 
 
+    /*
+    实际执行增删改查的方法
+     */
+
+    /**
+     * 执行查询sql，返回结果对象集合List
+     *
+     * @param sql sql
+     * @return 返回结果对象集合List
+     */
     public List<Map<String, Object>> queryForList(String sql) {
-        return queryForList(sql, null);
+        return queryForList(sql, (Object[]) null);
     }
 
+    /**
+     * 执行查询sql，返回结果对象集合List
+     *
+     * @param sql     sql
+     * @param objects 执行sql时需要的参数
+     * @return 结果对象集合
+     */
     public List<Map<String, Object>> queryForList(String sql, Object[] objects) {
         PreparedStatement statement = null;
         List<Map<String, Object>> list = new ArrayList<>();
@@ -238,7 +254,7 @@ public class ConnectionPoolServiceImpl {
                         Object object = resultSet.getObject(j);
                         String colName = metaData.getColumnName(j);
                         hashMap.put(colName, object);
-                    } catch (Exception e) {
+                    } catch (Exception ignore) {
                     }
                 }
                 if (!hashMap.isEmpty()) {
@@ -246,27 +262,104 @@ public class ConnectionPoolServiceImpl {
                 }
 
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignore) {
+            ignore.printStackTrace();
         } finally {
             try {
                 resultSet.close();
-            } catch (Exception e) {
+            } catch (Exception ignore) {
 
             }
             try {
                 statement.close();
-            } catch (SQLException e) {
+            } catch (SQLException ignore) {
             }
-            ConnectionPoolServiceImpl.close();
+            close();
         }
         return list;
     }
 
-    public void executeSql(String sql) {
-        executeSql(sql, null);
+    /**
+     * 执行查询sql，返回结果对象集合List
+     *
+     * @param sql     sql
+     * @param objects 执行sql时需要的参数
+     * @return 返回结果对象集合List
+     */
+    public List<Map<String, Object>> queryForList(String sql, List<Object> objects) {
+        return queryForList(sql, objects.toArray());
     }
 
+
+    /**
+     * 执行查询sql，返回结果对象Map
+     *
+     * @param sql sql
+     * @return 结果对象Map
+     */
+    @Nullable
+    public Map<String, Object> queryFoObject(String sql) {
+        List<Map<String, Object>> mapList = queryForList(sql);
+        if (mapList.isEmpty()) {
+            return null;
+        }
+
+        if (mapList.size() != 1) {
+            throw new ServiceException("预期查询结果为1个，但是查询结果出现了" + mapList.size() + "个");
+        }
+
+        return mapList.get(0);
+    }
+
+    /**
+     * 执行查询sql，返回结果对象Map
+     *
+     * @param sql     sql
+     * @param objects 执行sql时需要的参数
+     * @return 返回结果对象Map
+     */
+    @Nullable
+    public Map<String, Object> queryFoObject(String sql, Object[] objects) {
+        List<Map<String, Object>> mapList = queryForList(sql, objects);
+        if (mapList.isEmpty()) {
+            return null;
+        }
+
+        if (mapList.size() != 1) {
+            throw new ServiceException("预期查询结果为1个，但是查询结果出现了" + mapList.size() + "个");
+        }
+
+        return mapList.get(0);
+    }
+
+    /**
+     * 执行查询sql，返回结果对象Map
+     *
+     * @param sql     sql
+     * @param objects 执行sql时需要的参数
+     * @return 返回结果对象Map
+     */
+    @Nullable
+    public Map<String, Object> queryFoObject(String sql, List<Object> objects) {
+        return queryFoObject(sql, objects.toArray());
+    }
+
+
+    /**
+     * 执行sql
+     *
+     * @param sql sql
+     */
+    public void executeSql(String sql) {
+        executeSql(sql, (Object[]) null);
+    }
+
+    /**
+     * 执行 @param sql
+     *
+     * @param objects 执行sql时需要的参数
+     * @param sql     sql
+     */
     public void executeSql(String sql, Object[] objects) {
         PreparedStatement statement = null;
         try {
@@ -275,13 +368,173 @@ public class ConnectionPoolServiceImpl {
             statement.execute();
         } catch (Exception ignored) {
         } finally {
-            ConnectionPoolServiceImpl.close();
+            close();
         }
+    }
+
+    /**
+     * 执行 @param sql
+     *
+     * @param objects 执行sql时需要的参数
+     * @param sql     sql
+     */
+    public void executeSql(String sql, List<Object> objects) {
+        executeSql(sql, objects.toArray());
+    }
+
+    /**
+     * 批量执行同一条sql，每次参数参数不一样
+     *
+     * @param sql        sql
+     * @param objectList sql参数集合
+     * @return 执行的sql影响的总行数
+     */
+    public int batchExecuteSql(String sql, List<Object[]> objectList) {
+        int result = 0;
+        if (objectList == null || objectList.isEmpty()) {
+            return result;
+        }
+
+        Connection connection = getConnection();
+        try {
+            boolean autoCommit = connection.getAutoCommit();
+            connection.setAutoCommit(false);
+            PreparedStatement statement = connection.prepareStatement(sql);
+            for (Object[] objects : objectList) {
+                if (objects != null && objects.length != 0) {
+                    setObject(objects, statement);
+                    statement.addBatch();
+                }
+            }
+            try {
+                int[] ints = statement.executeBatch();
+                for (int i : ints) {
+                    result += i;
+                }
+                connection.commit();
+            } catch (Exception e) {
+                connection.rollback();
+            }
+            statement.clearBatch();
+            connection.setAutoCommit(autoCommit);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+
+
+        } finally {
+            close();
+        }
+
+        return result;
     }
 
 
     /**
-     * 使用jdbcTemplate新增一条数据
+     * 批量执行多条sql
+     *
+     * @param sqlList sql
+     * @return 执行的sql影响的总行数
+     */
+    public int batchExecuteSqlList(List<String> sqlList) {
+        int result = 0;
+        if (sqlList == null || sqlList.isEmpty()) {
+            return result;
+        }
+
+        Connection connection = getConnection();
+        try {
+            boolean autoCommit = connection.getAutoCommit();
+            connection.setAutoCommit(false);
+            Statement statement = connection.createStatement();
+
+            for (String sql : sqlList) {
+                statement.addBatch(sql);
+            }
+
+            try {
+                for (int i : statement.executeBatch()) {
+                    result += i;
+                }
+                connection.commit();
+            } catch (Exception e) {
+                connection.rollback();
+            }
+            connection.setAutoCommit(autoCommit);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            close();
+        }
+
+        return result;
+    }
+
+    private void setObject(Object[] objects, PreparedStatement statement) {
+
+        String string = "";
+        try {
+            if (objects != null) {
+                for (int i = 0; i < objects.length; i++) {
+                    Object object = objects[i];
+                    if (object instanceof String) {
+                        statement.setString(i + 1, (String) object);
+                    } else if (object instanceof Long) {
+                        statement.setLong(i + 1, (Long) object);
+                    } else if (object instanceof HashSet) {
+                        string = "";
+                        HashSet<Object> hashSet = (HashSet<Object>) object;
+                        for (Object o : hashSet) {
+                            string += o.toString() + "，";
+                        }
+                        if (string.length() > 1) {
+                            string = string.substring(0, string.length() - 1);
+                            statement.setString(i + 1, string);
+                        } else {
+                            statement.setObject(i + 1, null);
+                        }
+                    } else {
+                        statement.setObject(i + 1, object);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public int updateSql(String sql, Object[] objects) {
+        PreparedStatement statement = null;
+        int result = 0;
+        try {
+
+            statement = getStatement(sql);
+            setObject(objects, statement);
+            result = statement.executeUpdate();
+            log.info("执行sql为[" + sql + "]参数为" + Arrays.toString(objects));
+
+        } catch (Exception ignored) {
+        } finally {
+            close();
+        }
+
+        return result;
+    }
+
+    public int updateSql(String sql, List<Object> objectList) {
+        return updateSql(sql, objectList.toArray());
+    }
+
+    public int updateSql(String sql) {
+        return updateSql(sql, (Object[]) null);
+    }
+
+
+    /*
+    新增通用方法
+     */
+
+    /**
+     * 新增一条数据
      *
      * @param object 新增对象
      * @param <T>    对象类型
@@ -321,6 +574,13 @@ public class ConnectionPoolServiceImpl {
         return updateSql(sql, objects) == 1;
     }
 
+    /**
+     * 新增多条数据
+     *
+     * @param objectList 新增对象列表
+     * @param <T>        对象类型
+     * @param flag       true时，使用数据库自增主键。false时，使用数据内的id值
+     */
     public <T> boolean insertObjectList(List<T> objectList, String idName, String tableName, Boolean flag) {
         List<Object[]> list = new ArrayList<>();
         String sql = null;
@@ -358,15 +618,32 @@ public class ConnectionPoolServiceImpl {
         }
 
 
-        return updateBatchByListSql(sql, list) == 1;
+        return batchExecuteSql(sql, list) == 1;
     }
 
+    /*
+    删除通用方法
+     */
 
+    /**
+     * 根据id删除数据
+     *
+     * @param objectId  用户id
+     * @param idName    主键id名称    id名称
+     * @param tableName 表名 表名
+     * @return 是否删除成功
+     */
     public boolean deletedObjectById(Long objectId, String idName, String tableName) {
         return updateSql("delete from " + StringUtils.camelToUnderline(tableName) + " where " + StringUtils.camelToUnderline(idName) + " = ?",
                 new Object[]{objectId}) == 1;
     }
 
+    /**
+     * @param objectIdList
+     * @param idName       主键id名称
+     * @param tableName    表名
+     * @return
+     */
     public boolean deletedObjectByIdList(List<Long> objectIdList, String idName, String tableName) {
         if (objectIdList == null || objectIdList.isEmpty()) {
             return true;
@@ -381,6 +658,17 @@ public class ConnectionPoolServiceImpl {
     }
 
 
+    /*
+      修改通用方法
+     */
+
+    /**
+     * @param Object
+     * @param idName    主键id名称
+     * @param tableName 表名
+     * @param <T>
+     * @return
+     */
     public <T> boolean updateObject(T Object, String idName, String tableName) {
         List<Object> objectList = new ArrayList<>();
         String sql = getSqlUpdate(Object, objectList, idName, tableName);
@@ -388,6 +676,13 @@ public class ConnectionPoolServiceImpl {
         return updateSql(sql, objects) == 1;
     }
 
+    /**
+     * @param objecList
+     * @param idName    主键id名称
+     * @param tableName 表名
+     * @param <T>
+     * @return
+     */
     public <T> boolean updateObjectList(List<T> objecList, String idName, String tableName) {
         if (objecList == null || objecList.isEmpty()) {
             return false;
@@ -403,149 +698,210 @@ public class ConnectionPoolServiceImpl {
                 sql = updateColsName;
             }
         }
-        int result = updateBatchByListSql(sql, list);
+        int result = batchExecuteSql(sql, list);
         return result == objecList.size();
     }
 
+    /*
+      查询方法
+     */
+
+
+    /**
+     * @param type
+     * @param tableName 表名
+     * @param <T>
+     * @return
+     */
     public <T> List<T> selectObjectListAll(Class<?> type, String tableName) {
-        String sql = "select * from " + StringUtils.camelToUnderline(tableName);
+        String sql = getBaseSelectSql(tableName);
         List<Map<String, Object>> maps = queryForList(sql);
-        return ConnectionPoolServiceImpl.getObjectList(maps, type);
+        return getObjectList(maps, type);
     }
 
 
-    public int updateSql(String sql, Object[] objects) {
-        PreparedStatement statement = null;
-        int result = 0;
-        try {
+    /**
+     * @param tableName   表名
+     * @param type
+     * @param colName
+     * @param valueObject
+     * @param <T>
+     * @return
+     */
+    public <T> T selectObjectByColName(String tableName, String colNames, Class<?> type, String colName, Object valueObject) {
+        String sql = getBaseSelectSql(tableName, colNames) + " and " + StringUtils.camelToUnderline(colName) + "= ?";
+        Map<String, Object> objectMap = queryFoObject(sql, new Object[]{valueObject});
+        return getObject(objectMap, type);
+    }
 
-            statement = getStatement(sql);
-            setObject(objects, statement);
-            result = statement.executeUpdate();
-            log.info("执行sql为[" + sql + "]参数为" + Arrays.toString(objects));
+    public <T> T selectObjectByColName(String tableName, Class<?> type, String colName, Object valueObject) {
+        return selectObjectByColName(tableName, null, type, colName, valueObject);
+    }
 
-        } catch (Exception ignored) {
-        } finally {
-            ConnectionPoolServiceImpl.close();
+
+    /**
+     * @param tableName   表名
+     * @param type
+     * @param colName
+     * @param valueObject
+     * @param <T>
+     * @return
+     */
+    public <T> List<T> selectObjectListByColName(String tableName, String colNames, Class<?> type, String colName, Object valueObject) {
+        String sql = getBaseSelectSql(tableName, colNames) + " and " + StringUtils.camelToUnderline(colName) + "= ?";
+        List<Map<String, Object>> maps = queryForList(sql, new Object[]{valueObject});
+        return getObjectList(maps, type);
+    }
+
+    public <T> List<T> selectObjectListByColName(String tableName, Class<?> type, String colName, Object valueObject) {
+        return selectObjectListByColName(tableName, null, type, colName, valueObject);
+    }
+
+    /**
+     * @param tableName    表名
+     * @param idName       主键id名称
+     * @param type
+     * @param ObjectIdList
+     * @param <T>
+     * @return
+     */
+    public <T> List<T> selectObjectListByObjectIdList(String tableName, String idName, String colNames, Class<?> type, List<Long> ObjectIdList) {
+        StringBuilder sql = new StringBuilder(getBaseSelectSql(tableName, colNames) + " and " + StringUtils.camelToUnderline(idName) + " in (");
+        for (Long objectId : ObjectIdList) {
+            sql.append(objectId).append(",");
+        }
+        sql = new StringBuilder(sql.substring(0, sql.length() - 1) + ")");
+        List<Map<String, Object>> maps = queryForList(sql.toString());
+        return getObjectList(maps, type);
+    }
+
+    public <T> List<T> selectObjectListByObjectIdList(String tableName, String idName, Class<?> type, List<Long> ObjectIdList) {
+        return selectObjectListByObjectIdList(tableName, idName, null, type, ObjectIdList);
+    }
+
+    /**
+     * @param tableName 表名
+     * @param type
+     * @param paramMap
+     * @param <T>
+     * @return
+     */
+    public <T> T selectObjectByColMap(String tableName, String colNames, Class<?> type, Map<String, Object> paramMap) {
+        StringBuilder sql = new StringBuilder(getBaseSelectSql(tableName));
+        List<Object> objectList = new ArrayList<>();
+        for (String colName : paramMap.keySet()) {
+            sql.append(StringUtils.camelToUnderline(colName)).append("= ?");
+            objectList.add(paramMap.get(colName));
+        }
+        Map<String, Object> objectMap = queryFoObject(sql.toString(), objectList.toArray());
+        return getObject(objectMap, type);
+    }
+
+    public <T> T selectObjectByColMap(String tableName, Class<?> type, Map<String, Object> paramMap) {
+        return selectObjectByColMap(tableName, null, type, paramMap);
+    }
+
+
+    /**
+     * @param tableName 表名
+     * @param type
+     * @param paramMap
+     * @param <T>
+     * @return
+     */
+    public <T> List<T> selectObjectListByColMap(String tableName, Class<?> type, Map<String, Object> paramMap) {
+        return selectObjectListByColMap(tableName, null, type, paramMap);
+    }
+
+
+    public <T> List<T> selectObjectListByColMap(String tableName, String colNames, Class<?> type, Map<String, Object> paramMap) {
+        List<Object> objectList = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(getBaseSelectSql(tableName, colNames));
+        for (String colName : paramMap.keySet()) {
+            sql.append(StringUtils.camelToUnderline(colName)).append("= ?");
+            objectList.add(paramMap.get(colName));
+        }
+        List<Map<String, Object>> mapList = queryForList(sql.toString(), objectList.toArray());
+        return getObjectList(mapList, type);
+    }
+
+    /*
+      生成sql和将查询结果Map转换成为实际实体类的方法
+     */
+
+
+    /**
+     * @param tableName 表名
+     * @return
+     */
+    public String getBaseSelectSql(String tableName) {
+        return "select * from " + StringUtils.camelToUnderline(tableName) + " where 1 = 1 ";
+    }
+
+
+    /**
+     * @param tableName 表名
+     * @param colNames
+     * @return
+     */
+    public String getBaseSelectSql(String tableName, String colNames) {
+        if (StringUtils.strIsEmpty(colNames)) {
+            colNames = "*";
         }
 
-        return result;
+        return "select " + colNames + " from " + StringUtils.camelToUnderline(tableName) + " where 1 = 1 ";
     }
 
 
-    public int updateSql(String sql) {
-        return updateSql(sql, null);
-    }
-
-
-    public int updateBatchByListSql(String sql, List<Object[]> objectList) {
-        int result = 0;
-        if (objectList == null || objectList.isEmpty()) {
-            return result;
-        }
-
-        Connection connection = getConnection();
-        try {
-            boolean autoCommit = connection.getAutoCommit();
-            connection.setAutoCommit(false);
-            PreparedStatement statement = connection.prepareStatement(sql);
-            for (Object[] objects : objectList) {
-                if (objects != null && objects.length != 0) {
-                    setObject(objects, statement);
-                    statement.addBatch();
-                }
+    /**
+     * 获取更新语句的sql,同时根据objectList的引用更新需要修改的值
+     *
+     * @param t          泛型类
+     * @param objectList 传递的Object对象list
+     * @param <T>        具体的类
+     */
+    private <T> String getSqlUpdate(T t, List<Object> objectList, String idName, String tableName) {
+        Field[] declaredFields = t.getClass().getDeclaredFields();
+        StringBuilder insertColsName = new StringBuilder("update " + StringUtils.camelToUnderline(tableName) + " set ");
+        for (Field declaredField : declaredFields) {
+            String fieldName = declaredField.getName();
+            declaredField.setAccessible(true);
+            if (idName.equals(fieldName)) {
+                continue;
             }
+            fieldName = StringUtils.camelToUnderline(fieldName);
             try {
-                int[] ints = statement.executeBatch();
-                for (int i : ints) {
-                    result += i;
+                Object value = declaredField.get(t);
+                if (value != null) {
+                    insertColsName.append(fieldName).append("=?,");
+                    objectList.add(value);
                 }
-                connection.commit();
-            } catch (Exception e) {
-                connection.rollback();
+            } catch (IllegalAccessException ignore) {
             }
-            statement.clearBatch();
-            connection.setAutoCommit(autoCommit);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            ConnectionPoolServiceImpl.close();
         }
-
-        return result;
-    }
-
-    public int updateBatchByListSql(List<String> sqlList) {
-        int result = 0;
-        if (sqlList == null || sqlList.isEmpty()) {
-            return result;
-        }
-
-        Connection connection = getConnection();
-        try {
-            boolean autoCommit = connection.getAutoCommit();
-            connection.setAutoCommit(false);
-            Statement statement = connection.createStatement();
-
-            for (String sql : sqlList) {
-                statement.addBatch(sql);
-            }
-
-            try {
-                for (int i : statement.executeBatch()) {
-                    result += i;
+        for (Field declaredField : declaredFields) {
+            String fieldName = declaredField.getName();
+            if (idName.equals(fieldName)) {
+                try {
+                    objectList.add(declaredField.get(t));
+                } catch (IllegalAccessException ignored) {
                 }
-                connection.commit();
-            } catch (Exception e) {
-                connection.rollback();
             }
-            connection.setAutoCommit(autoCommit);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            ConnectionPoolServiceImpl.close();
         }
-
-        return result;
+        insertColsName = new StringBuilder(insertColsName.substring(0, insertColsName.length() - 1) + " where " + StringUtils.camelToUnderline(idName) + "=?;");
+        return insertColsName.toString();
     }
 
 
-    public static void setObject(Object[] objects, PreparedStatement statement) {
-
-        String string = "";
-        try {
-            if (objects != null) {
-                for (int i = 0; i < objects.length; i++) {
-                    Object object = objects[i];
-                    if (object instanceof String) {
-                        statement.setString(i + 1, (String) object);
-                    } else if (object instanceof Long) {
-                        statement.setLong(i + 1, (Long) object);
-                    } else if (object instanceof HashSet) {
-                        string = "";
-                        HashSet<Object> hashSet = (HashSet<Object>) object;
-                        for (Object o : hashSet) {
-                            string += o.toString() + "，";
-                        }
-                        if (string.length() > 1) {
-                            string = string.substring(0, string.length() - 1);
-                            statement.setString(i + 1, string);
-                        } else {
-                            statement.setObject(i + 1, null);
-                        }
-                    } else {
-                        statement.setObject(i + 1, object);
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
+    /**
+     * @param map
+     * @param type
+     * @param <T>
+     * @return
+     */
     public static <T> T getObject(Map<String, Object> map, Class<?> type) {
         JSONObject jsonObject = JSONObject.parse(JSON.toJSONString(map));
-        return ConnectionPoolServiceImpl.getObject(jsonObject, type);
+        return getObject(jsonObject, type);
     }
 
 
@@ -571,6 +927,12 @@ public class ConnectionPoolServiceImpl {
     }
 
 
+    /**
+     * @param jsonObject
+     * @param type
+     * @param <T>
+     * @return
+     */
     public static <T> T getObject(JSONObject jsonObject, Class<?> type) {
         Object object = null;
 
@@ -621,46 +983,5 @@ public class ConnectionPoolServiceImpl {
         }
         return (T) object;
     }
-
-
-    /**
-     * 获取更新语句的sql,同时根据objectList的引用更新需要修改的值
-     *
-     * @param t          泛型类
-     * @param objectList 传递的Object对象list
-     * @param <T>        具体的类
-     */
-    private <T> String getSqlUpdate(T t, List<Object> objectList, String idName, String tableName) {
-        Field[] declaredFields = t.getClass().getDeclaredFields();
-        StringBuilder insertColsName = new StringBuilder("update " + StringUtils.camelToUnderline(tableName) + " set ");
-        for (Field declaredField : declaredFields) {
-            String fieldName = declaredField.getName();
-            declaredField.setAccessible(true);
-            if (idName.equals(fieldName)) {
-                continue;
-            }
-            fieldName = StringUtils.camelToUnderline(fieldName);
-            try {
-                Object value = declaredField.get(t);
-                if (value != null) {
-                    insertColsName.append(fieldName).append("=?,");
-                    objectList.add(value);
-                }
-            } catch (IllegalAccessException ignore) {
-            }
-        }
-        for (Field declaredField : declaredFields) {
-            String fieldName = declaredField.getName();
-            if (idName.equals(fieldName)) {
-                try {
-                    objectList.add(declaredField.get(t));
-                } catch (IllegalAccessException ignored) {
-                }
-            }
-        }
-        insertColsName = new StringBuilder(insertColsName.substring(0, insertColsName.length() - 1) + " where " + StringUtils.camelToUnderline(idName) + "=?;");
-        return insertColsName.toString();
-    }
-
 
 }

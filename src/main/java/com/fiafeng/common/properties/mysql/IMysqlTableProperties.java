@@ -15,6 +15,7 @@ public interface IMysqlTableProperties extends IFiafengProperties {
     default String getRoleIdName(){
         return "roleId";
     }
+
     default String getUserIdName(){
         return "userId";
     }
