@@ -12,20 +12,20 @@ import java.util.List;
 @BeanDefinitionOrderAnnotation(value = ModelConstant.firstOrdered)
 //@Component
 //@Primary
-public class DefaultMysqlUserMapper extends BaseMysqlMapper implements IUserMapper {
+public class DefaultMysqlUserMapper extends BaseObjectMysqlMapper implements IUserMapper {
 
     @Override
-    public boolean insertUser(IBaseUser user) {
+    public int insertUser(IBaseUser user) {
         return insertObject(user);
     }
 
     @Override
-    public boolean updateUser(IBaseUser user) {
+    public int updateUser(IBaseUser user) {
         return updateObject(user);
     }
 
     @Override
-    public boolean deletedUserByUserId(Long userId) {
+    public int deletedUserByUserId(Long userId) {
         return deletedObjectById(userId);
     }
 

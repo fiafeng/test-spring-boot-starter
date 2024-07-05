@@ -74,31 +74,31 @@ public class DefaultSecurityUserMapper implements IUserMapper {
 
 
     @Override
-    public boolean insertUser(IBaseUser user) {
+    public int insertUser(IBaseUser user) {
         if (user == null) {
-            return false;
+            return 0;
         }
         getUserMap().put(atomicLong.getAndIncrement(), user);
-        return true;
+        return 1;
     }
 
     @Override
-    public  boolean updateUser(IBaseUser user) {
+    public  int updateUser(IBaseUser user) {
         if (user.getId() == null) {
-            return false;
+            return 0;
         }
         if (!getUserMap().containsKey(user.getId())) {
-            return false;
+            return 0;
         } else {
             getUserMap().put(user.getId(), user);
         }
 
-        return true;
+        return 1;
     }
 
     @Override
-    public boolean deletedUserByUserId(Long userId) {
-        return getUserMap().remove(userId) != null;
+    public int deletedUserByUserId(Long userId) {
+        return getUserMap().remove(userId) != null ? 1 : 0;
     }
 
     @Override

@@ -6,11 +6,11 @@ import java.util.List;
 
 public interface IRolePermissionMapper extends IMapper {
 
-    <T extends IBaseRolePermission> boolean insertRolePermission(T rolePermission);
+    <T extends IBaseRolePermission> int insertRolePermission(T rolePermission);
 
-    <T extends IBaseRolePermission>  boolean deleteRolePermission(T rolePermission);
+    <T extends IBaseRolePermission>  int deleteRolePermission(T rolePermission);
 
-    boolean updateRolePermissionList(Long roleId, List<Long> permissionIdList);
+    int updateRolePermissionList(Long roleId, List<Long> permissionIdList);
 
     List<Long> selectPermissionIdListByRoleId(Long roleId);
 

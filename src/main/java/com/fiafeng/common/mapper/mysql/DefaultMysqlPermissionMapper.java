@@ -10,27 +10,27 @@ import java.util.List;
 
 
 @BeanDefinitionOrderAnnotation(value = ModelConstant.firstOrdered)
-public class DefaultMysqlPermissionMapper extends BaseMysqlMapper implements IPermissionMapper {
+public class DefaultMysqlPermissionMapper extends BaseObjectMysqlMapper implements IPermissionMapper {
 
 
 
-    public <T extends IBasePermission> boolean insertPermission(T permission) {
+    public <T extends IBasePermission> int insertPermission(T permission) {
         return insertObject(permission);
     }
 
-    public <T extends IBasePermission> boolean updatePermission(T permission) {
+    public <T extends IBasePermission> int updatePermission(T permission) {
         return updateObject(permission);
     }
 
-    public boolean deletedPermission(Long permissionId) {
+    public int deletedPermission(Long permissionId) {
         return deletedObjectById(permissionId);
     }
 
-    public <T extends IBasePermission> boolean updatePermissionList(List<T> permissionList) {
+    public <T extends IBasePermission> int updatePermissionList(List<T> permissionList) {
         return updateObjectList(permissionList);
     }
 
-    public boolean deletedPermissionByIdList(List<Long> permissionIdList) {
+    public int deletedPermissionByIdList(List<Long> permissionIdList) {
         return deletedObjectByIdList(permissionIdList);
     }
 

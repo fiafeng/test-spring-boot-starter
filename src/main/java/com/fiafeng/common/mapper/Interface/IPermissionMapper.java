@@ -14,7 +14,7 @@ public interface IPermissionMapper extends IMapper {
      * @param permission 权限实体类
      * @param <T>        权限实体类的类型
      */
-    <T extends IBasePermission> boolean insertPermission(T permission);
+    <T extends IBasePermission> int insertPermission(T permission);
 
     /**
      * 更新权限
@@ -22,7 +22,7 @@ public interface IPermissionMapper extends IMapper {
      * @param permission 权限实体类 是否成功
      * @param <T>        权限实体类的类型
      */
-    <T extends IBasePermission> boolean updatePermission(T permission);
+    <T extends IBasePermission> int updatePermission(T permission);
 
     /**
      * 根据权限列表批量更新权限信息
@@ -30,12 +30,12 @@ public interface IPermissionMapper extends IMapper {
      * @param permissionList 权限id列表
      * @param <T>            权限实体类的类型
      */
-    <T extends IBasePermission> boolean updatePermissionList(List<T> permissionList);
+    <T extends IBasePermission> int updatePermissionList(List<T> permissionList);
 
     /**
      * @param PermissionId 权限id
      */
-    boolean deletedPermission(Long PermissionId);
+    int deletedPermission(Long PermissionId);
 
 
     /**
@@ -43,7 +43,7 @@ public interface IPermissionMapper extends IMapper {
      *
      * @param permissionIdList 权限id列表
      */
-    boolean deletedPermissionByIdList(List<Long> permissionIdList);
+    int deletedPermissionByIdList(List<Long> permissionIdList);
 
     /**
      * @param <T> 权限实体类的类型

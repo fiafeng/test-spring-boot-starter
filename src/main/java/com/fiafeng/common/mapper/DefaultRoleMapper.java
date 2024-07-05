@@ -3,6 +3,7 @@ package com.fiafeng.common.mapper;
 import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.constant.ModelConstant;
+import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.mapper.Interface.IRoleMapper;
 import com.fiafeng.common.pojo.Interface.IBaseRole;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
@@ -37,9 +38,9 @@ public class DefaultRoleMapper implements IRoleMapper {
     }
 
     @Override
-    public <T extends IBaseRole> boolean insertRole(T role) {
+    public <T extends IBaseRole> int insertRole(T role) {
         if (role == null) {
-            return false;
+            throw new ServiceException("参数不允许为空");
         }
         try {
             long andIncrement = atomicLong.getAndIncrement();
@@ -47,29 +48,28 @@ public class DefaultRoleMapper implements IRoleMapper {
 
             getRoleMap().put(andIncrement, role);
         } catch (NullPointerException e) {
-            return false;
         }
 
-        return true;
+        return 1;
     }
 
     @Override
-    public <T extends IBaseRole> boolean updateRole(T role) {
+    public <T extends IBaseRole> int updateRole(T role) {
         if (role.getId() == null) {
-            return false;
+            throw new ServiceException("参数不允许为空");
         }
         if (!getRoleMap().containsKey(role.getId())) {
-            return false;
+            throw new ServiceException("id找不到对应的数据");
         } else {
             getRoleMap().put(role.getId(), role);
         }
 
-        return true;
+        return 1;
     }
 
     @Override
-    public boolean deletedRole(Long roleId) {
-        return getRoleMap().remove(roleId) != null;
+    public int deletedRole(Long roleId) {
+        return getRoleMap().remove(roleId) != null ? 0 : 1;
     }
 
     @Override

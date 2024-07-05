@@ -7,11 +7,11 @@ import java.util.List;
 public interface IRoleMapper extends IMapper {
 
 
-    <T extends IBaseRole> boolean insertRole(T role);
+    <T extends IBaseRole> int insertRole(T role);
 
-    <T extends IBaseRole> boolean updateRole(T role);
+    <T extends IBaseRole> int updateRole(T role);
 
-    boolean deletedRole(Long roleId);
+    int deletedRole(Long roleId);
 
     <T extends IBaseRole> List<T> selectRoleListALl();
 

@@ -12,14 +12,14 @@ public interface IBlogMapper extends IMapper {
       * @param baseBlog 博客
       * @return 是否添加成功
       */
-     boolean insertBlog(IBaseBlog baseBlog);
+     int insertBlog(IBaseBlog baseBlog);
 
      /**
       * 根据博客Id删除博客
       * @param blogId
       * @return
       */
-     boolean deleteBoleById(Long blogId);
+     int deleteBoleById(Long blogId);
 
 
      /**
@@ -27,14 +27,14 @@ public interface IBlogMapper extends IMapper {
       * @param blogIdList
       * @return
       */
-     boolean deletedBlogByIdList(List<Long> blogIdList);
+     int deletedBlogByIdList(List<Long> blogIdList);
 
      /**
       * 更新博客，根据id
       * @param baseBlog
       * @return
       */
-     boolean updateBlogById(IBaseBlog baseBlog);
+     int updateBlogById(IBaseBlog baseBlog);
 
      /**
       * 查询用户id为userId的用户发的所有博客

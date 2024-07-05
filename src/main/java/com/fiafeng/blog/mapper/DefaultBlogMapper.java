@@ -3,6 +3,7 @@ package com.fiafeng.blog.mapper;
 import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.blog.pojo.IBaseBlog;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
+import com.fiafeng.common.exception.ServiceException;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -37,18 +38,18 @@ public class DefaultBlogMapper implements IBlogMapper {
      * @return 是否添加成功
      */
     @Override
-    public boolean insertBlog(IBaseBlog baseBlog) {
+    public int insertBlog(IBaseBlog baseBlog) {
         if (baseBlog == null) {
-            return false;
+            throw new ServiceException("参数不允许为空");
         }
         try {
             long andIncrement = atomicLong.getAndIncrement();
             baseBlog.setId(andIncrement);
             getBlogMap().put(andIncrement, JSONObject.from(baseBlog).toJavaObject(IBaseBlog.class));
         } catch (Exception e) {
-            return false;
+            throw new ServiceException("参数不允许为空");
         }
-        return true;
+        return 1;
     }
 
     /**
@@ -58,8 +59,8 @@ public class DefaultBlogMapper implements IBlogMapper {
      * @return
      */
     @Override
-    public boolean deleteBoleById(Long blogId) {
-        return getBlogMap().remove(blogId) != null;
+    public int deleteBoleById(Long blogId) {
+        return getBlogMap().remove(blogId) != null ? 1 : 0;
     }
 
     /**
@@ -69,11 +70,11 @@ public class DefaultBlogMapper implements IBlogMapper {
      * @return
      */
     @Override
-    public boolean deletedBlogByIdList(List<Long> blogIdList) {
+    public int deletedBlogByIdList(List<Long> blogIdList) {
         for (Long blogId : blogIdList) {
             getBlogMap().remove(blogId);
         }
-        return true;
+        return blogIdList.size();
     }
 
     /**
@@ -83,17 +84,17 @@ public class DefaultBlogMapper implements IBlogMapper {
      * @return
      */
     @Override
-    public boolean updateBlogById(IBaseBlog baseBlog) {
+    public int updateBlogById(IBaseBlog baseBlog) {
         if (baseBlog.getId() == null) {
-            return false;
+            throw new ServiceException("id不允许为空");
         }
         if (!getBlogMap().containsKey(baseBlog.getId())) {
-            return false;
+            throw new ServiceException("当前id不存在于数据库");
         } else {
             getBlogMap().put(baseBlog.getId(), baseBlog);
         }
 
-        return true;
+        return 1;
     }
 
     /**

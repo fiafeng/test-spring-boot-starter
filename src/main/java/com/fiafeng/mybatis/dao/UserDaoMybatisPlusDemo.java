@@ -12,19 +12,19 @@ import java.util.List;
 @Mapper
 public interface UserDaoMybatisPlusDemo extends BaseMapper<DefaultUser>, IUserMapper {
 
-    default <T extends IBaseUser> boolean insertUser(T user) {
-        return insert((DefaultUser) user) == 1;
+    default <T extends IBaseUser> int insertUser(T user) {
+        return insert((DefaultUser) user);
     }
 
-    default <T extends IBaseUser> boolean updateUser(T user) {
+    default <T extends IBaseUser> int updateUser(T user) {
 
 
-        return updateById((DefaultUser) user) == 1;
+        return updateById((DefaultUser) user);
     }
 
-    default boolean deletedUserByUserId(Long userId) {
+    default int deletedUserByUserId(Long userId) {
 
-        return deleteById(userId) == 1;
+        return deleteById(userId);
     }
 
     default <T extends IBaseUser> List<T> selectUserListAll() {

@@ -11,24 +11,24 @@ import java.util.List;
 
 
 @BeanDefinitionOrderAnnotation(value = ModelConstant.firstOrdered)
-public class DefaultMysqlRoleMapper extends BaseMysqlMapper implements IRoleMapper {
+public class DefaultMysqlRoleMapper extends BaseObjectMysqlMapper implements IRoleMapper {
 
     @Autowired
     FiafengMysqlRoleProperties properties;
 
 
     @Override
-    public <T extends IBaseRole> boolean insertRole(T role) {
+    public <T extends IBaseRole> int insertRole(T role) {
         return insertObject(role);
     }
 
     @Override
-    public <T extends IBaseRole> boolean updateRole(T role) {
+    public <T extends IBaseRole> int updateRole(T role) {
         return updateObject(role);
     }
 
     @Override
-    public boolean deletedRole(Long roleId) {
+    public int deletedRole(Long roleId) {
         return deletedObjectById(roleId);
     }
 

@@ -12,7 +12,7 @@ import java.util.List;
 
 @Slf4j
 @Data
-public abstract class BaseObjectMysqlMapper {
+public abstract class BaseObjectMysqlMapper extends BaseMysqlMapper{
 
     public Class<?> type;
 
@@ -48,39 +48,39 @@ public abstract class BaseObjectMysqlMapper {
      * @param <T>    对象类型
      * @param flag   true时，使用数据库自增主键。false时，使用数据内的id值
      */
-    public <T> boolean insertObject(T object, Boolean flag) {
+    public <T> int insertObject(T object, Boolean flag) {
         return getConnectionPoolService().insertObject(object, getTableName(), getIdName(), flag);
     }
 
-    public <T> boolean insertObjectList(List<T> objectList) {
+    public <T> int insertObjectList(List<T> objectList) {
         return insertObjectList(objectList, true);
     }
 
-    public <T> boolean insertObjectList(List<T> objectList, Boolean flag) {
+    public <T> int insertObjectList(List<T> objectList, Boolean flag) {
         return getConnectionPoolService().insertObjectList(objectList, getIdName(), getTableName(), flag);
     }
 
 
-    public <T> boolean insertObject(T object) {
+    public <T> int insertObject(T object) {
         return insertObject(object, true);
     }
 
 
-    public boolean deletedObjectById(Long objectId) {
+    public int deletedObjectById(Long objectId) {
         return getConnectionPoolService().deletedObjectById(objectId, getIdName(), getTableName());
     }
 
 
-    public boolean deletedObjectByIdList(List<Long> objectIdList) {
+    public <T> int deletedObjectByIdList(List<T> objectIdList) {
         return getConnectionPoolService().deletedObjectByIdList(objectIdList, getIdName(), getTableName());
     }
 
-    public <T> boolean updateObject(T object) {
+    public <T> int updateObject(T object) {
         return getConnectionPoolService().updateObject(object, getIdName(), getTableName());
     }
 
 
-    public <T> boolean updateObjectList(List<T> objecList) {
+    public <T> int updateObjectList(List<T> objecList) {
         return getConnectionPoolService().updateObjectList(objecList, getIdName(), getTableName());
     }
 
@@ -89,7 +89,7 @@ public abstract class BaseObjectMysqlMapper {
         return getConnectionPoolService().selectObjectListAll(type, getTableName());
     }
 
-    public <T> T selectObjectByObjectName(String objectName, String tableColName) {
+    public <T> T selectObjectByObjectName(String objectName, Object tableColName) {
         return getConnectionPoolService().selectObjectByColName(getTableName(), getType(), objectName, tableColName);
     }
 

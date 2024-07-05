@@ -46,7 +46,7 @@ public class DefaultUserRoleMapper implements IUserRoleMapper {
      * @return 用户角色关系
      */
     @Override
-    public <T extends IBaseUserRole> boolean insertUserRole(T userRole) {
+    public <T extends IBaseUserRole> int insertUserRole(T userRole) {
         for (IBaseUserRole iBaseUserRole : getUserRoleMap().values()) {
             if (Objects.equals(iBaseUserRole.getUserId(), userRole.getUserId()) && Objects.equals(iBaseUserRole.getRoleId(), userRole.getRoleId())){
                 throw new ServiceException("新增角色用户时候，当前用户已经拥有当前当前橘色");
@@ -56,7 +56,7 @@ public class DefaultUserRoleMapper implements IUserRoleMapper {
         long andIncrement = atomicLong.getAndIncrement();
         userRole.setId(andIncrement);
         getUserRoleMap().put(andIncrement, userRole);
-        return true;
+        return 1;
     }
 
     /**
@@ -65,7 +65,7 @@ public class DefaultUserRoleMapper implements IUserRoleMapper {
      * @return 用户角色列表
      */
     @Override
-    public boolean updateUserRoleList(Long userId, List<Long> roleIdList) {
+    public int updateUserRoleList(Long userId, List<Long> roleIdList) {
         List<Long> longList = new ArrayList<>();
         for (IBaseUserRole iBaseRolePermission : getUserRoleMap().values()) {
             if (Objects.equals(iBaseRolePermission.getUserId(), userId)) {
@@ -83,7 +83,7 @@ public class DefaultUserRoleMapper implements IUserRoleMapper {
         }
 
 
-        return false;
+        return 0;
     }
 
     /**
@@ -92,7 +92,7 @@ public class DefaultUserRoleMapper implements IUserRoleMapper {
      * @return s
      */
     @Override
-    public <T extends IBaseUserRole> boolean deleteUserRole(T userRole) {
+    public <T extends IBaseUserRole> int deleteUserRole(T userRole) {
         if (userRole.getId() != null){
             deleteUserRoleById(userRole.getId());
         }
@@ -105,18 +105,18 @@ public class DefaultUserRoleMapper implements IUserRoleMapper {
             if (Objects.equals(iBaseRolePermission.getRoleId(), userRole.getRoleId())
                     && Objects.equals(iBaseRolePermission.getUserId(), userRole.getUserId())) {
                 getUserRoleMap().remove(iBaseRolePermission.getId());
-                return true;
+                return 1;
             }
         }
 
 
-        return false;
+        return 0;
     }
 
     @Override
-    public boolean deleteUserRoleById(Long id) {
+    public int deleteUserRoleById(Long id) {
         getUserRoleMap().remove(id);
-        return false;
+        return 1;
     }
 
     /**

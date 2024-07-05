@@ -42,9 +42,10 @@ public class DefaultPermissionMapper implements IPermissionMapper {
 
 
     @Override
-    public boolean insertPermission(IBasePermission permission) {
+    public int insertPermission(IBasePermission permission) {
         if (permission == null || permission.getName() == null) {
-            return false;
+
+            throw new ServiceException("权限名不允许为空");
         }
         for (IBasePermission iBasePermission : getPermissionListMap().values()) {
             if (iBasePermission.getName().equals(permission.getName())){
@@ -55,13 +56,13 @@ public class DefaultPermissionMapper implements IPermissionMapper {
         long andIncrement = atomicLong.getAndIncrement();
         permission.setId(andIncrement);
         getPermissionListMap().put(andIncrement, permission);
-        return true;
+        return 1;
     }
 
 
 
     @Override
-    public boolean updatePermission(IBasePermission permission) {
+    public int updatePermission(IBasePermission permission) {
         if (permission.getId() == null) {
             throw new ServiceException("更新权限时，权限参数为空");
         }
@@ -71,38 +72,37 @@ public class DefaultPermissionMapper implements IPermissionMapper {
             getPermissionListMap().put(permission.getId(), permission);
         }
 
-        return true;
+        return 1;
     }
 
     @Override
-    public <T extends IBasePermission> boolean updatePermissionList(List<T> permissionList) {
+    public <T extends IBasePermission> int updatePermissionList(List<T> permissionList) {
         for (IBasePermission permission : permissionList) {
             updatePermission(permission);
         }
-
-
-        return false;
+        return permissionList.size();
     }
 
 
 
     @Override
-    public boolean deletedPermission(Long permissionId) {
-        return getPermissionListMap().remove(permissionId) != null;
+    public int deletedPermission(Long permissionId) {
+        return getPermissionListMap().remove(permissionId) == null ? 1 : 0 ;
     }
 
     @Override
-    public boolean deletedPermissionByIdList(List<Long> permissionIdList) {
+    public int deletedPermissionByIdList(List<Long> permissionIdList) {
+
         for (Long permissionId : permissionIdList) {
             if (!getPermissionListMap().containsKey(permissionId)) {
-                return false;
+                throw new ServiceException("有id找不到对应的实体信息");
             }
         }
         for (Long permissionId : permissionIdList) {
             getPermissionListMap().remove(permissionId);
         }
 
-        return true;
+        return permissionIdList.size();
     }
 
 

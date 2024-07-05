@@ -56,7 +56,7 @@ public class MappingController {
         // 添加权限
         iBaseMapping.getPermissionHashSet().addAll(defaultMapping.getPermissionHashSet());
         iBaseMapping.setRoleHashSet(null);
-        if (!mappingMapper.updateMapping(iBaseMapping)) {
+        if (!(mappingMapper.updateMapping(iBaseMapping) == 1)) {
             throw new ServiceException("添加权限限制失败");
         }
 
@@ -74,7 +74,7 @@ public class MappingController {
 
         RequestMappingDataVO dataVO = getRequestMappingVO(url);
         if (!requestMappingHandlerMapping.getHandlerMethods().containsKey(dataVO.getRequestMappingInfo())) {
-            if (mappingMapper.insertMapping(dataVO.toDefaultMapping())) {
+            if (mappingMapper.insertMapping(dataVO.toDefaultMapping()) == 1) {
                 requestMappingHandlerMapping.registerMapping(
                         dataVO.getRequestMappingInfo(),
                         dataVO.getHandlerMethod(),
@@ -98,7 +98,7 @@ public class MappingController {
         IBaseMapping iBaseMapping = checkRoleList(defaultMapping);
         iBaseMapping.getRoleHashSet().addAll(defaultMapping.getRoleHashSet());
         iBaseMapping.setPermissionHashSet(null);
-        if (!mappingMapper.updateMapping(iBaseMapping)) {
+        if (!(mappingMapper.updateMapping(iBaseMapping) == 1 )) {
             throw new ServiceException("添加角色限制失败");
         }
         return AjaxResult.success("添加角色限制成功");
@@ -114,7 +114,7 @@ public class MappingController {
         for (String roleName : defaultMapping.getRoleHashSet()) {
             iBaseMapping.getRoleHashSet().remove(roleName);
         }
-        if (!mappingMapper.updateMapping(iBaseMapping)) {
+        if (!(mappingMapper.updateMapping(iBaseMapping) == 1)) {
             throw new ServiceException("添加角色限制失败");
         }
         for (IBaseMapping mapping : requestMappingBean.getBaseMappingList()) {
@@ -137,7 +137,7 @@ public class MappingController {
         for (String permissionName : defaultMapping.getPermissionHashSet()) {
             iBaseMapping.getPermissionHashSet().remove(permissionName);
         }
-        if (!mappingMapper.updateMapping(iBaseMapping)) {
+        if (!(mappingMapper.updateMapping(iBaseMapping)==1)) {
             throw new ServiceException("添加权限限制失败,请检查id参数");
         }
         for (IBaseMapping mapping : requestMappingBean.getBaseMappingList()) {
@@ -166,7 +166,7 @@ public class MappingController {
             throw new ServiceException("当前url不存在映射");
         }
         if (dataVO.getId() != null) {
-            if (!mappingMapper.deletedMappingById(dataVO.getId())) {
+            if (!(mappingMapper.deletedMappingById(dataVO.getId()) == 1)) {
                 throw new ServiceException("删除映射时出现意料之外i的异常");
             }
         }else {
@@ -174,7 +174,7 @@ public class MappingController {
             if (iBaseMapping == null){
                 throw new ServiceException("id和url都不存在数据库");
             }
-            if (!mappingMapper.deletedMappingById(iBaseMapping.getId())) {
+            if (!(mappingMapper.deletedMappingById(iBaseMapping.getId()) == 1)) {
                 throw new ServiceException("删除映射时出现意料之外i的异常");
             }
         }

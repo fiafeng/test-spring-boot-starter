@@ -6,18 +6,18 @@ import java.util.List;
 
 public interface IMappingMapper extends IMapper{
 
-    <T extends IBaseMapping> boolean insertMapping(T mapping);
+    <T extends IBaseMapping> int insertMapping(T mapping);
 
-    <T extends IBaseMapping> boolean insertMappingList(List<T> mappingList);
+    <T extends IBaseMapping> int insertMappingList(List<T> mappingList);
 
     <T extends IBaseMapping> List<T> selectMappingListAll();
 
-    <T extends IBaseMapping> boolean updateMapping(T mapping);
+    <T extends IBaseMapping> int updateMapping(T mapping);
 
 
-    boolean deletedMappingById(Long mappingId);
+    int deletedMappingById(Long mappingId);
 
-    boolean deletedMappingList(List<Long> mappingId);
+    int deletedMappingList(List<Long> mappingId);
 
     <T extends IBaseMapping> T selectMappingById(Long mappingId);
 

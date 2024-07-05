@@ -76,7 +76,7 @@ public class DefaultRolePermissionServiceImpl implements IRolePermissionService 
             throw new ServiceException(FiafengMessageUtils.message("rbac.rolePermission.roleHasCurrentPermission"));
         }
 
-        if (rolePermissionMapper.insertRolePermission(rolePermission)) {
+        if (rolePermissionMapper.insertRolePermission(rolePermission) ==1 ) {
 
             updateCacheService.updateCacheByRole(rolePermission.getRoleId());
         }
@@ -105,7 +105,7 @@ public class DefaultRolePermissionServiceImpl implements IRolePermissionService 
 //            throw new ServiceException("当前角色没有这个权限");
             throw new ServiceException(FiafengMessageUtils.message("rbac.rolePermission.roleNotHasCurrentPermission"));
         }
-        if (rolePermissionMapper.deleteRolePermission(rolePermission)) {
+        if (rolePermissionMapper.deleteRolePermission(rolePermission) == 1) {
             updateCacheService.updateCacheByRole(rolePermission.getRoleId());
         }
         return true;
@@ -133,7 +133,7 @@ public class DefaultRolePermissionServiceImpl implements IRolePermissionService 
                 throw new ServiceException(FiafengMessageUtils.message("rbac.rolePermission.updateListRolePermissionByHasPermissionNotExist"));
             }
         }
-        if (rolePermissionMapper.updateRolePermissionList(roleId, permissionList)){
+        if (rolePermissionMapper.updateRolePermissionList(roleId, permissionList) == 1){
             updateCacheService.updateCacheByRole(roleId);
         }
 

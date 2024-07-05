@@ -48,24 +48,24 @@ public class DefaultMappingMapper implements IMappingMapper {
 
 
     @Override
-    public <T extends IBaseMapping> boolean insertMapping(T mapping) {
+    public <T extends IBaseMapping> int insertMapping(T mapping) {
         ConcurrentHashMap<String, Long> hashMap = getLongConcurrentHashMap();
         if (hashMap.getOrDefault(mapping.getUrl(), null) == null){
             long andIncrement = atomicLong.getAndIncrement();
             mapping.setId(andIncrement);
             getMappingListMap().put(andIncrement,mapping);
             getLongConcurrentHashMap().put(mapping.getUrl(),andIncrement);
-            return true;
+            return 1;
         }
-        return false;
+        return 0;
     }
 
     @Override
-    public <T extends IBaseMapping> boolean insertMappingList(List<T> mappingList) {
+    public <T extends IBaseMapping> int insertMappingList(List<T> mappingList) {
         for (IBaseMapping baseMapping : mappingList) {
             insertMapping(baseMapping);
         }
-        return true;
+        return 1;
     }
 
     @Override
@@ -75,7 +75,7 @@ public class DefaultMappingMapper implements IMappingMapper {
     }
 
     @Override
-    public <T extends IBaseMapping> boolean updateMapping(T mapping) {
+    public <T extends IBaseMapping> int updateMapping(T mapping) {
         if (getMappingListMap().containsKey(mapping.getId())){
             IBaseMapping iBaseMapping = getMappingListMap().get(mapping.getId());
             if (mapping.getUrl() != null){
@@ -87,19 +87,19 @@ public class DefaultMappingMapper implements IMappingMapper {
             if (mapping.getRoleHashSet() != null){
                 iBaseMapping.setRoleHashSet(mapping.getRoleHashSet());
             }
-            return true;
+            return 1;
         }
-        return false;
+        return 0;
     }
 
     @Override
-    public boolean deletedMappingById(Long mappingId) {
+    public int deletedMappingById(Long mappingId) {
 
-        return getMappingListMap().remove(mappingId) != null;
+        return getMappingListMap().remove(mappingId) != null ? 1 : 0;
     }
 
     @Override
-    public boolean deletedMappingList(List<Long> mappingIdList) {
+    public int deletedMappingList(List<Long> mappingIdList) {
         List<IBaseMapping> baseMappingList = new ArrayList<>();
         for (Long mappingId : mappingIdList) {
             IBaseMapping remove = getMappingListMap().remove(mappingId);
@@ -108,10 +108,10 @@ public class DefaultMappingMapper implements IMappingMapper {
             }else {
                 // TODO1 删除id不存在
                 insertMappingList(baseMappingList);
-                return false;
+                return 0;
             }
         }
-        return true;
+        return 1;
     }
 
     @Override

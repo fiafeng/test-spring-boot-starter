@@ -14,13 +14,13 @@ import java.util.List;
 public interface IUserService {
 
 
-    boolean isExistUserId(Long userId);
+    int isExistUserId(Long userId);
 
-    <T extends IBaseUser> boolean insertUser(T user);
+    <T extends IBaseUser> int insertUser(T user);
 
-    <T extends IBaseUser> boolean updateUser(T user);
+    <T extends IBaseUser> int updateUser(T user);
 
-    boolean deletedUser(Long userId);
+    int deletedUser(Long userId);
 
     <T extends IBaseUser> List<T> selectUserListAll();
 

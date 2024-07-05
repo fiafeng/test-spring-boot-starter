@@ -6,7 +6,7 @@ public interface IMysqlTableProperties extends IFiafengProperties {
 
     String getTableName();
 
-    String getIdName();
+    default String getIdName() {return "id";}
 
     default String getTableColName(){
         return "name";
@@ -19,6 +19,7 @@ public interface IMysqlTableProperties extends IFiafengProperties {
     default String getUserIdName(){
         return "userId";
     }
+
     default String getPermissionIdName(){
         return "permissionId";
     }

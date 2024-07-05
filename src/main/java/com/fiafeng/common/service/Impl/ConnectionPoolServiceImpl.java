@@ -2,10 +2,12 @@ package com.fiafeng.common.service.Impl;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.fiafeng.common.Enum.TypeOrmEnum;
 import com.fiafeng.common.config.bean.DefaultDataSource;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.properties.mysql.FiafengMysqlProperties;
 import com.fiafeng.common.utils.FiafengMysqlUtils;
+import com.fiafeng.common.utils.ObjectUtils;
 import com.fiafeng.common.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -91,6 +93,24 @@ public class ConnectionPoolServiceImpl {
             executeSql(createdTableSql);
         }
     }
+
+    /**
+     * 根据表名，和对应的实体类检查表是否存在，如不存在则创建
+     *
+     * @param tableName 表名
+     * @param typeClass 实体类
+     */
+    public void createdMysqlTable(String primaryName, String tableName, TypeOrmEnum primaryType, Class<?> typeClass) {
+        if (!checkTableExist(tableName)) {
+            String createdTableSql = FiafengMysqlUtils.createdTableSql(primaryName, tableName, primaryType, typeClass);
+            executeSql(createdTableSql);
+        }
+    }
+
+
+    /*
+    获取连接
+     */
 
     public Connection getConnection() {
         // 如果没有连接池，使用自定义的连接池
@@ -217,9 +237,7 @@ public class ConnectionPoolServiceImpl {
     }
 
 
-    /*
-    实际执行增删改查的方法
-     */
+    // 实际执行增删改查的方法
 
     /**
      * 执行查询sql，返回结果对象集合List
@@ -244,7 +262,7 @@ public class ConnectionPoolServiceImpl {
         ResultSet resultSet = null;
         try {
             statement = getStatement(sql);
-            setObject(objects, statement);
+            setParamObject(objects, statement);
             resultSet = statement.executeQuery();
             ResultSetMetaData metaData = resultSet.getMetaData();
             while (resultSet.next()) {
@@ -344,7 +362,6 @@ public class ConnectionPoolServiceImpl {
         return queryFoObject(sql, objects.toArray());
     }
 
-
     /**
      * 执行sql
      *
@@ -364,7 +381,7 @@ public class ConnectionPoolServiceImpl {
         PreparedStatement statement = null;
         try {
             statement = getStatement(sql);
-            setObject(objects, statement);
+            setParamObject(objects, statement);
             statement.execute();
         } catch (Exception ignored) {
         } finally {
@@ -402,7 +419,7 @@ public class ConnectionPoolServiceImpl {
             PreparedStatement statement = connection.prepareStatement(sql);
             for (Object[] objects : objectList) {
                 if (objects != null && objects.length != 0) {
-                    setObject(objects, statement);
+                    setParamObject(objects, statement);
                     statement.addBatch();
                 }
             }
@@ -469,7 +486,7 @@ public class ConnectionPoolServiceImpl {
         return result;
     }
 
-    private void setObject(Object[] objects, PreparedStatement statement) {
+    private void setParamObject(Object[] objects, PreparedStatement statement) {
 
         String string = "";
         try {
@@ -508,9 +525,10 @@ public class ConnectionPoolServiceImpl {
         try {
 
             statement = getStatement(sql);
-            setObject(objects, statement);
+            setParamObject(objects, statement);
             result = statement.executeUpdate();
             log.info("执行sql为[" + sql + "]参数为" + Arrays.toString(objects));
+            statement.clearParameters();
 
         } catch (Exception ignored) {
         } finally {
@@ -529,9 +547,8 @@ public class ConnectionPoolServiceImpl {
     }
 
 
-    /*
-    新增通用方法
-     */
+    // 新增通用方法
+
 
     /**
      * 新增一条数据
@@ -540,7 +557,7 @@ public class ConnectionPoolServiceImpl {
      * @param <T>    对象类型
      * @param flag   true时，使用数据库自增主键。false时，使用数据内的id值
      */
-    public <T> boolean insertObject(T object, String idName, String tableName, Boolean flag) {
+    public <T> int insertObject(T object, String idName, String tableName, Boolean flag) {
         Field[] declaredFields = object.getClass().getDeclaredFields();
         List<Object> objectList = new ArrayList<>();
         StringBuilder insertColsName = new StringBuilder(" ( ");
@@ -571,7 +588,22 @@ public class ConnectionPoolServiceImpl {
         String sql = "insert into " + tableName + insertColsName + values;
 
         Object[] objects = objectList.toArray(new Object[objectList.size()]);
-        return updateSql(sql, objects) == 1;
+        return updateSql(sql, objects);
+    }
+
+    public int insertObjectByMap(String tableName, Map<String, Object> objectMap) {
+        StringBuilder insertColsName = new StringBuilder(" ( ");
+        StringBuilder values = new StringBuilder(" VALUES (");
+        List<Object> objectList = new ArrayList<>();
+        for (String colName : objectMap.keySet()) {
+            insertColsName.append(StringUtils.camelToUnderline(colName)).append(",");
+            values.append("?,");
+            objectList.add(objectMap.get(colName));
+        }
+
+        insertColsName = new StringBuilder(insertColsName.substring(0, insertColsName.length() - 1) + ") ");
+        String sql = "insert into " + tableName + insertColsName + values;
+        return updateSql(sql, objectList);
     }
 
     /**
@@ -581,7 +613,7 @@ public class ConnectionPoolServiceImpl {
      * @param <T>        对象类型
      * @param flag       true时，使用数据库自增主键。false时，使用数据内的id值
      */
-    public <T> boolean insertObjectList(List<T> objectList, String idName, String tableName, Boolean flag) {
+    public <T> int insertObjectList(List<T> objectList, String idName, String tableName, Boolean flag) {
         List<Object[]> list = new ArrayList<>();
         String sql = null;
         for (T object : objectList) {
@@ -618,12 +650,12 @@ public class ConnectionPoolServiceImpl {
         }
 
 
-        return batchExecuteSql(sql, list) == 1;
+        return batchExecuteSql(sql, list);
     }
 
-    /*
-    删除通用方法
-     */
+
+    // 删除通用方法
+
 
     /**
      * 根据id删除数据
@@ -633,9 +665,9 @@ public class ConnectionPoolServiceImpl {
      * @param tableName 表名 表名
      * @return 是否删除成功
      */
-    public boolean deletedObjectById(Long objectId, String idName, String tableName) {
+    public int deletedObjectById(Object objectId, String idName, String tableName) {
         return updateSql("delete from " + StringUtils.camelToUnderline(tableName) + " where " + StringUtils.camelToUnderline(idName) + " = ?",
-                new Object[]{objectId}) == 1;
+                new Object[]{objectId});
     }
 
     /**
@@ -644,23 +676,40 @@ public class ConnectionPoolServiceImpl {
      * @param tableName    表名
      * @return
      */
-    public boolean deletedObjectByIdList(List<Long> objectIdList, String idName, String tableName) {
+    public <T> int deletedObjectByIdList(List<T> objectIdList, String idName, String tableName) {
         if (objectIdList == null || objectIdList.isEmpty()) {
-            return true;
+            throw new ServiceException("objectIdList参数不允许为空");
         }
         StringBuilder sql = new StringBuilder("delete from " + StringUtils.camelToUnderline(tableName) + " where  " + StringUtils.camelToUnderline(idName) + " in (");
-        for (Long objectId : objectIdList) {
+        for (Object objectId : objectIdList) {
             sql.append(objectId).append(",");
         }
         sql = new StringBuilder(sql.substring(0, sql.length() - 1) + ")");
         String string = sql.toString();
-        return updateSql(string) == objectIdList.size();
+        return updateSql(string);
+    }
+
+    /**
+     * @param tableName
+     * @param objectMap
+     * @return
+     */
+    public int deletedObjectByMap(String tableName, Map<String, Object> objectMap) {
+        if (ObjectUtils.isNull(objectMap) || objectMap.isEmpty()) {
+            throw new ServiceException("objectMap参数不允许为空");
+        }
+        StringBuilder sql = new StringBuilder("delete from " + StringUtils.camelToUnderline(tableName) + " where 1=1 ");
+        List<Object> objectList = new ArrayList<>();
+        for (String colName : objectMap.keySet()) {
+            sql.append(" and ").append(colName).append(" = ? ");
+            objectList.add(objectMap.get(colName));
+        }
+        return updateSql(String.valueOf(sql), objectList);
     }
 
 
-    /*
-      修改通用方法
-     */
+    //修改通用方法
+
 
     /**
      * @param Object
@@ -669,11 +718,11 @@ public class ConnectionPoolServiceImpl {
      * @param <T>
      * @return
      */
-    public <T> boolean updateObject(T Object, String idName, String tableName) {
+    public <T> int updateObject(T Object, String idName, String tableName) {
         List<Object> objectList = new ArrayList<>();
         String sql = getSqlUpdate(Object, objectList, idName, tableName);
         Object[] objects = objectList.toArray(new Object[0]);
-        return updateSql(sql, objects) == 1;
+        return updateSql(sql, objects);
     }
 
     /**
@@ -683,9 +732,9 @@ public class ConnectionPoolServiceImpl {
      * @param <T>
      * @return
      */
-    public <T> boolean updateObjectList(List<T> objecList, String idName, String tableName) {
+    public <T> int updateObjectList(List<T> objecList, String idName, String tableName) {
         if (objecList == null || objecList.isEmpty()) {
-            return false;
+            throw new ServiceException("参数为空");
         }
         List<Object[]> list = new ArrayList<>();
         String sql = "";
@@ -699,12 +748,11 @@ public class ConnectionPoolServiceImpl {
             }
         }
         int result = batchExecuteSql(sql, list);
-        return result == objecList.size();
+        return result;
     }
 
-    /*
-      查询方法
-     */
+
+    // 查询方法
 
 
     /**
@@ -734,6 +782,14 @@ public class ConnectionPoolServiceImpl {
         return getObject(objectMap, type);
     }
 
+    /**
+     * @param tableName
+     * @param type
+     * @param colName
+     * @param valueObject
+     * @param <T>
+     * @return
+     */
     public <T> T selectObjectByColName(String tableName, Class<?> type, String colName, Object valueObject) {
         return selectObjectByColName(tableName, null, type, colName, valueObject);
     }
@@ -753,6 +809,14 @@ public class ConnectionPoolServiceImpl {
         return getObjectList(maps, type);
     }
 
+    /**
+     * @param tableName
+     * @param type
+     * @param colName
+     * @param valueObject
+     * @param <T>
+     * @return
+     */
     public <T> List<T> selectObjectListByColName(String tableName, Class<?> type, String colName, Object valueObject) {
         return selectObjectListByColName(tableName, null, type, colName, valueObject);
     }
@@ -814,6 +878,14 @@ public class ConnectionPoolServiceImpl {
     }
 
 
+    /**
+     * @param tableName
+     * @param colNames
+     * @param type
+     * @param paramMap
+     * @param <T>
+     * @return
+     */
     public <T> List<T> selectObjectListByColMap(String tableName, String colNames, Class<?> type, Map<String, Object> paramMap) {
         List<Object> objectList = new ArrayList<>();
         StringBuilder sql = new StringBuilder(getBaseSelectSql(tableName, colNames));
@@ -825,9 +897,8 @@ public class ConnectionPoolServiceImpl {
         return getObjectList(mapList, type);
     }
 
-    /*
-      生成sql和将查询结果Map转换成为实际实体类的方法
-     */
+
+    // 生成sql和将查询结果Map转换成为实际实体类的方法
 
 
     /**

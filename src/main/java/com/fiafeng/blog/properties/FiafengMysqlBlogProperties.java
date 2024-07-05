@@ -14,9 +14,9 @@ public class FiafengMysqlBlogProperties implements IMysqlTableProperties {
      */
     public String tableName = "base_blog";
     /**
-     * 博客表的表名
+     * 博客表朱建民
      */
-    public String idName = "base_blog";
+    public String idName = "id";
 
     /**
      * 博客关系表

@@ -11,16 +11,16 @@ import java.util.List;
 
 
 @BeanDefinitionOrderAnnotation(value = ModelConstant.firstOrdered)
-public class DefaultMysqlUserRoleMapper extends BaseMysqlMapper implements IUserRoleMapper {
+public class DefaultMysqlUserRoleMapper extends BaseObjectMysqlMapper implements IUserRoleMapper {
 
 
     @Override
-    public <T extends IBaseUserRole> boolean insertUserRole(T userRole) {
+    public <T extends IBaseUserRole> int insertUserRole(T userRole) {
         return insertObject(userRole);
     }
 
     @Override
-    public boolean updateUserRoleList(Long userId, List<Long> roleIdList) {
+    public int updateUserRoleList(Long userId, List<Long> roleIdList) {
         List<Long> queryUserIdList = new ArrayList<>();
         List<IBaseUserRole> iBaseUserRoles = selectRoleListByUserRole(userId);
         for (IBaseUserRole iBaseUserRole : iBaseUserRoles) {
@@ -32,16 +32,16 @@ public class DefaultMysqlUserRoleMapper extends BaseMysqlMapper implements IUser
         for (Long permissionId : roleIdList) {
             try {
                 Object o = getType().newInstance();
-                Field field = o.getClass().getDeclaredField(getUserIdName());
+                Field field = o.getClass().getDeclaredField(properties.getUserIdName());
                 field.setAccessible(true);
                 field.set(o, userId);
-                field = o.getClass().getDeclaredField(getRoleIdName());
+                field = o.getClass().getDeclaredField(properties.getRoleIdName());
                 field.setAccessible(true);
                 field.set(o, permissionId);
                 userRoleList.add((IBaseUserRole) o);
             } catch (Exception e) {
 //                throw new ServiceException("批量更新时，遇到意外的错误，错误消息为：" + e.getMessage());'
-                return false;
+                return 0;
             }
         }
         try {
@@ -54,20 +54,20 @@ public class DefaultMysqlUserRoleMapper extends BaseMysqlMapper implements IUser
             }
 
 
-            return false;
+            return 0;
         }
 
 
-        return true;
+        return 1;
     }
 
     @Override
-    public <T extends IBaseUserRole> boolean deleteUserRole(T userRole) {
+    public <T extends IBaseUserRole> int deleteUserRole(T userRole) {
         return deletedObjectById(userRole.getUserId());
     }
 
     @Override
-    public boolean deleteUserRoleById(Long id) {
+    public int deleteUserRoleById(Long id) {
         return deletedObjectById(id);
     }
 
@@ -85,17 +85,17 @@ public class DefaultMysqlUserRoleMapper extends BaseMysqlMapper implements IUser
 
     @Override
     public <T extends IBaseUserRole> List<T> selectRoleListByUserRole(Long userId) {
-        return selectObjectByKeyAndValueList(getUserIdName(), userId);
+        return selectObjectByObjectName(properties.getUserIdName(), userId);
     }
 
     @Override
     public <T extends IBaseUserRole> List<T> selectRoleListByRoleId(Long roleId) {
-        return selectObjectByKeyAndValueList(getRoleIdName(), roleId);
+        return selectObjectByObjectName(properties.getRoleIdName(), roleId);
     }
 
     @Override
     public <T extends IBaseUserRole> T selectRoleListByUserRole(T userRole) {
-        return selectObjectByName1Name2AndValue1Value2(getUserIdName(), getRoleIdName(), userRole.getUserId(), userRole.getRoleId());
+        return selectObjectByName1Name2AndValue1Value2(properties.getUserIdName(), properties.getRoleIdName(), userRole.getUserId(), userRole.getRoleId());
     }
 
     @Override

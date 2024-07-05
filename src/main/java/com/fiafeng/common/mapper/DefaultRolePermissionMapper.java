@@ -36,7 +36,7 @@ public class DefaultRolePermissionMapper implements IRolePermissionMapper {
     }
 
     @Override
-    public boolean insertRolePermission(IBaseRolePermission rolePermission) {
+    public int insertRolePermission(IBaseRolePermission rolePermission) {
         for (IBaseRolePermission iBaseRolePermission : getRolePermissionMap().values()) {
             if (Objects.equals(iBaseRolePermission.getRoleId(), rolePermission.getRoleId())
                     && Objects.equals(iBaseRolePermission.getPermissionId(), rolePermission.getPermissionId())) {
@@ -48,13 +48,13 @@ public class DefaultRolePermissionMapper implements IRolePermissionMapper {
         rolePermission.setId(andIncrement);
         getRolePermissionMap().put(andIncrement, rolePermission);
 
-        return true;
+        return 1;
     }
 
     @Override
-    public boolean deleteRolePermission(IBaseRolePermission rolePermission) {
+    public int deleteRolePermission(IBaseRolePermission rolePermission) {
         getRolePermissionMap().remove(rolePermission.getId());
-        return false;
+        return 1;
     }
 
     /**
@@ -63,7 +63,7 @@ public class DefaultRolePermissionMapper implements IRolePermissionMapper {
      * @return 是否更新成功
      */
     @Override
-    public boolean updateRolePermissionList(Long roleId, List<Long> permissionIdList) {
+    public int updateRolePermissionList(Long roleId, List<Long> permissionIdList) {
         List<Long> longList = new ArrayList<>();
         for (IBaseRolePermission iBaseRolePermission : getRolePermissionMap().values()) {
             if (Objects.equals(iBaseRolePermission.getRoleId(), roleId)) {
@@ -80,7 +80,7 @@ public class DefaultRolePermissionMapper implements IRolePermissionMapper {
         }
 
 
-        return false;
+        return permissionIdList.size();
     }
 
     @Override

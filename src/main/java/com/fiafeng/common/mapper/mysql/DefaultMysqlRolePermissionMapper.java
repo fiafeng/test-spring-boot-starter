@@ -12,21 +12,21 @@ import java.util.List;
 
 
 @BeanDefinitionOrderAnnotation(value = ModelConstant.firstOrdered)
-public class DefaultMysqlRolePermissionMapper extends BaseMysqlMapper implements IRolePermissionMapper {
+public class DefaultMysqlRolePermissionMapper extends BaseObjectMysqlMapper implements IRolePermissionMapper {
 
 
     @Override
-    public <T extends IBaseRolePermission> boolean insertRolePermission(T rolePermission) {
+    public <T extends IBaseRolePermission> int insertRolePermission(T rolePermission) {
         return insertObject(rolePermission);
     }
 
     @Override
-    public <T extends IBaseRolePermission> boolean deleteRolePermission(T rolePermission) {
+    public <T extends IBaseRolePermission> int deleteRolePermission(T rolePermission) {
         return deletedObjectById(rolePermission.getId());
     }
 
     @Override
-    public boolean updateRolePermissionList(Long roleId, List<Long> permissionIdList) {
+    public int updateRolePermissionList(Long roleId, List<Long> permissionIdList) {
         List<Long> queryPermissionIdList = new ArrayList<>();
         List<IBaseRolePermission> iBaseRolePermissions = selectPermissionListByRoleId(roleId);
         for (IBaseRolePermission iBaseRolePermission : iBaseRolePermissions) {
@@ -37,10 +37,10 @@ public class DefaultMysqlRolePermissionMapper extends BaseMysqlMapper implements
         for (Long permissionId : permissionIdList) {
             try {
                 Object o = getType().newInstance();
-                Field field = o.getClass().getDeclaredField(getRoleIdName());
+                Field field = o.getClass().getDeclaredField(properties.getRoleIdName());
                 field.setAccessible(true);
                 field.set(o, roleId);
-                field = o.getClass().getDeclaredField(getPermissionIdName());
+                field = o.getClass().getDeclaredField(properties.getPermissionIdName());
                 field.setAccessible(true);
                 field.set(o, permissionId);
                 rolePermissionList.add((IBaseRolePermission) o);
@@ -57,17 +57,16 @@ public class DefaultMysqlRolePermissionMapper extends BaseMysqlMapper implements
                 insertObject(iBaseRolePermission, false);
             }
 
-
-            return false;
+            return 0;
         }
 
 
-        return true;
+        return permissionIdList.size();
     }
 
     @Override
     public List<Long> selectPermissionIdListByRoleId(Long roleId) {
-        List<IBaseRolePermission> objectList = selectObjectByKeyAndValueList(getRoleIdName(), roleId);
+        List<IBaseRolePermission> objectList = selectObjectByObjectId(roleId);
         List<Long> permissionIdList = new ArrayList<>();
         for (IBaseRolePermission iBaseRolePermission : objectList) {
             permissionIdList.add(iBaseRolePermission.getPermissionId());
@@ -77,17 +76,17 @@ public class DefaultMysqlRolePermissionMapper extends BaseMysqlMapper implements
 
     @Override
     public <T extends IBaseRolePermission> T selectRolePermissionIdByRoleIdPermissionId(T rolePermission) {
-        return selectObjectByName1Name2AndValue1Value2(getRoleIdName(), getPermissionIdName(), rolePermission.getRoleId(), rolePermission.getPermissionId());
+        return selectObjectByName1Name2AndValue1Value2(properties.getRoleIdName(), properties.getPermissionIdName(), rolePermission.getRoleId(), rolePermission.getPermissionId());
     }
 
     @Override
     public <T extends IBaseRolePermission> List<T> selectPermissionListByRoleId(Long roleId) {
-        return selectObjectByKeyAndValueList(getRoleIdName(), roleId);
+        return selectObjectByObjectName(properties.getRoleIdName(), roleId);
 
     }
 
     @Override
     public <T extends IBaseRolePermission> List<T> selectPermissionListByPermissionId(Long permissionId) {
-        return selectObjectByKeyAndValueList(getPermissionIdName(), permissionId);
+        return selectObjectByObjectName(properties.getRoleIdName(), permissionId);
     }
 }

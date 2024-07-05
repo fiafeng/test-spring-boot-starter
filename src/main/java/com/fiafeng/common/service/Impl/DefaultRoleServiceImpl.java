@@ -41,7 +41,7 @@ public class DefaultRoleServiceImpl implements IRoleService {
 
 
     @Override
-    public boolean insertRole(IBaseRole role) {
+    public int insertRole(IBaseRole role) {
         IBaseRole baseRole = roleMapper.selectRoleByRoleName(role.getName());
         if (baseRole != null) {
 //            throw new ServiceException("角色名字已经存在");
@@ -52,7 +52,7 @@ public class DefaultRoleServiceImpl implements IRoleService {
     }
 
     @Override
-    public boolean deletedRoleById(Long roleId) {
+    public int deletedRoleById(Long roleId) {
         if (roleId == 1L) {
 //            throw new ServiceException("不允许删除超级管理员角色");
             throw new ServiceException(FiafengMessageUtils.message("rbac.role.deletedAdminRole"));
@@ -69,19 +69,19 @@ public class DefaultRoleServiceImpl implements IRoleService {
             throw new ServiceException(FiafengMessageUtils.message("rbac.role.deletedRoleByUserHasCurrentRole"));
         }
 
-        if (roleMapper.deletedRole(roleId)) {
+        if (roleMapper.deletedRole(roleId) != 1) {
             updateCacheService.updateCacheByRole(roleId);
             cacheService.deleteObject(CacheConstants.ROLE_PERMISSION_PREFIX + roleId);
 
         } else {
             throw new ServiceException("删除角色遇到意外的异常");
         }
-        return true;
+        return 1;
     }
 
 
     @Override
-    public boolean updateRole(IBaseRole role) {
+    public int updateRole(IBaseRole role) {
         if (role.getId() == 1L) {
 //            throw new ServiceException("不允许修改超级管理员角色");
             throw new ServiceException(FiafengMessageUtils.message("rbac.role.updateAdminRole"));
@@ -105,12 +105,12 @@ public class DefaultRoleServiceImpl implements IRoleService {
             }
 
         }
-        if (roleMapper.updateRole(role)) {
+        if (roleMapper.updateRole(role) == 1) {
             updateCacheService.updateCacheByRole(role.getId());
         } else {
             throw new ServiceException("更新角色遇到意外的异常");
         }
-        return true;
+        return 1;
     }
 
     @Override

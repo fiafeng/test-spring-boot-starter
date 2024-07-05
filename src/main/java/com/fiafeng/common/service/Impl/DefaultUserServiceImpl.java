@@ -41,12 +41,12 @@ public class DefaultUserServiceImpl implements IUserService {
     }
 
     @Override
-    public boolean isExistUserId(@NonNull Long userId) {
-        return userMapper.selectUserByUserId(userId) == null;
+    public int isExistUserId(@NonNull Long userId) {
+        return userMapper.selectUserByUserId(userId) == null ? 0 : 1;
     }
 
     @Override
-    public <T extends IBaseUser> boolean insertUser(T user) {
+    public <T extends IBaseUser> int insertUser(T user) {
 
         IBaseUser defaultUser = userMapper.selectUserByUserName(user.getUsername());
         if (defaultUser != null){
@@ -58,7 +58,7 @@ public class DefaultUserServiceImpl implements IUserService {
     }
 
     @Override
-    public <T extends IBaseUser> boolean updateUser(T user) {
+    public <T extends IBaseUser> int updateUser(T user) {
         if (selectUserByUserId(user.getId()) == null){
             throw new ServiceException("更新用户信息时,根据Id没有找到对应的用户信息");
         }
@@ -67,7 +67,7 @@ public class DefaultUserServiceImpl implements IUserService {
     }
 
     @Override
-    public boolean deletedUser(Long userId) {
+    public int deletedUser(Long userId) {
         return userMapper.deletedUserByUserId(userId);
     }
 

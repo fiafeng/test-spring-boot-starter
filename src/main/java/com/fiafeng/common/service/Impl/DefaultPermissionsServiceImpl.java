@@ -56,7 +56,7 @@ public class DefaultPermissionsServiceImpl implements IPermissionService {
 //            throw new ServiceException("权限名已经存在");
             throw new ServiceException(FiafengMessageUtils.message("rbac.permission.permissionNameRepeat"));
         }
-        if (permissionMapper.insertPermission(permission)) {
+        if (permissionMapper.insertPermission(permission) == 1) {
 //            updateCache(permission.getId());
         }else {
             throw new ServiceException("新增权限时遇到意外的异常");
@@ -87,7 +87,7 @@ public class DefaultPermissionsServiceImpl implements IPermissionService {
                 throw new ServiceException(FiafengMessageUtils.message("rbac.permission.permissionNameRepeat"));
             }
         }
-        if (permissionMapper.updatePermission(permission)) {
+        if (permissionMapper.updatePermission(permission) == 1) {
             updateCacheService.updateCacheByPermission(permission.getId());
         }else {
             throw new ServiceException("更新权限时遇到意外的异常");
@@ -115,7 +115,7 @@ public class DefaultPermissionsServiceImpl implements IPermissionService {
             throw new ServiceException(FiafengMessageUtils.message("rbac.permission.deletedPermissionByRoleHasCurrentPermission"));
         }
 
-        if (permissionMapper.deletedPermission(permissionId)) {
+        if (permissionMapper.deletedPermission(permissionId) == 1) {
             updateCacheService.updateCacheByPermission(permissionId);
         }else {
             throw new ServiceException("删除权限时遇到意外的异常");

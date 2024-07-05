@@ -66,7 +66,7 @@ public class DefaultUserRoleServiceImpl implements IUserRoleService{
         }
 
         synchronized (this) {
-            if (userRoleMapper.insertUserRole(userRole)) {
+            if (userRoleMapper.insertUserRole(userRole) == 1) {
                 userRole = userRoleMapper.selectRoleListByUserRole(userRole);
                 updateCacheService.updateCacheByUser(userRole.getUserId());
             }
@@ -96,7 +96,7 @@ public class DefaultUserRoleServiceImpl implements IUserRoleService{
         }
 
 
-        if (!userRoleMapper.updateUserRoleList(userId, roleIdList)) {
+        if (!(userRoleMapper.updateUserRoleList(userId, roleIdList)  == roleIdList.size())) {
 //            throw new ServiceException("更新用户的角色列表失败");
             throw new ServiceException(FiafengMessageUtils.message("rbac.userRole.updateRoleListError"));
         }
@@ -123,7 +123,7 @@ public class DefaultUserRoleServiceImpl implements IUserRoleService{
                 throw new ServiceException(FiafengMessageUtils.message("rbac.userRole.userNotExistCurrent"));
         }
 
-        if (userRoleMapper.deleteUserRole(userRole)){
+        if (userRoleMapper.deleteUserRole(userRole) == 1){
             updateCacheService.updateCacheByUser(userRole.getUserId());
         }
 
@@ -137,7 +137,7 @@ public class DefaultUserRoleServiceImpl implements IUserRoleService{
 //            throw new ServiceException("找不到当前这条信息");
             throw new ServiceException(FiafengMessageUtils.message("rbac.common.notFoundCurrentById"));
         }
-        if (userRoleMapper.deleteUserRoleById(id)){
+        if (userRoleMapper.deleteUserRoleById(id) == 1){
             updateCacheService.updateCacheByUser(userRole.getUserId());
         }
         return true;
