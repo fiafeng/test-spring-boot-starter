@@ -12,7 +12,7 @@ import java.util.List;
 
 @Slf4j
 @Data
-public abstract class BaseObjectMysqlMapper extends BaseMysqlMapper{
+public abstract class BaseObjectMysqlMapper extends BaseMysqlMapper {
 
     public Class<?> type;
 
@@ -40,6 +40,10 @@ public abstract class BaseObjectMysqlMapper extends BaseMysqlMapper{
         return cols.substring(0, cols.length() - 2);
     }
 
+    public void createdMysqlTable() {
+        getConnectionPoolService().createdMysqlTable(getTableName(), getType());
+    }
+
 
     /**
      * 使用jdbcTemplate新增一条数据
@@ -49,7 +53,7 @@ public abstract class BaseObjectMysqlMapper extends BaseMysqlMapper{
      * @param flag   true时，使用数据库自增主键。false时，使用数据内的id值
      */
     public <T> int insertObject(T object, Boolean flag) {
-        return getConnectionPoolService().insertObject(object, getTableName(), getIdName(), flag);
+        return getConnectionPoolService().insertObject(object,getIdName(), getTableName(), flag);
     }
 
     public <T> int insertObjectList(List<T> objectList) {
@@ -62,7 +66,7 @@ public abstract class BaseObjectMysqlMapper extends BaseMysqlMapper{
 
 
     public <T> int insertObject(T object) {
-        return insertObject(object, true);
+        return insertObject(object, false);
     }
 
 
@@ -89,8 +93,8 @@ public abstract class BaseObjectMysqlMapper extends BaseMysqlMapper{
         return getConnectionPoolService().selectObjectListAll(type, getTableName());
     }
 
-    public <T> T selectObjectByObjectName(String objectName, Object tableColName) {
-        return getConnectionPoolService().selectObjectByColName(getTableName(), getType(), objectName, tableColName);
+    public <T> T selectObjectByObjectName(String colName, Object valueObject) {
+        return getConnectionPoolService().selectObjectByColName(getTableName(), getType(), colName, valueObject);
     }
 
 
@@ -104,11 +108,11 @@ public abstract class BaseObjectMysqlMapper extends BaseMysqlMapper{
     }
 
 
-    public <T, W> List<T> selectObjectListByKeyAndValue(String colName, W value) {
+    public <T, W> List<T> selectObjectListByColValue(String colName, W value) {
         return getConnectionPoolService().selectObjectListByColName(getTableName(), getType(), colName, value);
     }
 
-    public <T, W> T selectObjectByKeyAndValue(String colName, W value) {
+    public <T, W> T selectObjectByColValue(String colName, W value) {
         return getConnectionPoolService().selectObjectByColName(getTableName(), getType(), colName, value);
     }
 

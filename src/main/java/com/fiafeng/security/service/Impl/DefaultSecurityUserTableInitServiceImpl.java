@@ -27,11 +27,11 @@ public class DefaultSecurityUserTableInitServiceImpl implements IUserTableInitSe
     @Override
     public void init() throws Exception {
         // 检查用户表
-        IUserMapper bean = FiafengSpringUtils.getBean(IUserMapper.class);
-        if (bean instanceof BaseObjectMysqlMapper) {
-            BaseObjectMysqlMapper baseMysqlMapper = (BaseObjectMysqlMapper) bean;
+        IUserMapper userMapper = FiafengSpringUtils.getBean(IUserMapper.class);
+        if (userMapper instanceof BaseObjectMysqlMapper) {
+            BaseObjectMysqlMapper baseMysqlMapper = (BaseObjectMysqlMapper) userMapper;
             IBaseUser iBaseUser = baseMysqlMapper.selectObjectByObjectId(1L);
-            if (iBaseUser == null || !rbacProperties.defaultUserName.equals(iBaseUser.getUsername())) {
+            if (iBaseUser == null) {
 
                 IBaseUser user = FiafengSpringUtils.getBean(IBaseUser.class);
                 user.setId(1L);
@@ -39,6 +39,17 @@ public class DefaultSecurityUserTableInitServiceImpl implements IUserTableInitSe
 
                 user.setPassword(bCryptPasswordEncoder.encode(rbacProperties.defaultUserPassword));
                 baseMysqlMapper.insertObject(user, false);
+            }else if (!rbacProperties.defaultUserName.equals(iBaseUser.getUsername())){
+                iBaseUser.setPassword(rbacProperties.getDefaultUserName());
+                baseMysqlMapper.updateObject(iBaseUser);
+            }
+        }else {
+            IBaseUser iBaseUser = userMapper.selectUserByUserName(rbacProperties.defaultUserName);
+            if (iBaseUser == null) {
+                IBaseUser user = FiafengSpringUtils.getBean(IBaseUser.class);
+                user.setUsername(rbacProperties.defaultUserName);
+                user.setPassword(bCryptPasswordEncoder.encode(rbacProperties.defaultUserPassword));
+                userMapper.insertUser(user);
             }
         }
     }

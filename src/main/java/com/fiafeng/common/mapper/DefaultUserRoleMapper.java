@@ -135,7 +135,7 @@ public class DefaultUserRoleMapper implements IUserRoleMapper {
     }
 
     @Override
-    public <T extends IBaseUserRole> List<T> selectRoleListByUserRole(Long userId) {
+    public <T extends IBaseUserRole> List<T> selectUserRoleListByUserId(Long userId) {
         List<IBaseUserRole> userRoleList = new ArrayList<>();
         for (IBaseUserRole userRole : getUserRoleMap().values()) {
             if (Objects.equals(userRole.getUserId(), userId)) {
@@ -160,7 +160,7 @@ public class DefaultUserRoleMapper implements IUserRoleMapper {
     }
 
     @Override
-    public <T extends IBaseUserRole> T selectRoleListByUserRole(T userRole) {
+    public <T extends IBaseUserRole> T selectUserRoleByUserRole(T userRole) {
         for (IBaseUserRole iBaseRolePermission : getUserRoleMap().values()) {
             if (Objects.equals(iBaseRolePermission.getRoleId(), userRole.getRoleId())
                     && Objects.equals(iBaseRolePermission.getUserId(), userRole.getUserId())) {

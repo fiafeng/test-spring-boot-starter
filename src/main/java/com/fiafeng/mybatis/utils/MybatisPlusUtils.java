@@ -9,6 +9,7 @@ import com.fiafeng.common.utils.StringUtils;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import com.fiafeng.mybatis.Interceptor.MyDynamicTableNameInnerInterceptor;
 import lombok.Getter;
+import org.springframework.core.env.Environment;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,7 +29,6 @@ public class MybatisPlusUtils {
     }
 
 
-
     public static void addMybatisPlusTableNameORM(Class<? extends IMapper> mapperClass, Class<? extends IBasePojo> baseClass) {
         if (isMybatisClassProxy(FiafengSpringUtils.getBean(mapperClass))) {
             // 获取原始表名
@@ -43,10 +43,13 @@ public class MybatisPlusUtils {
             for (String key : beansOfType.keySet()) {
                 if (key.endsWith(mapperName + "Properties")) {
                     IMysqlTableProperties properties = beansOfType.get(key);
-                    String tableName = properties.getTableName();
+                    Environment environment = FiafengSpringUtils.getBean(Environment.class);
+                    String property = environment.getProperty("fiafeng.mysql-table." + mapperName.toLowerCase() + ".table-name");
+
+                    String tableName = property == null ? properties.getTableName() : property;
                     MyDynamicTableNameInnerInterceptor.hashMap.put(oldName, tableName);
                     HashSet<String> hashSet = ObjectClassUtils.mybatisClassMap.get(baseClass);
-                    if (hashSet != null){
+                    if (hashSet != null) {
                         for (String beanName : hashSet) {
                             MyDynamicTableNameInnerInterceptor.hashMap.put(StringUtils.camelToUnderline(beanName), tableName);
                         }
@@ -57,7 +60,7 @@ public class MybatisPlusUtils {
         }
     }
 
-    public static boolean isMybatisClassProxy(Object object){
+    public static boolean isMybatisClassProxy(Object object) {
         return BaseMapper.class.isAssignableFrom(object.getClass());
     }
 }

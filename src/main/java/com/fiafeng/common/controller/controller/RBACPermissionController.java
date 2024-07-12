@@ -44,15 +44,23 @@ public class RBACPermissionController implements IPermissionController {
         IBasePermission bean = FiafengSpringUtils.getBean(IBasePermission.class);
         IBasePermission iBasePermission = jsonObject.toJavaObject(bean.getClass());
         permissionService.insertPermission(iBasePermission);
-        return AjaxResult.success();
+        return AjaxResult.success("添加成功");
     }
 
     @PostMapping("/deleted/{permissionId}")
     @HasPermissionAnnotation("rbac:permission:deleted")
     public AjaxResult deletedRole(@PathVariable Long permissionId){
         // 如果还有角色拥有这个权限，则不允许删除
-        permissionService.deletedPermission(permissionId);
-        return AjaxResult.success();
+        permissionService.deletedPermissionById(permissionId);
+        return AjaxResult.success("删除成功");
+    }
+
+    @PostMapping("/deletedByName/{permissionName}")
+    @HasPermissionAnnotation("rbac:permission:deleted")
+    public AjaxResult deletedRoleByName(@PathVariable String permissionName){
+        // 如果还有角色拥有这个权限，则不允许删除
+        permissionService.deletedPermissionByName(permissionName);
+        return AjaxResult.success("删除成功");
     }
 
     @PostMapping("/update")
@@ -61,7 +69,7 @@ public class RBACPermissionController implements IPermissionController {
         IBasePermission bean = FiafengSpringUtils.getBean(IBasePermission.class);
         IBasePermission iBasePermission = jsonObject.toJavaObject(bean.getClass());
         permissionService.updatePermission(iBasePermission);
-        return AjaxResult.success();
+        return AjaxResult.success("修改成功");
     }
 
     @GetMapping("/queryList")

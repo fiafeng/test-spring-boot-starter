@@ -60,14 +60,14 @@ public class DefaultUserRoleServiceImpl implements IUserRoleService{
             throw new ServiceException(FiafengMessageUtils.message("rbac.userRole.roleInfoNotExist"));
         }
 
-        if (userRoleMapper.selectRoleListByUserRole(userRole) != null){
+        if (userRoleMapper.selectUserRoleByUserRole(userRole) != null){
 //            throw new ServiceException("当前用户已经拥有该角色了！");
             throw new ServiceException(FiafengMessageUtils.message("rbac.userRole.userHasCurrentRole"));
         }
 
         synchronized (this) {
             if (userRoleMapper.insertUserRole(userRole) == 1) {
-                userRole = userRoleMapper.selectRoleListByUserRole(userRole);
+                userRole = userRoleMapper.selectUserRoleByUserRole(userRole);
                 updateCacheService.updateCacheByUser(userRole.getUserId());
             }
         }
@@ -76,7 +76,7 @@ public class DefaultUserRoleServiceImpl implements IUserRoleService{
 
 
     @Override
-    public boolean updateUserRoleList(Long userId, List<Long> roleIdList) {
+    public void updateUserRoleList(Long userId, List<Long> roleIdList) {
         if (userMapper.selectUserByUserId(userId) == null) {
 //            throw new ServiceException("找不到用户信息");
             throw new ServiceException(FiafengMessageUtils.message("rbac.userRole.userInfoNotExist"));
@@ -102,23 +102,21 @@ public class DefaultUserRoleServiceImpl implements IUserRoleService{
         }
 
         updateCacheService.updateCacheByUser(userId);
-        return true;
     }
 
 
     /**
      * @param userRole
      * @param <T>
-     * @return
      */
     @Override
-    public <T extends IBaseUserRole> boolean deletedUserRole(T userRole) {
+    public <T extends IBaseUserRole> void deletedUserRole(T userRole) {
         if (userRole.getUserId() == 1L && userRole.getRoleId() == 1L){
             throw new ServiceException(FiafengMessageUtils.message("rbac.userRole.deletedAdminUser"));
         }
         if (userRole.getId() == null){
 //            throw new ServiceException("删除Id不允许为空");
-            userRole = userRoleMapper.selectRoleListByUserRole(userRole);
+            userRole = userRoleMapper.selectUserRoleByUserRole(userRole);
             if (userRole == null)
                 throw new ServiceException(FiafengMessageUtils.message("rbac.userRole.userNotExistCurrent"));
         }
@@ -127,11 +125,10 @@ public class DefaultUserRoleServiceImpl implements IUserRoleService{
             updateCacheService.updateCacheByUser(userRole.getUserId());
         }
 
-        return true;
     }
 
     @Override
-    public <T extends IBaseUserRole> boolean deletedUserRoleById(Long id) {
+    public <T extends IBaseUserRole> void deletedUserRoleById(Long id) {
         IBaseUserRole userRole = userRoleMapper.selectRoleListById(id);
         if (userRole == null){
 //            throw new ServiceException("找不到当前这条信息");
@@ -140,7 +137,6 @@ public class DefaultUserRoleServiceImpl implements IUserRoleService{
         if (userRoleMapper.deleteUserRoleById(id) == 1){
             updateCacheService.updateCacheByUser(userRole.getUserId());
         }
-        return true;
     }
 
 

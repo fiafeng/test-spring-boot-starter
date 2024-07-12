@@ -1,6 +1,5 @@
 package com.fiafeng.common.service;
 
-import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.pojo.Interface.IBasePermission;
 import com.fiafeng.common.pojo.Interface.IBaseRole;
 import com.fiafeng.common.pojo.Interface.IBaseUserRole;
@@ -16,12 +15,12 @@ public interface IUserRoleService {
 
     <T extends IBaseUserRole> boolean insertUserRole(T userRole);
 
-    boolean updateUserRoleList(Long userId, List<Long> roleIdList);
+    void updateUserRoleList(Long userId, List<Long> roleIdList);
 
 
-    <T extends IBaseUserRole> boolean deletedUserRole(T userRole);
+    <T extends IBaseUserRole> void deletedUserRole(T userRole);
 
-    <T extends IBaseUserRole> boolean deletedUserRoleById(Long id);
+    <T extends IBaseUserRole> void deletedUserRoleById(Long id);
 
     <T extends IBaseRole> List<T> queryUserRoleListByUserId(Long userId);
 

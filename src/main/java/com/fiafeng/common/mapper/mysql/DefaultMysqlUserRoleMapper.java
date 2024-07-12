@@ -22,7 +22,7 @@ public class DefaultMysqlUserRoleMapper extends BaseObjectMysqlMapper implements
     @Override
     public int updateUserRoleList(Long userId, List<Long> roleIdList) {
         List<Long> queryUserIdList = new ArrayList<>();
-        List<IBaseUserRole> iBaseUserRoles = selectRoleListByUserRole(userId);
+        List<IBaseUserRole> iBaseUserRoles = selectUserRoleListByUserId(userId);
         for (IBaseUserRole iBaseUserRole : iBaseUserRoles) {
             queryUserIdList.add(iBaseUserRole.getId());
         }
@@ -75,7 +75,7 @@ public class DefaultMysqlUserRoleMapper extends BaseObjectMysqlMapper implements
     public List<Long> selectRoleIdListByUserId(Long userId) {
 
         List<Long> permissionIdList = new ArrayList<>();
-        List<IBaseUserRole> objectList = selectRoleListByUserRole(userId);
+        List<IBaseUserRole> objectList = selectUserRoleListByUserId(userId);
         for (IBaseUserRole iBaseUserRole : objectList) {
             permissionIdList.add(iBaseUserRole.getRoleId());
         }
@@ -84,17 +84,17 @@ public class DefaultMysqlUserRoleMapper extends BaseObjectMysqlMapper implements
     }
 
     @Override
-    public <T extends IBaseUserRole> List<T> selectRoleListByUserRole(Long userId) {
-        return selectObjectByObjectName(properties.getUserIdName(), userId);
+    public <T extends IBaseUserRole> List<T> selectUserRoleListByUserId(Long userId) {
+        return selectObjectListByColValue(properties.getUserIdName(), userId);
     }
 
     @Override
     public <T extends IBaseUserRole> List<T> selectRoleListByRoleId(Long roleId) {
-        return selectObjectByObjectName(properties.getRoleIdName(), roleId);
+        return selectObjectListByColValue(properties.getRoleIdName(), roleId);
     }
 
     @Override
-    public <T extends IBaseUserRole> T selectRoleListByUserRole(T userRole) {
+    public <T extends IBaseUserRole> T selectUserRoleByUserRole(T userRole) {
         return selectObjectByName1Name2AndValue1Value2(properties.getUserIdName(), properties.getRoleIdName(), userRole.getUserId(), userRole.getRoleId());
     }
 

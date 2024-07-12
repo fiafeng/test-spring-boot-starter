@@ -33,7 +33,7 @@ import org.springframework.context.annotation.Import;
         @ComponentScan("com.fiafeng.mybatis.aop")
 })
 @MapperScans({
-        @MapperScan(basePackages = {"com.**.**.dao"}, sqlSessionTemplateRef = "sqlSessionTemplate",
+        @MapperScan(basePackages = {"com.fiafeng.**.dao"}, sqlSessionTemplateRef = "sqlSessionTemplate",
                 sqlSessionFactoryRef = "sqlSessionFactory")
 })
 @ConditionalOnClass({SqlSessionFactoryBean.class})

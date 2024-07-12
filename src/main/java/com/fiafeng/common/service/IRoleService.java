@@ -10,11 +10,13 @@ import java.util.List;
  * @description
  */
 public interface IRoleService {
-    int insertRole(IBaseRole role);
+    void insertRole(IBaseRole role);
 
-    int deletedRoleById(Long roleId);
+    void deletedRoleById(Long roleId);
 
-    int updateRole(IBaseRole role);
+    void deletedRoleByName(String roleName);
+
+    void updateRole(IBaseRole role);
 
     <T extends IBaseRole> T queryRoleByRoleId(Long roleId);
 

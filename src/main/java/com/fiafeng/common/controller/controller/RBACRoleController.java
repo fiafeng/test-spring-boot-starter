@@ -39,23 +39,31 @@ public class RBACRoleController implements IRoleController {
 
     @HasPermissionAnnotation("rbac:role:deleted")
     @DeleteMapping("/deleted/{roleId}")
-    public AjaxResult deletedRole(@PathVariable Long roleId){
+    public AjaxResult deletedRoleById(@PathVariable Long roleId){
         // 如果还有角色拥有这个权限，则不允许删除
         roleService.deletedRoleById(roleId);
-        return AjaxResult.success();
+        return AjaxResult.success("删除成功");
     }
+    @HasPermissionAnnotation("rbac:role:deleted")
+    @DeleteMapping("/deletedRoleByName/{roleName}")
+    public AjaxResult deletedRoleByName(@PathVariable String roleName){
+        // 如果还有角色拥有这个权限，则不允许删除
+        roleService.deletedRoleByName(roleName);
+        return AjaxResult.success("删除成功");
+    }
+
 
     @PostMapping("/update")
     public AjaxResult updateRole(@RequestBody JSONObject jsonObject){
         IBaseRole bean = FiafengSpringUtils.getBean(IBaseRole.class);
         IBaseRole iBaseRole = jsonObject.toJavaObject(bean.getClass());
         roleService.updateRole(iBaseRole);
-        return AjaxResult.success();
+        return AjaxResult.success("修改成功");
     }
 
     @HasRoleAnnotation
     @GetMapping("/queryList")
-    public AjaxResult queryRoleMap(){
+    public AjaxResult queryRoleList(){
         List<IBaseRole> roleList = roleService.queryRoleListAll();
         return AjaxResult.success(roleList);
     }

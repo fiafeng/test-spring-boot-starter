@@ -70,20 +70,6 @@ public class CommonApplicationInitAfter implements BeanDefinitionRegistryPostPro
         if (event.getApplicationContext().getParent() != null) {
             return;
         }
-        // 如果加载了默认提供的mysql的RBAC的Service时，从系统获取默认基础类型加载到
-        ObjectClassUtils.refreshBaseMysqlMapperType(IPermissionMapper.class, IBasePermission.class);
-
-        ObjectClassUtils.refreshBaseMysqlMapperType(IRolePermissionMapper.class, IBaseRolePermission.class);
-
-        ObjectClassUtils.refreshBaseMysqlMapperType(IRoleMapper.class, IBaseRole.class);
-
-        ObjectClassUtils.refreshBaseMysqlMapperType(IUserRoleMapper.class, IBaseUserRole.class);
-
-        ObjectClassUtils.refreshBaseMysqlMapperType(IUserMapper.class, IBaseUser.class);
-
-        ObjectClassUtils.mysqlMapperInit(FiafengSpringUtils.getBean(FiafengRbacProperties.class));
-
-
 
         Map<String, ApplicationInitAfter> beansOfType = FiafengSpringUtils.getBeanFactory().getBeansOfType(ApplicationInitAfter.class);
         Integer[] valuesArray = new Integer[beansOfType.size()];

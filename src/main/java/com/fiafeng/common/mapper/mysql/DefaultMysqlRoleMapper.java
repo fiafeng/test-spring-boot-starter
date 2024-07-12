@@ -39,7 +39,7 @@ public class DefaultMysqlRoleMapper extends BaseObjectMysqlMapper implements IRo
 
     @Override
     public <T extends IBaseRole> T selectRoleByRoleName(String roleName) {
-        return selectObjectByObjectName(roleName, getTableColName());
+        return selectObjectByObjectName(getTableColName(), roleName);
     }
 
     @Override

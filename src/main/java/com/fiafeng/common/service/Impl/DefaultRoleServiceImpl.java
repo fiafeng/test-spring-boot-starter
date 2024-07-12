@@ -8,6 +8,7 @@ import com.fiafeng.common.mapper.Interface.IRoleMapper;
 import com.fiafeng.common.mapper.Interface.IUserRoleMapper;
 import com.fiafeng.common.pojo.Interface.IBaseRole;
 import com.fiafeng.common.pojo.Interface.IBaseUserRole;
+import com.fiafeng.common.properties.FiafengRbacProperties;
 import com.fiafeng.common.service.ICacheService;
 import com.fiafeng.common.service.IRoleService;
 import com.fiafeng.common.utils.spring.FiafengMessageUtils;
@@ -41,26 +42,32 @@ public class DefaultRoleServiceImpl implements IRoleService {
 
 
     @Override
-    public int insertRole(IBaseRole role) {
+    public void insertRole(IBaseRole role) {
         IBaseRole baseRole = roleMapper.selectRoleByRoleName(role.getName());
         if (baseRole != null) {
 //            throw new ServiceException("角色名字已经存在");
             throw new ServiceException(FiafengMessageUtils.message("rbac.role.roleNameRepeat"));
 
         }
-        return roleMapper.insertRole(role);
+
+        int insertRole = roleMapper.insertRole(role);
+        if (insertRole != 1){
+            throw new ServiceException("添加角色遇到意外的异常");
+        }
     }
 
+    @Autowired
+    FiafengRbacProperties rbacProperties;
+
     @Override
-    public int deletedRoleById(Long roleId) {
-        if (roleId == 1L) {
-//            throw new ServiceException("不允许删除超级管理员角色");
-            throw new ServiceException(FiafengMessageUtils.message("rbac.role.deletedAdminRole"));
-        }
+    public void deletedRoleById(Long roleId) {
         IBaseRole iBaseRole = roleMapper.selectRoleByRoleId(roleId);
         if (iBaseRole == null) {
 //            throw new ServiceException("找不到该角色");
             throw new ServiceException(FiafengMessageUtils.message("rbac.role.roleNotExist"));
+        }else if (rbacProperties.getRoleAdminName().equals(iBaseRole.getName())){
+
+            throw new ServiceException(FiafengMessageUtils.message("rbac.role.deletedAdminRole"));
         }
 
         List<IBaseUserRole> userRoleList = userRoleMapper.selectRoleListByRoleId(roleId);
@@ -76,15 +83,39 @@ public class DefaultRoleServiceImpl implements IRoleService {
         } else {
             throw new ServiceException("删除角色遇到意外的异常");
         }
-        return 1;
     }
 
 
     @Override
-    public int updateRole(IBaseRole role) {
-        if (role.getId() == 1L) {
-//            throw new ServiceException("不允许修改超级管理员角色");
-            throw new ServiceException(FiafengMessageUtils.message("rbac.role.updateAdminRole"));
+    public void deletedRoleByName(String roleName) {
+        IBaseRole iBaseRole = roleMapper.selectRoleByRoleName(roleName);
+        if (iBaseRole == null) {
+//            throw new ServiceException("找不到该角色");
+            throw new ServiceException(FiafengMessageUtils.message("rbac.role.roleNotExist"));
+        }else if (rbacProperties.getRoleAdminName().equals(iBaseRole.getName())){
+
+            throw new ServiceException(FiafengMessageUtils.message("rbac.role.deletedAdminRole"));
+        }
+
+        List<IBaseUserRole> userRoleList = userRoleMapper.selectRoleListByRoleId(iBaseRole.getId());
+        if (userRoleList != null && !userRoleList.isEmpty()) {
+//            throw new ServiceException("当前角色还有用户拥有，不允许删除");
+            throw new ServiceException(FiafengMessageUtils.message("rbac.role.deletedRoleByUserHasCurrentRole"));
+        }
+
+        if (roleMapper.deletedRole(iBaseRole.getId()) != 1) {
+            updateCacheService.updateCacheByRole(iBaseRole.getId());
+            cacheService.deleteObject(CacheConstants.ROLE_PERMISSION_PREFIX + iBaseRole.getId());
+
+        } else {
+            throw new ServiceException("删除角色遇到意外的异常");
+        }
+    }
+    
+    @Override
+    public void updateRole(IBaseRole role) {
+        if (role.getId() == null) {
+            throw new ServiceException(FiafengMessageUtils.message("rbac.role.roleIdIsEmpty"));
         }
 
         if (role.getName() == null || role.getName().isEmpty()) {
@@ -95,6 +126,8 @@ public class DefaultRoleServiceImpl implements IRoleService {
         if (iBaseRole == null) {
 //            throw new ServiceException("没有找到角色信息");
             throw new ServiceException(FiafengMessageUtils.message("rbac.role.roleNotExist"));
+        }else if (rbacProperties.getRoleAdminName().equals(iBaseRole.getName())){
+            throw new ServiceException(FiafengMessageUtils.message("rbac.role.updateAdminRole"));
         }
 
         // 检查内部的名字是否重复
@@ -110,7 +143,6 @@ public class DefaultRoleServiceImpl implements IRoleService {
         } else {
             throw new ServiceException("更新角色遇到意外的异常");
         }
-        return 1;
     }
 
     @Override

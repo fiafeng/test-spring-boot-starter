@@ -30,4 +30,13 @@ public class FiafengGlobalExceptionHandler {
         message =  FiafengMessageUtils.message(e.getMessage());
         return ObjectUtils.isNotNull(code) ? AjaxResult.error(code, message) : AjaxResult.error(message);
     }
+
+    @ExceptionHandler(Exception.class)
+    public AjaxResult handleOtherException(Exception e) {
+        String message = e.getMessage();
+        log.error(message, e);
+        int code = 500;
+        message =  FiafengMessageUtils.message(e.getMessage());
+        return AjaxResult.error(code, message);
+    }
 }

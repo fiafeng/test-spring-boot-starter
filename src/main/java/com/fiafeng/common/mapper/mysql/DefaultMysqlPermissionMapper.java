@@ -44,7 +44,7 @@ public class DefaultMysqlPermissionMapper extends BaseObjectMysqlMapper implemen
     }
 
     public <T extends IBasePermission> T selectPermissionByPermissionName(String permissionName) {
-        return selectObjectByObjectName(permissionName, getTableColName());
+        return selectObjectByObjectName(getTableColName(), permissionName);
     }
 
     public <T extends IBasePermission> T selectPermissionByPermissionId(Long permissionId) {

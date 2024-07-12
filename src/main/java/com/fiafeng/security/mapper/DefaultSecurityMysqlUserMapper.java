@@ -50,8 +50,8 @@ public class DefaultSecurityMysqlUserMapper extends BaseObjectMysqlMapper implem
     }
 
     @Override
-    public <T extends IBaseUser> T selectUserByUserName(String userName) {
-        IBaseUser baseUser = selectObjectByObjectName(userName, getTableColName());
+    public <T extends IBaseUser> T selectUserByUserName(String username) {
+        IBaseUser baseUser = selectObjectByObjectName(getTableColName(), username);
         return (T) baseUser;
     }
 

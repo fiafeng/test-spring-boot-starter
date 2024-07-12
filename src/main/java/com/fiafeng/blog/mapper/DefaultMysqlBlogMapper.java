@@ -34,7 +34,7 @@ public class DefaultMysqlBlogMapper extends BaseObjectMysqlMapper implements IBl
 
     @Override
     public <T extends IBaseBlog> List<T> selectBlogListByUserId(Long userId) {
-        return selectObjectListByKeyAndValue(properties.getUserIdName(), userId);
+        return selectObjectListByColValue(properties.getUserIdName(), userId);
     }
 
     @Override

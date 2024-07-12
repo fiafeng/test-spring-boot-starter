@@ -95,6 +95,25 @@ public class AjaxResult extends HashMap<String, Object> {
     /**
      * 返回成功消息
      *
+     * @return 成功消息
+     */
+    public static AjaxResult deletedSuccess() {
+        return AjaxResult.success("删除成功", null);
+    }
+
+
+    /**
+     * 返回成功消息
+     *
+     * @return 成功消息
+     */
+    public static AjaxResult updateSuccess() {
+        return AjaxResult.success("删除成功", null);
+    }
+
+    /**
+     * 返回成功消息
+     *
      * @param msg  返回内容
      * @param data 数据对象
      * @return 成功消息

@@ -2,6 +2,7 @@ package com.fiafeng.common.service.Impl;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.constant.ModelConstant;
+import com.fiafeng.common.properties.FiafengRbacProperties;
 import com.fiafeng.common.utils.spring.FiafengMessageUtils;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.mapper.Interface.IPermissionMapper;
@@ -41,6 +42,9 @@ public class DefaultPermissionsServiceImpl implements IPermissionService {
 
     @Autowired
     UpdateCacheServiceImpl updateCacheService;
+
+    @Autowired
+    FiafengRbacProperties  rbacProperties;
 
 
 
@@ -96,19 +100,17 @@ public class DefaultPermissionsServiceImpl implements IPermissionService {
         return true;
     }
 
+
     @Override
-    public boolean deletedPermission(Long permissionId) {
-        if (permissionId == 1) {
-//            throw new ServiceException("不允许删除管理员权限");
-            throw new ServiceException(FiafengMessageUtils.message("rbac.permission.deletedAdminRole"));
-        }
+    public boolean deletedPermissionById(Long permissionId) {
 
         IBasePermission basePermission = permissionMapper.selectPermissionByPermissionId(permissionId);
         if (basePermission == null){
 //            throw new ServiceException("找不到权限信息");
             throw new ServiceException(FiafengMessageUtils.message("rbac.permission.permissionInfoNotExist"));
+        }else if (rbacProperties.getPermissionAdminName().equals(basePermission.getName())){
+            throw new ServiceException(FiafengMessageUtils.message("rbac.permission.deletedAdminRole"));
         }
-
         List<IBaseRolePermission> rolePermissionList = rolePermissionMapper.selectPermissionListByPermissionId(permissionId);
         if (rolePermissionList != null && !rolePermissionList.isEmpty()){
 //            throw new ServiceException("当前角色还有用户拥有，不允许删除");
@@ -117,6 +119,33 @@ public class DefaultPermissionsServiceImpl implements IPermissionService {
 
         if (permissionMapper.deletedPermission(permissionId) == 1) {
             updateCacheService.updateCacheByPermission(permissionId);
+        }else {
+            throw new ServiceException("删除权限时遇到意外的异常");
+        }
+
+        return true;
+    }
+
+
+    @Override
+    public boolean deletedPermissionByName(String permissionName) {
+
+        IBasePermission basePermission = permissionMapper.selectPermissionByPermissionName(permissionName);
+        if (basePermission == null){
+//            throw new ServiceException("找不到权限信息");
+            throw new ServiceException(FiafengMessageUtils.message("rbac.permission.permissionInfoNotExist"));
+        }else if (rbacProperties.getPermissionAdminName().equals(basePermission.getName())){
+            throw new ServiceException(FiafengMessageUtils.message("rbac.permission.deletedAdminRole"));
+        }
+
+        List<IBaseRolePermission> rolePermissionList = rolePermissionMapper.selectPermissionListByPermissionId(basePermission.getId());
+        if (rolePermissionList != null && !rolePermissionList.isEmpty()){
+//            throw new ServiceException("当前角色还有用户拥有，不允许删除");
+            throw new ServiceException(FiafengMessageUtils.message("rbac.permission.deletedPermissionByRoleHasCurrentPermission"));
+        }
+
+        if (permissionMapper.deletedPermission(basePermission.getId()) == 1) {
+            updateCacheService.updateCacheByPermission(basePermission.getId());
         }else {
             throw new ServiceException("删除权限时遇到意外的异常");
         }

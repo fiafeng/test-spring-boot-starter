@@ -3,10 +3,7 @@ package com.fiafeng.common.utils;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.mapper.Interface.*;
 import com.fiafeng.common.mapper.mysql.BaseObjectMysqlMapper;
-import com.fiafeng.common.pojo.Interface.IBasePermission;
-import com.fiafeng.common.pojo.Interface.IBaseRole;
-import com.fiafeng.common.pojo.Interface.IBaseRolePermission;
-import com.fiafeng.common.pojo.Interface.IBaseUserRole;
+import com.fiafeng.common.pojo.Interface.*;
 import com.fiafeng.common.pojo.Interface.base.IBasePojo;
 import com.fiafeng.common.properties.FiafengRbacProperties;
 import com.fiafeng.common.properties.mysql.FiafengMysqlUserProperties;
@@ -36,7 +33,7 @@ public class ObjectClassUtils {
     }
 
 
-    public static void registerBean(Class<?> aClass, Object[] args) {
+    public static void registerBean(Class<?> aClass, Object[] args, String bean) {
         BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(aClass);
         BeanDefinition beanDefinition = beanDefinitionBuilder.getRawBeanDefinition();
         if (args != null) {
@@ -44,7 +41,11 @@ public class ObjectClassUtils {
                 beanDefinitionBuilder.addConstructorArgValue(arg);
             }
         }
-        registry.registerBeanDefinition(aClass.getSimpleName(), beanDefinition);
+        registry.registerBeanDefinition(bean, beanDefinition);
+    }
+
+    public static void registerBean(Class<?> aClass, Object[] args) {
+        registerBean(aClass,args, aClass.getSimpleName());
     }
 
     public static void removeBeanDefinitions() {
@@ -137,6 +138,8 @@ public class ObjectClassUtils {
 
 
         // 检查用户表
+        // TODO 因为 BCryptPasswordEncoder 是属于Security框架的。所以为了兼容没有使用Security框架的，使用了一个接口两个实现类的方式
+
         try {
             IUserTableInitService userTableInitService = FiafengSpringUtils.getBean(IUserTableInitService.class);
             userTableInitService.init();
@@ -144,51 +147,87 @@ public class ObjectClassUtils {
         } catch (Exception ignored) {
         }
 
+        IRoleMapper roleMapper = FiafengSpringUtils.getBean(IRoleMapper.class);
         // 检查角色表
-        if (FiafengSpringUtils.getBean(IRoleMapper.class) instanceof BaseObjectMysqlMapper) {
-            BaseObjectMysqlMapper baseMysqlMapper = (BaseObjectMysqlMapper) FiafengSpringUtils.getBean(IRoleMapper.class);
+        if (roleMapper instanceof BaseObjectMysqlMapper) {
+            BaseObjectMysqlMapper baseMysqlMapper = (BaseObjectMysqlMapper) roleMapper;
             if (baseMysqlMapper.selectObjectByObjectId(1L) == null) {
                 IBaseRole baseRole = FiafengSpringUtils.getBean(IBaseRole.class);
                 baseRole.setId(1L);
                 baseRole.setName(rbacProperties.roleAdminName);
                 baseMysqlMapper.insertObject(baseRole, false);
             }
+        }else {
+            IBaseRole baseRole = roleMapper.selectRoleByRoleName(rbacProperties.getRoleAdminName());
+            if (baseRole == null){
+                IBaseRole role = FiafengSpringUtils.getBean(IBaseRole.class);
+                role.setName(rbacProperties.roleAdminName);
+                roleMapper.insertRole(role);
+            }
+
         }
 
         // 检查权限表
-        if (FiafengSpringUtils.getBean(IPermissionMapper.class) instanceof BaseObjectMysqlMapper) {
-            BaseObjectMysqlMapper baseMysqlMapper = (BaseObjectMysqlMapper) FiafengSpringUtils.getBean(IPermissionMapper.class);
+        IPermissionMapper permissionMapper = FiafengSpringUtils.getBean(IPermissionMapper.class);
+        if (permissionMapper instanceof BaseObjectMysqlMapper) {
+            BaseObjectMysqlMapper baseMysqlMapper = (BaseObjectMysqlMapper) permissionMapper;
             if (baseMysqlMapper.selectObjectByObjectId(1L) == null) {
                 IBasePermission baseRole = FiafengSpringUtils.getBean(IBasePermission.class);
                 baseRole.setId(1L);
                 baseRole.setName(rbacProperties.permissionAdminName);
                 baseMysqlMapper.insertObject(baseRole, false);
-
+            }
+        }else {
+            IBasePermission baseRole = permissionMapper.selectPermissionByPermissionName(rbacProperties.getPermissionAdminName());
+            if (baseRole == null){
+                IBasePermission permission = FiafengSpringUtils.getBean(IBasePermission.class);
+                permission.setName(rbacProperties.roleAdminName);
+                permissionMapper.insertPermission(permission);
             }
         }
 
         // 检查用户角色表
-        if (FiafengSpringUtils.getBean(IUserRoleMapper.class) instanceof BaseObjectMysqlMapper) {
-            BaseObjectMysqlMapper baseMysqlMapper = (BaseObjectMysqlMapper) FiafengSpringUtils.getBean(IUserRoleMapper.class);
+        IUserRoleMapper userRoleMapper = FiafengSpringUtils.getBean(IUserRoleMapper.class);
+        IBaseRole role = roleMapper.selectRoleByRoleName(rbacProperties.getRoleAdminName());
+        if (userRoleMapper instanceof BaseObjectMysqlMapper) {
+            BaseObjectMysqlMapper baseMysqlMapper = (BaseObjectMysqlMapper) userRoleMapper;
             if (baseMysqlMapper.selectObjectByObjectId(1L) == null) {
-                IBaseUserRole baseRole = FiafengSpringUtils.getBean(IBaseUserRole.class);
-                baseRole.setId(1L);
-                baseRole.setRoleId(1L);
-                baseRole.setUserId(1L);
-                baseMysqlMapper.insertObject(baseRole, false);
+                IBaseUserRole baseUserRole = FiafengSpringUtils.getBean(IBaseUserRole.class);
+                baseUserRole.setId(1L);
+                baseUserRole.setRoleId(1L);
+                baseUserRole.setUserId(1L);
+                baseMysqlMapper.insertObject(baseUserRole, false);
+            }
+        }else {
+            IUserMapper userMapper = FiafengSpringUtils.getBean(IUserMapper.class);
+            IBaseUser user = userMapper.selectUserByUserName(rbacProperties.defaultUserName);
+            IBaseUserRole userRole = FiafengSpringUtils.getBean(IBaseUserRole.class);
+            userRole.setRoleId(role.getId());
+            userRole.setUserId(user.getId());
+            if (userRoleMapper.selectUserRoleByUserRole(userRole) == null){
+                userRoleMapper.insertUserRole(userRole);
             }
         }
 
 
         // 检查角色权限表
-        if (FiafengSpringUtils.getBean(IRolePermissionMapper.class) instanceof BaseObjectMysqlMapper) {
-            BaseObjectMysqlMapper baseMysqlMapper = (BaseObjectMysqlMapper) FiafengSpringUtils.getBean(IRolePermissionMapper.class);
+        IRolePermissionMapper rolePermissionMapper = FiafengSpringUtils.getBean(IRolePermissionMapper.class);
+        if (rolePermissionMapper instanceof BaseObjectMysqlMapper) {
+            BaseObjectMysqlMapper baseMysqlMapper = (BaseObjectMysqlMapper) rolePermissionMapper;
             if (baseMysqlMapper.selectObjectByObjectId(1L) == null) {
                 IBaseRolePermission baseRole = FiafengSpringUtils.getBean(IBaseRolePermission.class);
                 baseRole.setId(1L);
                 baseRole.setRoleId(1L);
                 baseRole.setPermissionId(1L);
                 baseMysqlMapper.insertObject(baseRole, false);
+            }
+        }else {
+            IBasePermission permission = permissionMapper.selectPermissionByPermissionName(rbacProperties.getPermissionAdminName());
+            IBaseRolePermission rolePermission = FiafengSpringUtils.getBean(IBaseRolePermission.class);
+            rolePermission.setRoleId(role.getId());
+            rolePermission.setPermissionId(permission.getId());
+            if (rolePermissionMapper.selectRolePermissionIdByRoleIdPermissionId(rolePermission) == null){
+                rolePermissionMapper.insertRolePermission(rolePermission);
             }
         }
     }
@@ -225,7 +264,7 @@ public class ObjectClassUtils {
                 if (mapper.getConnectionPoolService() == null) {
                     mapper.setConnectionPoolService(FiafengSpringUtils.getBean(ConnectionPoolServiceImpl.class));
                 }
-                mapper.getConnectionPoolService().checkTableExist(mapper.getProperties().getTableName());
+                mapper.createdMysqlTable();
             }
         } else {
             try {

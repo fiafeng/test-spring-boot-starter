@@ -39,9 +39,9 @@ public class RBACUserRoleController implements IUserRoleController {
         IBaseUserRole bean = FiafengSpringUtils.getBean(IBaseUserRole.class);
         IBaseUserRole userRole = jsonObject.toJavaObject(bean.getClass());
 
-        if (rbacProperties.allowHasRoles){
+        if (rbacProperties.allowHasRoles) {
             List<IBaseRole> iBaseRoles = userRoleService.queryUserRoleListByUserId(userRole.getUserId());
-            if (!iBaseRoles.isEmpty()){
+            if (!iBaseRoles.isEmpty()) {
                 throw new ServiceException("用户单一角色限制已经开启,当前用户已经拥有一个角色了！");
             }
         }
@@ -75,6 +75,8 @@ public class RBACUserRoleController implements IUserRoleController {
 
     @PostMapping("/updateRoleList")
     public AjaxResult updateRole(@RequestBody JSONObject jsonObject) {
+
+
         if (jsonObject == null || jsonObject.isEmpty()) {
             throw new ServiceException("参数为空");
         }
@@ -83,7 +85,9 @@ public class RBACUserRoleController implements IUserRoleController {
         }
         Long userId = jsonObject.getLong("userId");
         List<Long> roleList = jsonObject.getList("roleList", Long.class);
-
+        if (rbacProperties.getAllowHasRoles() && !roleList.isEmpty()) {
+            throw new ServiceException("用户单一角色限制已经开启,不允许添加多个角色！");
+        }
         userRoleService.updateUserRoleList(userId, roleList);
         return AjaxResult.success();
     }

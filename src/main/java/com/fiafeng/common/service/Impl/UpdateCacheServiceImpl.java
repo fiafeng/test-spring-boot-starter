@@ -51,7 +51,7 @@ public class UpdateCacheServiceImpl {
             hashSet = new HashSet<>();
             expire = expireTime;
         }
-        for (IBaseUserRole userRole : userRoleMapper.selectRoleListByUserRole(roleId)) {
+        for (IBaseUserRole userRole : userRoleMapper.selectRoleListByRoleId(roleId)) {
             hashSet.add(userRole.getUserId());
         }
         cacheService.setCacheObject(CacheConstants.UPDATE_USER_INFO, hashSet, expire, TimeUnit.MINUTES);

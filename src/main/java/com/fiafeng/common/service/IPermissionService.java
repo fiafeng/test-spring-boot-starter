@@ -13,7 +13,9 @@ public interface IPermissionService {
 
     boolean insertPermission(IBasePermission permission);
 
-    boolean deletedPermission(Long permissionId);
+    boolean deletedPermissionById(Long permissionId);
+
+    boolean deletedPermissionByName(String permissionName);
 
     boolean updatePermission(IBasePermission permission);
 

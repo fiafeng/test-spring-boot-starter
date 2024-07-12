@@ -971,6 +971,9 @@ public class ConnectionPoolServiceImpl {
      * @return
      */
     public static <T> T getObject(Map<String, Object> map, Class<?> type) {
+        if (map == null){
+            return null;
+        }
         JSONObject jsonObject = JSONObject.parse(JSON.toJSONString(map));
         return getObject(jsonObject, type);
     }

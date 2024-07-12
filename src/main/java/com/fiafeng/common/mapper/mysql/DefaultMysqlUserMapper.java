@@ -36,7 +36,7 @@ public class DefaultMysqlUserMapper extends BaseObjectMysqlMapper implements IUs
 
     @Override
     public <T extends IBaseUser> T selectUserByUserName(String userName) {
-        return selectObjectByObjectName(userName,getTableColName());
+        return selectObjectByObjectName(getTableColName(),userName);
     }
 
     @Override

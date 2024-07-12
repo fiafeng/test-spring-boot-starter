@@ -21,7 +21,9 @@ import javassist.bytecode.ConstPool;
 import javassist.bytecode.FieldInfo;
 import javassist.bytecode.annotation.*;
 import org.springframework.beans.BeansException;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
 import java.util.Map;
@@ -64,7 +66,7 @@ public class MybatisPlusApplicationProcessor extends ApplicationProcessor {
                             if (pojoName.equals("default" + pojoSubstringName) || pojoName.equals("Default" + pojoSubstringName)) {
                                 try {
                                     Class<?> aClass = createdMybatisPojoClass(beanFactoryBeansOfType.get(pojoName).getClass(), tableProperties, pojoClass);
-                                    ObjectClassUtils.registerBean(aClass, null);
+//                                    ObjectClassUtils.registerBean(aClass, null);
 
                                 } catch (NotFoundException | CannotCompileException | IOException exception) {
                                     throw new RuntimeException(exception);
@@ -148,8 +150,11 @@ public class MybatisPlusApplicationProcessor extends ApplicationProcessor {
         AnnotationsAttribute annotationsAttribute = new AnnotationsAttribute(constPool, AnnotationsAttribute.visibleTag);
         // 添加 @BeanDefinitionOrderAnnotation 注解和值
         Annotation beanDefinitionOrderAnnotation = getIntegerAnnotation(BeanDefinitionOrderAnnotation.class, ModelConstant.fifthOrdered, constPool);
+
+
         // 添加 @TableName 注解和值
         Annotation tableNameAnnotation = getStringAnnotation(TableName.class, properties.getTableName(), constPool);
+        Annotation RepositoryAnnotation = getStringAnnotation(Repository.class, properties.getTableName(), constPool);
 
         // 添加 @PojoAnnotation 注解
         Annotation pojoAnnotationAnnotation = new Annotation(PojoAnnotation.class.getCanonicalName(), constPool);

@@ -50,7 +50,7 @@ public class DefaultMysqlMappingMapper extends BaseObjectMysqlMapper implements 
     }
 
     public <T extends IBaseMapping> T selectMappingByUrl(String url) {
-        return selectObjectByKeyAndValue("url", url);
+        return selectObjectByColValue("url", url);
     }
 
 }
