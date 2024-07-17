@@ -1,13 +1,12 @@
 package com.fiafeng.common.mapper;
 
-import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.mapper.Interface.IPermissionMapper;
 import com.fiafeng.common.pojo.Interface.IBasePermission;
-import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import com.fiafeng.common.properties.FiafengRbacProperties;
+import com.fiafeng.common.utils.ObjectUtils;
+import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +18,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 
 @Component
-@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
+@BeanDefinitionOrderAnnotation()
 public class DefaultPermissionMapper implements IPermissionMapper {
 
     ConcurrentHashMap<Long, IBasePermission> permissionListMap;
@@ -33,12 +32,14 @@ public class DefaultPermissionMapper implements IPermissionMapper {
     public ConcurrentHashMap<Long, IBasePermission> getPermissionListMap() {
         if (permissionListMap == null) {
             permissionListMap = new ConcurrentHashMap<>();
-            permissionListMap.put(1L, FiafengSpringUtils.getBean(IBasePermission.class).setName(rbacProperties.permissionAdminName).setId(1L));
+            IBasePermission basePermission = FiafengSpringUtils.getBeanObject(IBasePermission.class);
+            basePermission.setName(rbacProperties.permissionAdminName);
+            basePermission.setId(1L);
+            permissionListMap.put(1L, basePermission);
         }
 
         return permissionListMap;
     }
-
 
 
     @Override
@@ -48,7 +49,7 @@ public class DefaultPermissionMapper implements IPermissionMapper {
             throw new ServiceException("权限名不允许为空");
         }
         for (IBasePermission iBasePermission : getPermissionListMap().values()) {
-            if (iBasePermission.getName().equals(permission.getName())){
+            if (iBasePermission.getName().equals(permission.getName())) {
                 throw new ServiceException("新增权限时，权限名已存在");
             }
         }
@@ -58,7 +59,6 @@ public class DefaultPermissionMapper implements IPermissionMapper {
         getPermissionListMap().put(andIncrement, permission);
         return 1;
     }
-
 
 
     @Override
@@ -76,7 +76,7 @@ public class DefaultPermissionMapper implements IPermissionMapper {
     }
 
     @Override
-    public <T extends IBasePermission> int updatePermissionList(List<T> permissionList) {
+    public int updatePermissionList(List<IBasePermission> permissionList) {
         for (IBasePermission permission : permissionList) {
             updatePermission(permission);
         }
@@ -84,10 +84,9 @@ public class DefaultPermissionMapper implements IPermissionMapper {
     }
 
 
-
     @Override
     public int deletedPermission(Long permissionId) {
-        return getPermissionListMap().remove(permissionId) == null ? 1 : 0 ;
+        return getPermissionListMap().remove(permissionId) == null ? 1 : 0;
     }
 
     @Override
@@ -106,48 +105,47 @@ public class DefaultPermissionMapper implements IPermissionMapper {
     }
 
 
-
     @Override
-    public <T extends IBasePermission> List<T> selectPermissionListAll() {
+    public List<IBasePermission> selectPermissionListAll() {
         List<IBasePermission> defaultPermissionList = new ArrayList<>();
 
         for (HashMap.Entry<Long, IBasePermission> entry : getPermissionListMap().entrySet()) {
-            defaultPermissionList.add(JSONObject.from(entry.getValue()).toJavaObject(IBasePermission.class));
+            defaultPermissionList.add(ObjectUtils.getNewObejct(entry.getValue()));
         }
-        return (List<T>) defaultPermissionList;
+        return defaultPermissionList;
     }
 
     @Override
-    public <T extends IBasePermission> T selectPermissionByPermissionName(String permissionName) {
+    public IBasePermission selectPermissionByPermissionName(String permissionName) {
         if (permissionName == null || permissionName.isEmpty()) {
             return null;
         }
 
         for (HashMap.Entry<Long, IBasePermission> entry : getPermissionListMap().entrySet()) {
             if (permissionName.equals(entry.getValue().getName())) {
-                return (T) JSONObject.from(entry.getValue()).toJavaObject(IBasePermission.class);
+                return ObjectUtils.getNewObejct(entry.getValue());
             }
         }
         return null;
     }
 
     @Override
-    public <T extends IBasePermission> T selectPermissionByPermissionId(Long permissionId) {
+    public IBasePermission selectPermissionByPermissionId(Long permissionId) {
         if (getPermissionListMap().containsKey(permissionId)) {
-            return (T) JSONObject.from(getPermissionListMap().get(permissionId)).toJavaObject(IBasePermission.class);
+            return ObjectUtils.getNewObejct(getPermissionListMap().get(permissionId));
         }
 
         return null;
     }
 
     @Override
-    public <T extends IBasePermission> List<T> selectPermissionListByPermissionIdList(List<Long> permissionIdList) {
+    public List<IBasePermission> selectPermissionListByPermissionIdList(List<Long> permissionIdList) {
         List<IBasePermission> permissionList = new ArrayList<>();
         for (Long permissionId : permissionIdList) {
             if (getPermissionListMap().containsKey(permissionId)) {
-                permissionList.add(JSONObject.from(getPermissionListMap().get(permissionId)).toJavaObject(IBasePermission.class));
+                permissionList.add(ObjectUtils.getNewObejct(getPermissionListMap().get(permissionId)));
             }
         }
-        return (List<T>) permissionList;
+        return permissionList;
     }
 }

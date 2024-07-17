@@ -51,22 +51,22 @@ public class DefaultSecurityUserMapper implements IUserMapper {
     
 
     @Override
-    public <T extends IBaseUser> T selectUserByUserName(String userName) {
+    public IBaseUser selectUserByUserName(String userName) {
         if (userName == null || userName.isEmpty()) {
             return null;
         }
         for (Map.Entry<Long, IBaseUser> entry : getUserMap().entrySet()) {
             if (userName.equals(entry.getValue().getUsername())){
-                return (T) entry.getValue();
+                return entry.getValue();
             }
         }
         return null;
     }
 
     @Override
-    public <T extends IBaseUser> T selectUserByUserId(Long userId) {
+    public IBaseUser selectUserByUserId(Long userId) {
         if (getUserMap().containsKey(userId)) {
-            return (T) getUserMap().get(userId);
+            return getUserMap().get(userId);
         }
 
         return null;
@@ -102,11 +102,11 @@ public class DefaultSecurityUserMapper implements IUserMapper {
     }
 
     @Override
-    public <T extends IBaseUser> List<T> selectUserListAll() {
+    public  List<IBaseUser> selectUserListAll() {
         List<IBaseUser> baseUserList = new ArrayList<>();
         for (Map.Entry<Long, IBaseUser> entry : getUserMap().entrySet()) {
             baseUserList.add(entry.getValue());
         }
-        return (List<T>) baseUserList;
+        return baseUserList;
     }
 }

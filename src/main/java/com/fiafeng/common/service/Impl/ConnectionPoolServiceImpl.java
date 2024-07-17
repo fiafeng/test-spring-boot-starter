@@ -9,6 +9,9 @@ import com.fiafeng.common.properties.mysql.FiafengMysqlProperties;
 import com.fiafeng.common.utils.FiafengMysqlUtils;
 import com.fiafeng.common.utils.ObjectUtils;
 import com.fiafeng.common.utils.StringUtils;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
@@ -23,6 +26,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
+@NoArgsConstructor
 public class ConnectionPoolServiceImpl {
 
     DataSource dataSource;
@@ -41,20 +45,19 @@ public class ConnectionPoolServiceImpl {
 
     FiafengMysqlProperties mysqlProperties;
 
-    public ConnectionPoolServiceImpl() {
-
-    }
 
     public ConnectionPoolServiceImpl(FiafengMysqlProperties mysqlProperties) {
         this.mysqlProperties = mysqlProperties;
     }
 
 
-    private final int maxSize = 10;
+    @Setter
+    @Getter
+    private int maxSize = 10;
 
     private static boolean flag = false;
 
-    private static volatile AtomicInteger userCount = new AtomicInteger();
+    private static final AtomicInteger userCount = new AtomicInteger();
 
     public ConnectionPoolServiceImpl(DataSource dataSource, FiafengMysqlProperties mysqlProperties) {
         this.dataSource = dataSource;
@@ -74,7 +77,7 @@ public class ConnectionPoolServiceImpl {
         try {
             String schema = dataSource.getConnection().getSchema();
             List<Map<String, Object>> columns = queryForList(FiafengMysqlUtils.queryTableExistSql(), new Object[]{tableName, schema});
-            return !columns.isEmpty();
+            return columns.isEmpty();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -88,7 +91,7 @@ public class ConnectionPoolServiceImpl {
      * @param typeClass 实体类
      */
     public void createdMysqlTable(String tableName, Class<?> typeClass) {
-        if (!checkTableExist(tableName)) {
+        if (checkTableExist(tableName)) {
             String createdTableSql = FiafengMysqlUtils.createdTableSql(tableName, typeClass);
             executeSql(createdTableSql);
         }
@@ -101,7 +104,7 @@ public class ConnectionPoolServiceImpl {
      * @param typeClass 实体类
      */
     public void createdMysqlTable(String primaryName, String tableName, TypeOrmEnum primaryType, Class<?> typeClass) {
-        if (!checkTableExist(tableName)) {
+        if (checkTableExist(tableName)) {
             String createdTableSql = FiafengMysqlUtils.createdTableSql(primaryName, tableName, primaryType, typeClass);
             executeSql(createdTableSql);
         }
@@ -281,7 +284,6 @@ public class ConnectionPoolServiceImpl {
 
             }
         } catch (Exception ignore) {
-            ignore.printStackTrace();
         } finally {
             try {
                 resultSet.close();
@@ -488,7 +490,7 @@ public class ConnectionPoolServiceImpl {
 
     private void setParamObject(Object[] objects, PreparedStatement statement) {
 
-        String string = "";
+        StringBuilder string = new StringBuilder();
         try {
             if (objects != null) {
                 for (int i = 0; i < objects.length; i++) {
@@ -498,14 +500,14 @@ public class ConnectionPoolServiceImpl {
                     } else if (object instanceof Long) {
                         statement.setLong(i + 1, (Long) object);
                     } else if (object instanceof HashSet) {
-                        string = "";
+                        string = new StringBuilder();
                         HashSet<Object> hashSet = (HashSet<Object>) object;
                         for (Object o : hashSet) {
-                            string += o.toString() + "，";
+                            string.append(o.toString()).append("，");
                         }
                         if (string.length() > 1) {
-                            string = string.substring(0, string.length() - 1);
-                            statement.setString(i + 1, string);
+                            string = new StringBuilder(string.substring(0, string.length() - 1));
+                            statement.setString(i + 1, string.toString());
                         } else {
                             statement.setObject(i + 1, null);
                         }
@@ -553,8 +555,7 @@ public class ConnectionPoolServiceImpl {
     /**
      * 新增一条数据
      *
-     * @param object 新增对象
-     * @param <T>    对象类型
+     * @param object 新增对象    对象类型
      * @param flag   true时，使用数据库自增主键。false时，使用数据内的id值
      */
     public <T> int insertObject(T object, String idName, String tableName, Boolean flag) {
@@ -587,7 +588,7 @@ public class ConnectionPoolServiceImpl {
 
         String sql = "insert into " + tableName + insertColsName + values;
 
-        Object[] objects = objectList.toArray(new Object[objectList.size()]);
+        Object[] objects = objectList.toArray(new Object[0]);
         return updateSql(sql, objects);
     }
 
@@ -610,13 +611,12 @@ public class ConnectionPoolServiceImpl {
      * 新增多条数据
      *
      * @param objectList 新增对象列表
-     * @param <T>        对象类型
      * @param flag       true时，使用数据库自增主键。false时，使用数据内的id值
      */
-    public <T> int insertObjectList(List<T> objectList, String idName, String tableName, Boolean flag) {
+    public int insertObjectList(List objectList, String idName, String tableName, Boolean flag) {
         List<Object[]> list = new ArrayList<>();
         String sql = null;
-        for (T object : objectList) {
+        for (Object object : objectList) {
             Field[] declaredFields = object.getClass().getDeclaredFields();
             List<Object> parameterObjectList = new ArrayList<>();
             StringBuilder insertColsName = new StringBuilder(" ( ");
@@ -646,7 +646,7 @@ public class ConnectionPoolServiceImpl {
 
                 sql = "insert into " + tableName + insertColsName + values.substring(0, values.length() - 1) + ")";
             }
-            list.add(parameterObjectList.toArray(new Object[parameterObjectList.size()]));
+            list.add(parameterObjectList.toArray(new Object[0]));
         }
 
 
@@ -663,7 +663,7 @@ public class ConnectionPoolServiceImpl {
      * @param objectId  用户id
      * @param idName    主键id名称    id名称
      * @param tableName 表名 表名
-     * @return 是否删除成功
+     * @return 删除的数量
      */
     public int deletedObjectById(Object objectId, String idName, String tableName) {
         return updateSql("delete from " + StringUtils.camelToUnderline(tableName) + " where " + StringUtils.camelToUnderline(idName) + " = ?",
@@ -671,12 +671,12 @@ public class ConnectionPoolServiceImpl {
     }
 
     /**
-     * @param objectIdList
+     * @param objectIdList 主键id列表
      * @param idName       主键id名称
      * @param tableName    表名
-     * @return
+     * @return 删除的数量
      */
-    public <T> int deletedObjectByIdList(List<T> objectIdList, String idName, String tableName) {
+    public int deletedObjectByIdList(List objectIdList, String idName, String tableName) {
         if (objectIdList == null || objectIdList.isEmpty()) {
             throw new ServiceException("objectIdList参数不允许为空");
         }
@@ -690,9 +690,9 @@ public class ConnectionPoolServiceImpl {
     }
 
     /**
-     * @param tableName
-     * @param objectMap
-     * @return
+     * @param tableName 表名
+     * @param objectMap 删除条件集合
+     * @return 删除数量
      */
     public int deletedObjectByMap(String tableName, Map<String, Object> objectMap) {
         if (ObjectUtils.isNull(objectMap) || objectMap.isEmpty()) {
@@ -712,13 +712,14 @@ public class ConnectionPoolServiceImpl {
 
 
     /**
-     * @param Object
+     * 根据主键更新对应的数据
+     *
+     * @param Object 更新的对象
      * @param idName    主键id名称
      * @param tableName 表名
-     * @param <T>
-     * @return
+     * @return 删除数量
      */
-    public <T> int updateObject(T Object, String idName, String tableName) {
+    public int updateObjectById(Object Object, String idName, String tableName) {
         List<Object> objectList = new ArrayList<>();
         String sql = getSqlUpdate(Object, objectList, idName, tableName);
         Object[] objects = objectList.toArray(new Object[0]);
@@ -726,19 +727,18 @@ public class ConnectionPoolServiceImpl {
     }
 
     /**
-     * @param objecList
+     * @param objectLists 更新列表
      * @param idName    主键id名称
      * @param tableName 表名
-     * @param <T>
-     * @return
+     * @return 更新数量
      */
-    public <T> int updateObjectList(List<T> objecList, String idName, String tableName) {
-        if (objecList == null || objecList.isEmpty()) {
+    public int updateObjectList(List objectLists, String idName, String tableName) {
+        if (objectLists == null || objectLists.isEmpty()) {
             throw new ServiceException("参数为空");
         }
         List<Object[]> list = new ArrayList<>();
         String sql = "";
-        for (T t : objecList) {
+        for (Object t : objectLists) {
             List<Object> objectList = new ArrayList<>();
             String updateColsName = getSqlUpdate(t, objectList, idName, tableName);
             Object[] objects = objectList.toArray(new Object[0]);
@@ -747,8 +747,7 @@ public class ConnectionPoolServiceImpl {
                 sql = updateColsName;
             }
         }
-        int result = batchExecuteSql(sql, list);
-        return result;
+        return batchExecuteSql(sql, list);
     }
 
 
@@ -756,12 +755,11 @@ public class ConnectionPoolServiceImpl {
 
 
     /**
-     * @param type
+     * @param type 返回类型
      * @param tableName 表名
-     * @param <T>
-     * @return
+     * @return 查询结果
      */
-    public <T> List<T> selectObjectListAll(Class<?> type, String tableName) {
+    public List<Object> selectObjectListAll(Class<?> type, String tableName) {
         String sql = getBaseSelectSql(tableName);
         List<Map<String, Object>> maps = queryForList(sql);
         return getObjectList(maps, type);
@@ -770,66 +768,61 @@ public class ConnectionPoolServiceImpl {
 
     /**
      * @param tableName   表名
-     * @param type
-     * @param colName
-     * @param valueObject
-     * @param <T>
-     * @return
+     * @param type 返回的类型
+     * @param colName 查询字段名
+     * @param valueObject 条件内的值
+     * @return 查询结果
      */
-    public <T> T selectObjectByColName(String tableName, String colNames, Class<?> type, String colName, Object valueObject) {
+    public Object selectObjectByColName(String tableName, String colNames, Class<?> type, String colName, Object valueObject) {
         String sql = getBaseSelectSql(tableName, colNames) + " and " + StringUtils.camelToUnderline(colName) + "= ?";
         Map<String, Object> objectMap = queryFoObject(sql, new Object[]{valueObject});
         return getObject(objectMap, type);
     }
 
     /**
-     * @param tableName
-     * @param type
-     * @param colName
-     * @param valueObject
-     * @param <T>
-     * @return
+     * @param tableName 表名
+     * @param type 返回的类型
+     * @param colName 条件字段名
+     * @param valueObject 条件的值
+     * @return 返回值
      */
-    public <T> T selectObjectByColName(String tableName, Class<?> type, String colName, Object valueObject) {
+    public Object selectObjectByColName(String tableName, Class<?> type, String colName, Object valueObject) {
         return selectObjectByColName(tableName, null, type, colName, valueObject);
     }
 
 
     /**
      * @param tableName   表名
-     * @param type
-     * @param colName
-     * @param valueObject
-     * @param <T>
-     * @return
+     * @param type 返回类型
+     * @param colName 条件字段名
+     * @param valueObject 条件的值
+     * @return 查询结果
      */
-    public <T> List<T> selectObjectListByColName(String tableName, String colNames, Class<?> type, String colName, Object valueObject) {
+    public List selectObjectListByColName(String tableName, String colNames, Class<?> type, String colName, Object valueObject) {
         String sql = getBaseSelectSql(tableName, colNames) + " and " + StringUtils.camelToUnderline(colName) + "= ?";
         List<Map<String, Object>> maps = queryForList(sql, new Object[]{valueObject});
         return getObjectList(maps, type);
     }
 
     /**
-     * @param tableName
-     * @param type
-     * @param colName
-     * @param valueObject
-     * @param <T>
-     * @return
+     * @param tableName 表名
+     * @param type 返回类型
+     * @param colName 条件字段名
+     * @param valueObject 条件的值
+     * @return 查询的结果集合
      */
-    public <T> List<T> selectObjectListByColName(String tableName, Class<?> type, String colName, Object valueObject) {
+    public List selectObjectListByColName(String tableName, Class<?> type, String colName, Object valueObject) {
         return selectObjectListByColName(tableName, null, type, colName, valueObject);
     }
 
     /**
      * @param tableName    表名
      * @param idName       主键id名称
-     * @param type
-     * @param ObjectIdList
-     * @param <T>
-     * @return
+     * @param type 返回值的类型
+     * @param ObjectIdList 主键id列表
+     * @return 结果集合
      */
-    public <T> List<T> selectObjectListByObjectIdList(String tableName, String idName, String colNames, Class<?> type, List<Long> ObjectIdList) {
+    public List selectObjectListByObjectIdList(String tableName, String idName, String colNames, Class<?> type, List<Long> ObjectIdList) {
         StringBuilder sql = new StringBuilder(getBaseSelectSql(tableName, colNames) + " and " + StringUtils.camelToUnderline(idName) + " in (");
         for (Long objectId : ObjectIdList) {
             sql.append(objectId).append(",");
@@ -839,18 +832,17 @@ public class ConnectionPoolServiceImpl {
         return getObjectList(maps, type);
     }
 
-    public <T> List<T> selectObjectListByObjectIdList(String tableName, String idName, Class<?> type, List<Long> ObjectIdList) {
+    public List selectObjectListByObjectIdList(String tableName, String idName, Class<?> type, List<Long> ObjectIdList) {
         return selectObjectListByObjectIdList(tableName, idName, null, type, ObjectIdList);
     }
 
     /**
      * @param tableName 表名
-     * @param type
-     * @param paramMap
-     * @param <T>
-     * @return
+     * @param type 返回值的类型
+     * @param paramMap 条件集合
+     * @return 查询结果
      */
-    public <T> T selectObjectByColMap(String tableName, String colNames, Class<?> type, Map<String, Object> paramMap) {
+    public Object selectObjectByColMap(String tableName, String colNames, Class<?> type, Map<String, Object> paramMap) {
         StringBuilder sql = new StringBuilder(getBaseSelectSql(tableName));
         List<Object> objectList = new ArrayList<>();
         for (String colName : paramMap.keySet()) {
@@ -861,17 +853,16 @@ public class ConnectionPoolServiceImpl {
         return getObject(objectMap, type);
     }
 
-    public <T> T selectObjectByColMap(String tableName, Class<?> type, Map<String, Object> paramMap) {
+    public Object selectObjectByColMap(String tableName, Class<?> type, Map<String, Object> paramMap) {
         return selectObjectByColMap(tableName, null, type, paramMap);
     }
 
 
     /**
      * @param tableName 表名
-     * @param type
-     * @param paramMap
-     * @param <T>
-     * @return
+     * @param type 返回类型
+     * @param paramMap 参数集合
+     * @return 查询结果集合
      */
     public <T> List<T> selectObjectListByColMap(String tableName, Class<?> type, Map<String, Object> paramMap) {
         return selectObjectListByColMap(tableName, null, type, paramMap);
@@ -879,12 +870,11 @@ public class ConnectionPoolServiceImpl {
 
 
     /**
-     * @param tableName
-     * @param colNames
-     * @param type
-     * @param paramMap
-     * @param <T>
-     * @return
+     * @param tableName 表名
+     * @param colNames 查询字段名
+     * @param type 返回类型
+     * @param paramMap 参数集合
+     * @return 查询结果集合
      */
     public <T> List<T> selectObjectListByColMap(String tableName, String colNames, Class<?> type, Map<String, Object> paramMap) {
         List<Object> objectList = new ArrayList<>();
@@ -903,7 +893,7 @@ public class ConnectionPoolServiceImpl {
 
     /**
      * @param tableName 表名
-     * @return
+     * @return 基础查询sql
      */
     public String getBaseSelectSql(String tableName) {
         return "select * from " + StringUtils.camelToUnderline(tableName) + " where 1 = 1 ";
@@ -912,8 +902,8 @@ public class ConnectionPoolServiceImpl {
 
     /**
      * @param tableName 表名
-     * @param colNames
-     * @return
+     * @param colNames 查询字段名
+     * @return 基础查询sql
      */
     public String getBaseSelectSql(String tableName, String colNames) {
         if (StringUtils.strIsEmpty(colNames)) {
@@ -928,8 +918,7 @@ public class ConnectionPoolServiceImpl {
      * 获取更新语句的sql,同时根据objectList的引用更新需要修改的值
      *
      * @param t          泛型类
-     * @param objectList 传递的Object对象list
-     * @param <T>        具体的类
+     * @param objectList 传递的Object对象list        具体的类
      */
     private <T> String getSqlUpdate(T t, List<Object> objectList, String idName, String tableName) {
         Field[] declaredFields = t.getClass().getDeclaredFields();
@@ -965,13 +954,12 @@ public class ConnectionPoolServiceImpl {
 
 
     /**
-     * @param map
-     * @param type
-     * @param <T>
-     * @return
+     * @param map 对象属性和值的集合
+     * @param type 返回类型
+     * @return 查询结果
      */
-    public static <T> T getObject(Map<String, Object> map, Class<?> type) {
-        if (map == null){
+    public static Object getObject(Map<String, Object> map, Class<?> type) {
+        if (map == null) {
             return null;
         }
         JSONObject jsonObject = JSONObject.parse(JSON.toJSONString(map));
@@ -982,18 +970,17 @@ public class ConnectionPoolServiceImpl {
     /**
      * 根据传递的jdbcTemplate查询结果list，构建泛型List结果集进行返回
      *
-     * @param maps jdbcTemplate查询结果list
-     * @param <T>  泛型
+     * @param maps jdbcTemplate查询结果list  泛型
      * @return 构建泛型List结果集进行返回
      */
-    public static <T> List<T> getObjectList(List<Map<String, Object>> maps, Class<?> type) {
+    public static List getObjectList(List<Map<String, Object>> maps, Class<?> type) {
         List list = new ArrayList<>();
         for (Map<String, Object> map : maps) {
             try {
                 Object object = getObject(map, type);
                 if (object != null)
                     list.add(object);
-            } catch (Exception e) {
+            } catch (Exception ignore) {
 
             }
         }
@@ -1002,13 +989,12 @@ public class ConnectionPoolServiceImpl {
 
 
     /**
-     * @param jsonObject
-     * @param type
-     * @param <T>
-     * @return
+     * @param jsonObject 对象属性
+     * @param type 返回类型
+     * @return 查询结果
      */
-    public static <T> T getObject(JSONObject jsonObject, Class<?> type) {
-        Object object = null;
+    public static Object getObject(JSONObject jsonObject, Class<?> type) {
+        Object object;
 
         try {
             object = type.newInstance();
@@ -1055,7 +1041,7 @@ public class ConnectionPoolServiceImpl {
 
             }
         }
-        return (T) object;
+        return object;
     }
 
 }

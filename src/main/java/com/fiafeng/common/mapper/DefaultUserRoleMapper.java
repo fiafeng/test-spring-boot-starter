@@ -1,12 +1,11 @@
 package com.fiafeng.common.mapper;
 
 
-import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.mapper.Interface.IUserRoleMapper;
 import com.fiafeng.common.pojo.Interface.IBaseUserRole;
+import com.fiafeng.common.utils.ObjectUtils;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +17,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 
 
-@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
+@BeanDefinitionOrderAnnotation()
 @Component
 public class DefaultUserRoleMapper implements IUserRoleMapper {
 
@@ -30,7 +29,7 @@ public class DefaultUserRoleMapper implements IUserRoleMapper {
     public ConcurrentHashMap<Long,IBaseUserRole> getUserRoleMap() {
         if (userRoleMap == null) {
             userRoleMap = new ConcurrentHashMap<>();
-            IBaseUserRole userRole = FiafengSpringUtils.getBean(IBaseUserRole.class);
+            IBaseUserRole userRole = FiafengSpringUtils.getBeanObject(IBaseUserRole.class);
             userRole.setId(1L);
             userRole.setRoleId(1L);
             userRole.setUserId(1L);
@@ -42,11 +41,10 @@ public class DefaultUserRoleMapper implements IUserRoleMapper {
 
     /**
      * @param userRole 用户角色关系
-     * @param <T>      用户角色接口
      * @return 用户角色关系
      */
     @Override
-    public <T extends IBaseUserRole> int insertUserRole(T userRole) {
+    public  int insertUserRole(IBaseUserRole userRole) {
         for (IBaseUserRole iBaseUserRole : getUserRoleMap().values()) {
             if (Objects.equals(iBaseUserRole.getUserId(), userRole.getUserId()) && Objects.equals(iBaseUserRole.getRoleId(), userRole.getRoleId())){
                 throw new ServiceException("新增角色用户时候，当前用户已经拥有当前当前橘色");
@@ -76,8 +74,9 @@ public class DefaultUserRoleMapper implements IUserRoleMapper {
             getUserRoleMap().remove(id);
         }
         for (Long roleId : roleIdList) {
-            IBaseUserRole userRole = FiafengSpringUtils.getBean(IBaseUserRole.class);
-            userRole.setUserId(userId).setRoleId(roleId);
+            IBaseUserRole userRole = FiafengSpringUtils.getBeanObject(IBaseUserRole.class);
+            userRole.setUserId(userId);
+            userRole.setRoleId(roleId);
             insertUserRole(userRole);
 
         }
@@ -88,11 +87,10 @@ public class DefaultUserRoleMapper implements IUserRoleMapper {
 
     /**
      * @param userRole 用户角色关系
-     * @param <T>      用户角色接口
      * @return s
      */
     @Override
-    public <T extends IBaseUserRole> int deleteUserRole(T userRole) {
+    public  int deleteUserRole(IBaseUserRole userRole) {
         if (userRole.getId() != null){
             deleteUserRoleById(userRole.getId());
         }
@@ -135,45 +133,45 @@ public class DefaultUserRoleMapper implements IUserRoleMapper {
     }
 
     @Override
-    public <T extends IBaseUserRole> List<T> selectUserRoleListByUserId(Long userId) {
+    public  List<IBaseUserRole> selectUserRoleListByUserId(Long userId) {
         List<IBaseUserRole> userRoleList = new ArrayList<>();
         for (IBaseUserRole userRole : getUserRoleMap().values()) {
             if (Objects.equals(userRole.getUserId(), userId)) {
-                userRoleList.add(JSONObject.from(userRole).toJavaObject(IBaseUserRole.class));
+                userRoleList.add(ObjectUtils.getNewObejct(userRole));
             }
         }
 
-        return (List<T>) userRoleList;
+        return userRoleList;
 
     }
 
     @Override
-    public <T extends IBaseUserRole> List<T> selectRoleListByRoleId(Long roleId) {
+    public  List<IBaseUserRole> selectRoleListByRoleId(Long roleId) {
         List<IBaseUserRole> userRoleList = new ArrayList<>();
         for (IBaseUserRole userRole : getUserRoleMap().values()) {
             if (Objects.equals(userRole.getRoleId(), roleId)) {
-                userRoleList.add(JSONObject.from(userRole).toJavaObject(IBaseUserRole.class));
+                userRoleList.add(ObjectUtils.getNewObejct(userRole));
             }
         }
 
-        return (List<T>) userRoleList;
+        return userRoleList;
     }
 
     @Override
-    public <T extends IBaseUserRole> T selectUserRoleByUserRole(T userRole) {
-        for (IBaseUserRole iBaseRolePermission : getUserRoleMap().values()) {
-            if (Objects.equals(iBaseRolePermission.getRoleId(), userRole.getRoleId())
-                    && Objects.equals(iBaseRolePermission.getUserId(), userRole.getUserId())) {
-                return (T) JSONObject.from(iBaseRolePermission).toJavaObject(IBaseUserRole.class);
+    public  IBaseUserRole selectUserRoleByUserRole(IBaseUserRole userRole) {
+        for (IBaseUserRole iBaseUserRole : getUserRoleMap().values()) {
+            if (Objects.equals(iBaseUserRole.getRoleId(), userRole.getRoleId())
+                    && Objects.equals(iBaseUserRole.getUserId(), userRole.getUserId())) {
+                return ObjectUtils.getNewObejct(iBaseUserRole);
             }
         }
         return null;
     }
 
     @Override
-    public <T extends IBaseUserRole> T selectRoleListById(Long id) {
+    public  IBaseUserRole selectRoleListById(Long id) {
         if (getUserRoleMap().containsKey(id)){
-            return (T) JSONObject.from(getUserRoleMap().get(id)).toJavaObject(IBaseUserRole.class);
+            return ObjectUtils.getNewObejct(getUserRoleMap().get(id));
         }
         return null;
     }

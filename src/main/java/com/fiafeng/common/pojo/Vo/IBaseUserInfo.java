@@ -20,15 +20,15 @@ public interface IBaseUserInfo extends IBasePojo {
     List<String> getRoleList();
 
 
-    IBaseUserInfo setUuid(String uuid);
+    void setUuid(String uuid);
 
-    IBaseUserInfo setLoginTime(Long loginTime);
+    void setLoginTime(Long loginTime);
 
-    IBaseUserInfo setExpireTime(Long expireTime);
+    void setExpireTime(Long expireTime);
 
-    IBaseUserInfo setUser(IBaseUser user);
+    void setUser(IBaseUser user);
 
-    IBaseUserInfo setPermissionList(List<String> permissionList);
+    void setPermissionList(List<String> permissionList);
 
-    IBaseUserInfo setRoleList(List<String> roleList);
+    void setRoleList(List<String> roleList);
 }

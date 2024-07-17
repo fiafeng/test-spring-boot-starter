@@ -6,10 +6,6 @@ import java.util.Date;
 
 public interface IBaseComment extends IBasePojo {
 
-     Long getId();
-
-     void setId(Long id);
-
      Long getSenderUserId();
 
      void setSenderUserId(Long senderUserId);

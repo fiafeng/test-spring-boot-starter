@@ -30,7 +30,7 @@ public class DefaultSecurityUserTableInitServiceImpl implements IUserTableInitSe
         IUserMapper userMapper = FiafengSpringUtils.getBean(IUserMapper.class);
         if (userMapper instanceof BaseObjectMysqlMapper) {
             BaseObjectMysqlMapper baseMysqlMapper = (BaseObjectMysqlMapper) userMapper;
-            IBaseUser iBaseUser = baseMysqlMapper.selectObjectByObjectId(1L);
+            IBaseUser iBaseUser = (IBaseUser) baseMysqlMapper.selectObjectByObjectId(1L);
             if (iBaseUser == null) {
 
                 IBaseUser user = FiafengSpringUtils.getBean(IBaseUser.class);

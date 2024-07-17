@@ -6,9 +6,6 @@ import java.sql.Date;
 
 public interface IBaseBlog extends IBasePojo {
 
-    Long getId();
-
-    void setId(Long id);
 
     Long getUserId();
 

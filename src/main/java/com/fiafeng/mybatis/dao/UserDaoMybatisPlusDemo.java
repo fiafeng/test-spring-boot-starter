@@ -14,11 +14,11 @@ import java.util.List;
 @Mapper
 public interface UserDaoMybatisPlusDemo extends BaseMapper<DefaultUser>, IUserMapper {
 
-    default <T extends IBaseUser> int insertUser(T user) {
+    default  int insertUser(IBaseUser user) {
         return insert((DefaultUser) user);
     }
 
-    default <T extends IBaseUser> int updateUser(T user) {
+    default  int updateUser(IBaseUser user) {
         return updateById((DefaultUser) user);
     }
 
@@ -27,21 +27,19 @@ public interface UserDaoMybatisPlusDemo extends BaseMapper<DefaultUser>, IUserMa
         return deleteById(userId);
     }
 
-    default <T extends IBaseUser> List<T> selectUserListAll() {
+    default List<IBaseUser> selectUserListAll() {
         QueryWrapper<DefaultUser> queryWrapper = new QueryWrapper<>();
-        return (List<T>) selectList(queryWrapper);
+        return (List) selectList(queryWrapper);
     }
 
-    default <T extends IBaseUser> T selectUserByUserName(String username) {
+    default  IBaseUser selectUserByUserName(String username) {
         QueryWrapper<DefaultUser> queryWrapper = new QueryWrapper<>();
         FiafengMysqlUserProperties mysqlUserProperties = FiafengSpringUtils.getBean(FiafengMysqlUserProperties.class);
         queryWrapper.eq(mysqlUserProperties.getTableColName(), username);
-        IBaseUser baseUser = selectOne(queryWrapper);
-        return (T) baseUser;
+        return selectOne(queryWrapper);
     }
 
-    default <T extends IBaseUser> T selectUserByUserId(Long userId) {
-        IBaseUser baseUser = selectById(userId);
-        return (T) baseUser;
+    default  IBaseUser selectUserByUserId(Long userId) {
+        return selectById(userId);
     }
 }

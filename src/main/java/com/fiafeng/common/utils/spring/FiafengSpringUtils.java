@@ -1,7 +1,6 @@
 package com.fiafeng.common.utils.spring;
 
 import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeansException;
@@ -47,13 +46,20 @@ public final class FiafengSpringUtils implements BeanFactoryPostProcessor, Appli
         return beanFactory.getBeansOfType(type);
     }
 
+    public static <T> T getBeanObject(Class<T> tClass){
+        try {
+            return (T) getBean(tClass).getClass().newInstance();
+        } catch (Exception e) {
+            return getBean(tClass);
+        }
+    }
+
     /**
      * 主动向Spring容器中注册bean
      *
      * @param name               BeanName
      * @param clazz              注册的bean的类性
      * @param args               构造方法的必要参数，顺序和类型要求和clazz中定义的一致
-     * @param <T>
      * @return 返回注册到容器中的bean对象
      */
     public static <T> T registerBean(String name, Class<T> clazz, Object... args) {
@@ -81,11 +87,8 @@ public final class FiafengSpringUtils implements BeanFactoryPostProcessor, Appli
     /**
      * 获取对象
      *
-     * @param name
      * @return Object 一个以所给名字注册的bean的实例
-     * @throws BeansException
      */
-    @SuppressWarnings("unchecked")
     public static <T> T getBean(String name) throws BeansException {
         return (T) beanFactory.getBean(name);
     }
@@ -93,19 +96,16 @@ public final class FiafengSpringUtils implements BeanFactoryPostProcessor, Appli
     /**
      * 获取类型为requiredType的对象
      *
-     * @param clz
-     * @return
-     * @throws BeansException
+     * @param clz 实体类的Class对象
      */
     public static <T> T getBean(Class<T> clz) throws BeansException {
-        T result = (T) beanFactory.getBean(clz);
-        return result;
+        return beanFactory.getBean(clz);
     }
 
     /**
      * 如果BeanFactory包含一个与所给名称匹配的bean定义，则返回true
      *
-     * @param name
+     * @param name bean名字
      * @return boolean
      */
     public static boolean containsBean(String name) {
@@ -115,7 +115,7 @@ public final class FiafengSpringUtils implements BeanFactoryPostProcessor, Appli
     /**
      * 判断以给定名字注册的bean定义是一个singleton还是一个prototype。 如果与给定名字相应的bean定义没有被找到，将会抛出一个异常（NoSuchBeanDefinitionException）
      *
-     * @param name
+     * @param name bean名字
      * @return boolean
      * @throws NoSuchBeanDefinitionException
      */
@@ -124,9 +124,8 @@ public final class FiafengSpringUtils implements BeanFactoryPostProcessor, Appli
     }
 
     /**
-     * @param name
+     * @param name bean名字
      * @return Class 注册对象的类型
-     * @throws NoSuchBeanDefinitionException
      */
     public static Class<?> getType(String name) throws NoSuchBeanDefinitionException {
         return beanFactory.getType(name);
@@ -135,9 +134,8 @@ public final class FiafengSpringUtils implements BeanFactoryPostProcessor, Appli
     /**
      * 如果给定的bean名字在bean定义中有别名，则返回这些别名
      *
-     * @param name
-     * @return
-     * @throws NoSuchBeanDefinitionException
+     * @param name bean名字
+     * @return 别名列表
      */
     public static String[] getAliases(String name) throws NoSuchBeanDefinitionException {
         return beanFactory.getAliases(name);

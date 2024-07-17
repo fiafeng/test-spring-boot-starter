@@ -1,13 +1,12 @@
 package com.fiafeng.common.mapper;
 
-import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.mapper.Interface.IRoleMapper;
 import com.fiafeng.common.pojo.Interface.IBaseRole;
-import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import com.fiafeng.common.properties.FiafengRbacProperties;
+import com.fiafeng.common.utils.ObjectUtils;
+import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Component
-@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
+@BeanDefinitionOrderAnnotation()
 public class DefaultRoleMapper implements IRoleMapper {
 
     ConcurrentHashMap<Long, IBaseRole> roleMap;
@@ -31,30 +30,32 @@ public class DefaultRoleMapper implements IRoleMapper {
     public ConcurrentHashMap<Long, IBaseRole> getRoleMap() {
         if (roleMap == null) {
             roleMap = new ConcurrentHashMap<>();
-            roleMap.put(1L, FiafengSpringUtils.getBean(IBaseRole.class).setName(rbacProperties.roleAdminName).setId(1L));
+            IBaseRole baseRole = FiafengSpringUtils.getBeanObject(IBaseRole.class);
+            baseRole.setName(rbacProperties.roleAdminName);
+            baseRole.setId(1L);
+            roleMap.put(1L, baseRole);
         }
 
         return roleMap;
     }
 
     @Override
-    public <T extends IBaseRole> int insertRole(T role) {
+    public int insertRole(IBaseRole role) {
         if (role == null) {
             throw new ServiceException("参数不允许为空");
         }
         try {
             long andIncrement = atomicLong.getAndIncrement();
             role.setId(andIncrement);
-
             getRoleMap().put(andIncrement, role);
-        } catch (NullPointerException e) {
+        } catch (NullPointerException ignore) {
         }
 
         return 1;
     }
 
     @Override
-    public <T extends IBaseRole> int updateRole(T role) {
+    public int updateRole(IBaseRole role) {
         if (role.getId() == null) {
             throw new ServiceException("参数不允许为空");
         }
@@ -73,37 +74,36 @@ public class DefaultRoleMapper implements IRoleMapper {
     }
 
     @Override
-    public <T extends IBaseRole> List<T> selectRoleListALl() {
+    public List<IBaseRole> selectRoleListALl() {
         List<IBaseRole> iBaseRoleList = new ArrayList<>();
         for (HashMap.Entry<Long, IBaseRole> entry : getRoleMap().entrySet()) {
-            iBaseRoleList.add(JSONObject.from(entry.getValue()).toJavaObject(IBaseRole.class));
+            iBaseRoleList.add(ObjectUtils.getNewObejct(entry.getValue()));
         }
-        return (List<T>) iBaseRoleList;
+        return iBaseRoleList;
     }
 
     @Override
-    public <T extends IBaseRole> T selectRoleByRoleName(String roleName) {
+    public IBaseRole selectRoleByRoleName(String roleName) {
         if (roleName == null || roleName.isEmpty()) {
             return null;
         }
 
         for (HashMap.Entry<Long, IBaseRole> entry : getRoleMap().entrySet()) {
             if (roleName.equals(entry.getValue().getName())) {
-                return (T) FiafengSpringUtils.getBean(IBaseRole.class)
-                        .setId(entry.getKey())
-                        .setName(entry.getValue().getName());
+                return ObjectUtils.getNewObejct(entry.getValue());
             }
         }
         return null;
     }
 
     @Override
-    public <T extends IBaseRole> T selectRoleByRoleId(Long roleId) {
+    public IBaseRole selectRoleByRoleId(Long roleId) {
         if (getRoleMap().containsKey(roleId)) {
-            return (T) FiafengSpringUtils.getBean(IBaseRole.class).setId(roleId).setName(getRoleMap().get(roleId).getName());
+            return ObjectUtils.getNewObejct(getRoleMap().get(roleId));
         }
 
         return null;
     }
+
 
 }

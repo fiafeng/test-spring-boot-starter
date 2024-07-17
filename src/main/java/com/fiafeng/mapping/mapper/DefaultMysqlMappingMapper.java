@@ -12,12 +12,12 @@ import java.util.List;
 public class DefaultMysqlMappingMapper extends BaseObjectMysqlMapper implements IMappingMapper {
 
 
-    public <T extends IBaseMapping> int insertMapping(T mapping) {
+    public int insertMapping(IBaseMapping mapping) {
         return insertObject(mapping);
     }
 
     @Override
-    public <T extends IBaseMapping> int insertMappingList(List<T> mapping) {
+    public int insertMappingList(List<IBaseMapping> mapping) {
         insertObjectList(mapping);
         return 1;
     }
@@ -35,22 +35,22 @@ public class DefaultMysqlMappingMapper extends BaseObjectMysqlMapper implements 
 
 
     @Override
-    public <T extends IBaseMapping> int updateMapping(T mapping) {
+    public  int updateMapping(IBaseMapping mapping) {
         return updateObject(mapping);
     }
 
     @Override
-    public <T extends IBaseMapping> List<T> selectMappingListAll() {
+    public  List<IBaseMapping> selectMappingListAll() {
         return selectObjectListAll();
     }
 
 
-    public <T extends IBaseMapping> T selectMappingById(Long mappingId) {
-        return selectObjectByObjectId(mappingId);
+    public  IBaseMapping selectMappingById(Long mappingId) {
+        return (IBaseMapping) selectObjectByObjectId(mappingId);
     }
 
-    public <T extends IBaseMapping> T selectMappingByUrl(String url) {
-        return selectObjectByColValue("url", url);
+    public  IBaseMapping selectMappingByUrl(String url) {
+        return (IBaseMapping) selectObjectByColValue("url", url);
     }
 
 }

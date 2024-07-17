@@ -2,10 +2,12 @@ package com.fiafeng.mapping.pojo.vo;
 
 import com.fiafeng.mapping.pojo.DefaultMapping;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class RequestMappingDataVO extends DefaultMapping {
 

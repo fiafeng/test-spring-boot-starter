@@ -16,13 +16,11 @@ public interface IBaseUser extends IBasePojo {
 
     String getPassword();
 
-    Long getId();
+    void setUsername(String username);
 
-    IBaseUser setUsername(String username);
+    void setPassword(String password);
 
-    IBaseUser setPassword(String password);
-
-    IBaseUser setId(Long id);
+    void setId(Long id);
 
 
 }

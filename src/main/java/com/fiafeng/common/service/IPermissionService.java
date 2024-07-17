@@ -19,10 +19,10 @@ public interface IPermissionService {
 
     boolean updatePermission(IBasePermission permission);
 
-    <T extends IBasePermission> T queryPermissionByPermissionId(Long permissionId);
+     IBasePermission queryPermissionByPermissionId(Long permissionId);
 
-    <T extends IBasePermission> T queryPermissionByPermissionName(String permissionName);
+     IBasePermission queryPermissionByPermissionName(String permissionName);
 
-    <T extends IBasePermission> List<T> queryPermissionListALl();
+     List<IBasePermission> queryPermissionListALl();
 
 }

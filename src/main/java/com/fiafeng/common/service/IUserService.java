@@ -16,19 +16,19 @@ public interface IUserService {
 
     int isExistUserId(Long userId);
 
-    <T extends IBaseUser> int insertUser(T user);
+    int insertUser(IBaseUser user);
 
-    <T extends IBaseUser> int updateUser(T user);
+    int updateUser(IBaseUser user);
 
     int deletedUser(Long userId);
 
-    <T extends IBaseUser> List<T> selectUserListAll();
+    List<IBaseUser> selectUserListAll();
 
 
     @Nullable
-    <T extends IBaseUser> T selectUserByUserName(String username);
+    IBaseUser selectUserByUserName(String username);
 
 
     @Nullable
-    <T extends IBaseUser> T selectUserByUserId(Long userId);
+    IBaseUser selectUserByUserId(Long userId);
 }

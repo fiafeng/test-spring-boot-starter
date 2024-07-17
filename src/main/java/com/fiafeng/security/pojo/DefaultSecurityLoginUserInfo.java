@@ -7,7 +7,6 @@ import com.fiafeng.common.service.IUserRoleService;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import com.fiafeng.security.service.IUserDetails;
 import lombok.Data;
-import lombok.experimental.Accessors;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -24,7 +23,6 @@ import java.util.stream.Collectors;
 
 
 @Data
-@Accessors(chain = true)
 @PojoAnnotation
 public class DefaultSecurityLoginUserInfo implements Serializable, IUserDetails {
 
@@ -69,17 +67,15 @@ public class DefaultSecurityLoginUserInfo implements Serializable, IUserDetails 
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (permissionList != null && !permissionList.isEmpty())
-            return permissionList.stream().
-                    map(SimpleGrantedAuthority::new)
-                    .collect(Collectors.toList());
+        if (permissionList != null && !permissionList.isEmpty()) {
+        }
         else {
             permissionList = FiafengSpringUtils.getBean(IUserRoleService.class).queryUserPermissionNameListByUserId(user.getId());
 //            permissionList = new ArrayList<>();
-            return permissionList.stream().
-                    map(SimpleGrantedAuthority::new)
-                    .collect(Collectors.toList());
         }
+        return permissionList.stream().
+                map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -134,6 +130,15 @@ public class DefaultSecurityLoginUserInfo implements Serializable, IUserDetails 
         return true;
     }
 
+    @Override
+    public Long getId() {
+        return null;
+    }
+
+    @Override
+    public void setId(Long id) {
+
+    }
 }
 
 

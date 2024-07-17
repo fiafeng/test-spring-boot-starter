@@ -1,17 +1,16 @@
 package com.fiafeng.common.service.Impl;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.common.constant.ModelConstant;
-import com.fiafeng.common.properties.FiafengRbacProperties;
-import com.fiafeng.common.utils.spring.FiafengMessageUtils;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.mapper.Interface.IPermissionMapper;
 import com.fiafeng.common.mapper.Interface.IRolePermissionMapper;
 import com.fiafeng.common.mapper.Interface.IUserRoleMapper;
 import com.fiafeng.common.pojo.Interface.IBasePermission;
 import com.fiafeng.common.pojo.Interface.IBaseRolePermission;
+import com.fiafeng.common.properties.FiafengRbacProperties;
 import com.fiafeng.common.service.ICacheService;
 import com.fiafeng.common.service.IPermissionService;
+import com.fiafeng.common.utils.spring.FiafengMessageUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +24,7 @@ import java.util.Objects;
  */
 
 @Service
-@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
+@BeanDefinitionOrderAnnotation()
 public class DefaultPermissionsServiceImpl implements IPermissionService {
 
     @Autowired
@@ -154,17 +153,17 @@ public class DefaultPermissionsServiceImpl implements IPermissionService {
     }
 
     @Override
-    public <T extends IBasePermission> T queryPermissionByPermissionId(Long permissionId) {
+    public  IBasePermission queryPermissionByPermissionId(Long permissionId) {
         return permissionMapper.selectPermissionByPermissionId(permissionId);
     }
 
     @Override
-    public <T extends IBasePermission> T queryPermissionByPermissionName(String permissionName) {
+    public  IBasePermission queryPermissionByPermissionName(String permissionName) {
         return permissionMapper.selectPermissionByPermissionName(permissionName);
     }
 
     @Override
-    public <T extends IBasePermission> List<T> queryPermissionListALl() {
+    public  List<IBasePermission> queryPermissionListALl() {
         return permissionMapper.selectPermissionListAll();
     }
 

@@ -8,11 +8,8 @@ import com.fiafeng.common.pojo.Interface.base.IBasePojo;
  * @description
  */
 public interface IBaseRole extends IBasePojo {
-    Long getId();
-
-    IBaseRole setId(Long id);
 
     String getName();
 
-    IBaseRole setName(String name);
+    void setName(String name);
 }

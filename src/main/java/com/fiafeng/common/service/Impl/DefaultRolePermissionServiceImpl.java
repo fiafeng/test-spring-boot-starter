@@ -1,8 +1,6 @@
 package com.fiafeng.common.service.Impl;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.common.constant.ModelConstant;
-import com.fiafeng.common.utils.spring.FiafengMessageUtils;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.mapper.Interface.IPermissionMapper;
 import com.fiafeng.common.mapper.Interface.IRoleMapper;
@@ -12,8 +10,8 @@ import com.fiafeng.common.pojo.Interface.IBasePermission;
 import com.fiafeng.common.pojo.Interface.IBaseRolePermission;
 import com.fiafeng.common.service.ICacheService;
 import com.fiafeng.common.service.IRolePermissionService;
+import com.fiafeng.common.utils.spring.FiafengMessageUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -27,14 +25,10 @@ import java.util.List;
  */
 
 @Service
-@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
+@BeanDefinitionOrderAnnotation()
 public class DefaultRolePermissionServiceImpl implements IRolePermissionService {
     @Autowired
     ICacheService cacheService;
-
-    // 令牌有效期（默认60分钟）
-    @Value("${fiafeng.token.expireTime:60}")
-    private Long expireTime;
 
     @Autowired
     public IPermissionMapper permissionMapper ;
@@ -55,7 +49,7 @@ public class DefaultRolePermissionServiceImpl implements IRolePermissionService 
 
 
     @Override
-    public <T extends IBaseRolePermission> boolean insertRolePermission(T rolePermission) {
+    public boolean insertRolePermission(IBaseRolePermission rolePermission) {
         if (rolePermission == null || rolePermission.getPermissionId() == null || rolePermission.getRoleId() == null){
 //            throw new ServiceException("有参数为空");
             throw new ServiceException(FiafengMessageUtils.message("rbac.common.parameterIsEmpty"));
@@ -84,7 +78,7 @@ public class DefaultRolePermissionServiceImpl implements IRolePermissionService 
     }
 
     @Override
-    public <T extends IBaseRolePermission> boolean deletedRolePermission(T rolePermission) {
+    public  boolean deletedRolePermission(IBaseRolePermission rolePermission) {
         if (rolePermission == null || rolePermission.getPermissionId() == null || rolePermission.getRoleId() == null){
 //            throw new ServiceException("有参数为空");
             throw new ServiceException(FiafengMessageUtils.message("rbac.common.parameterIsEmpty"));
@@ -141,12 +135,12 @@ public class DefaultRolePermissionServiceImpl implements IRolePermissionService 
     }
 
     @Override
-    public <T extends IBasePermission> List<T> queryPermissionListByRoleId(Long roleId) {
+    public  List<IBasePermission> queryPermissionListByRoleId(Long roleId) {
         List<IBasePermission> permissionList = new ArrayList<>();
         for (Long permissionId : rolePermissionMapper.selectPermissionIdListByRoleId(roleId)) {
             permissionList.add(permissionMapper.selectPermissionByPermissionId(permissionId));
         }
-        return (List<T>) permissionList;
+        return permissionList;
     }
 
     @Override

@@ -18,12 +18,12 @@ public class DefaultMysqlRoleMapper extends BaseObjectMysqlMapper implements IRo
 
 
     @Override
-    public <T extends IBaseRole> int insertRole(T role) {
+    public  int insertRole(IBaseRole role) {
         return insertObject(role);
     }
 
     @Override
-    public <T extends IBaseRole> int updateRole(T role) {
+    public  int updateRole(IBaseRole role) {
         return updateObject(role);
     }
 
@@ -33,17 +33,17 @@ public class DefaultMysqlRoleMapper extends BaseObjectMysqlMapper implements IRo
     }
 
     @Override
-    public <T extends IBaseRole> List<T> selectRoleListALl() {
+    public  List<IBaseRole> selectRoleListALl() {
         return selectObjectListAll();
     }
 
     @Override
-    public <T extends IBaseRole> T selectRoleByRoleName(String roleName) {
-        return selectObjectByObjectName(getTableColName(), roleName);
+    public  IBaseRole selectRoleByRoleName(String roleName) {
+        return (IBaseRole) selectObjectByObjectName(getTableColName(), roleName);
     }
 
     @Override
-    public <T extends IBaseRole> T selectRoleByRoleId(Long roleId) {
-        return selectObjectByObjectId(roleId);
+    public  IBaseRole selectRoleByRoleId(Long roleId) {
+        return (IBaseRole) selectObjectByObjectId(roleId);
     }
 }

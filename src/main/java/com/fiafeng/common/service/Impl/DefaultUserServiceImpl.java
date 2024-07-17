@@ -1,7 +1,6 @@
 package com.fiafeng.common.service.Impl;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.mapper.Interface.IUserMapper;
 import com.fiafeng.common.pojo.Interface.IBaseUser;
@@ -19,7 +18,7 @@ import java.util.List;
  * @description
  */
 @Service
-@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
+@BeanDefinitionOrderAnnotation()
 public class DefaultUserServiceImpl implements IUserService {
 
 
@@ -28,16 +27,14 @@ public class DefaultUserServiceImpl implements IUserService {
 
     @Override
     @Nullable
-    public <T extends IBaseUser> T selectUserByUserName(String username) {
-        IBaseUser user = userMapper.selectUserByUserName(username);
-        return (T) user;
+    public  IBaseUser selectUserByUserName(String username) {
+        return userMapper.selectUserByUserName(username);
     }
 
     @Override
     @Nullable
-    public <T extends IBaseUser> T selectUserByUserId(Long userId) throws ServiceException{
-        IBaseUser user = userMapper.selectUserByUserId(userId);
-        return (T) user;
+    public  IBaseUser selectUserByUserId(Long userId) throws ServiceException{
+        return userMapper.selectUserByUserId(userId);
     }
 
     @Override
@@ -46,7 +43,7 @@ public class DefaultUserServiceImpl implements IUserService {
     }
 
     @Override
-    public <T extends IBaseUser> int insertUser(T user) {
+    public  int insertUser(IBaseUser user) {
 
         IBaseUser defaultUser = userMapper.selectUserByUserName(user.getUsername());
         if (defaultUser != null){
@@ -58,7 +55,7 @@ public class DefaultUserServiceImpl implements IUserService {
     }
 
     @Override
-    public <T extends IBaseUser> int updateUser(T user) {
+    public  int updateUser(IBaseUser user) {
         if (selectUserByUserId(user.getId()) == null){
             throw new ServiceException("更新用户信息时,根据Id没有找到对应的用户信息");
         }

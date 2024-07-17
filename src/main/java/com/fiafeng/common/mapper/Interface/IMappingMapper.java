@@ -5,22 +5,21 @@ import com.fiafeng.mapping.pojo.Interface.IBaseMapping;
 import java.util.List;
 
 public interface IMappingMapper extends IMapper{
+    int insertMapping(IBaseMapping mapping);
 
-    <T extends IBaseMapping> int insertMapping(T mapping);
+    int insertMappingList(List<IBaseMapping> mappingList);
 
-    <T extends IBaseMapping> int insertMappingList(List<T> mappingList);
+     List<IBaseMapping> selectMappingListAll();
 
-    <T extends IBaseMapping> List<T> selectMappingListAll();
-
-    <T extends IBaseMapping> int updateMapping(T mapping);
+     int updateMapping(IBaseMapping mapping);
 
 
     int deletedMappingById(Long mappingId);
 
     int deletedMappingList(List<Long> mappingId);
 
-    <T extends IBaseMapping> T selectMappingById(Long mappingId);
+     IBaseMapping selectMappingById(Long mappingId);
 
 
-    <T extends IBaseMapping> T selectMappingByUrl(String url);
+     IBaseMapping selectMappingByUrl(String url);
 }

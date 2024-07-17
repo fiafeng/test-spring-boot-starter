@@ -12,19 +12,16 @@ import java.util.HashSet;
  */
 public interface IBaseMapping extends IBasePojo {
 
-    Long getId();
-
-    IBaseMapping setId(Long id);
 
     String getUrl();
 
-    IBaseMapping setUrl(String url);
+    void setUrl(String url);
 
     HashSet<String> getRoleHashSet();
 
-    IBaseMapping setRoleHashSet(HashSet<String> roleHashSet);
+    void setRoleHashSet(HashSet<String> roleHashSet);
 
     HashSet<String> getPermissionHashSet();
 
-    IBaseMapping setPermissionHashSet(HashSet<String> permissionHashSet);
+    void setPermissionHashSet(HashSet<String> permissionHashSet);
 }

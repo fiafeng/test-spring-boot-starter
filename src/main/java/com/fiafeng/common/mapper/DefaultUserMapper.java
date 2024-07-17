@@ -1,12 +1,11 @@
 package com.fiafeng.common.mapper;
 
-import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.mapper.Interface.IUserMapper;
 import com.fiafeng.common.pojo.Interface.IBaseUser;
-import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import com.fiafeng.common.properties.FiafengRbacProperties;
+import com.fiafeng.common.utils.ObjectUtils;
+import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -23,7 +22,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @description
  */
 
-@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
+@BeanDefinitionOrderAnnotation()
 @Component
 @Primary
 public class DefaultUserMapper implements IUserMapper {
@@ -43,7 +42,7 @@ public class DefaultUserMapper implements IUserMapper {
                 rbacProperties = FiafengSpringUtils.getBean(FiafengRbacProperties.class);
             }
 
-            IBaseUser defaultUser = FiafengSpringUtils.getBean(IBaseUser.class);
+            IBaseUser defaultUser = FiafengSpringUtils.getBeanObject(IBaseUser.class);
             defaultUser.setId(1L);
             defaultUser.setUsername(rbacProperties.defaultUserName);
             defaultUser.setPassword(rbacProperties.defaultUserPassword);
@@ -82,31 +81,31 @@ public class DefaultUserMapper implements IUserMapper {
     }
 
     @Override
-    public <T extends IBaseUser> List<T> selectUserListAll() {
+    public List<IBaseUser> selectUserListAll() {
         List<IBaseUser> baseUserList = new ArrayList<>();
         for (Map.Entry<Long, IBaseUser> entry : getUserMap().entrySet()) {
-            baseUserList.add(JSONObject.from(entry.getValue()).toJavaObject(IBaseUser.class));
+            baseUserList.add(ObjectUtils.getNewObejct(entry.getValue()));
         }
-        return (List<T>) baseUserList;
+        return baseUserList;
     }
 
     @Override
-    public <T extends IBaseUser> T selectUserByUserName(String userName) {
+    public  IBaseUser selectUserByUserName(String userName) {
         if (userName == null || userName.isEmpty()) {
             return null;
         }
         for (Map.Entry<Long, IBaseUser> entry : getUserMap().entrySet()) {
             if (userName.equals(entry.getValue().getUsername())){
-                return (T) JSONObject.from(entry.getValue()).toJavaObject(IBaseUser.class);
+                return ObjectUtils.getNewObejct(entry.getValue());
             }
         }
         return null;
     }
 
     @Override
-    public <T extends IBaseUser> T selectUserByUserId(Long userId) {
+    public  IBaseUser selectUserByUserId(Long userId) {
         if (getUserMap().containsKey(userId)) {
-            return (T) JSONObject.from(getUserMap().get(userId)).toJavaObject(IBaseUser.class);
+            return ObjectUtils.getNewObejct(getUserMap().get(userId));
         }
 
         return null;

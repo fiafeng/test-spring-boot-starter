@@ -16,12 +16,12 @@ public class DefaultMysqlRolePermissionMapper extends BaseObjectMysqlMapper impl
 
 
     @Override
-    public <T extends IBaseRolePermission> int insertRolePermission(T rolePermission) {
+    public int insertRolePermission(IBaseRolePermission rolePermission) {
         return insertObject(rolePermission);
     }
 
     @Override
-    public <T extends IBaseRolePermission> int deleteRolePermission(T rolePermission) {
+    public int deleteRolePermission(IBaseRolePermission rolePermission) {
         return deletedObjectById(rolePermission.getId());
     }
 
@@ -66,7 +66,7 @@ public class DefaultMysqlRolePermissionMapper extends BaseObjectMysqlMapper impl
 
     @Override
     public List<Long> selectPermissionIdListByRoleId(Long roleId) {
-        List<IBaseRolePermission> objectList = selectObjectByObjectId(roleId);
+        List<IBaseRolePermission> objectList = (List<IBaseRolePermission>) selectObjectByObjectId(roleId);
         List<Long> permissionIdList = new ArrayList<>();
         for (IBaseRolePermission iBaseRolePermission : objectList) {
             permissionIdList.add(iBaseRolePermission.getPermissionId());
@@ -75,18 +75,18 @@ public class DefaultMysqlRolePermissionMapper extends BaseObjectMysqlMapper impl
     }
 
     @Override
-    public <T extends IBaseRolePermission> T selectRolePermissionIdByRoleIdPermissionId(T rolePermission) {
-        return selectObjectByName1Name2AndValue1Value2(properties.getRoleIdName(), properties.getPermissionIdName(), rolePermission.getRoleId(), rolePermission.getPermissionId());
+    public IBaseRolePermission selectRolePermissionIdByRoleIdPermissionId(IBaseRolePermission rolePermission) {
+        return (IBaseRolePermission) selectObjectByName1Name2AndValue1Value2(properties.getRoleIdName(), properties.getPermissionIdName(), rolePermission.getRoleId(), rolePermission.getPermissionId());
     }
 
     @Override
-    public <T extends IBaseRolePermission> List<T> selectPermissionListByRoleId(Long roleId) {
-        return selectObjectByObjectName(properties.getRoleIdName(), roleId);
+    public List<IBaseRolePermission> selectPermissionListByRoleId(Long roleId) {
+        return (List<IBaseRolePermission>) selectObjectByObjectName(properties.getRoleIdName(), roleId);
 
     }
 
     @Override
-    public <T extends IBaseRolePermission> List<T> selectPermissionListByPermissionId(Long permissionId) {
-        return selectObjectByObjectName(properties.getRoleIdName(), permissionId);
+    public List<IBaseRolePermission> selectPermissionListByPermissionId(Long permissionId) {
+        return (List<IBaseRolePermission>) selectObjectByObjectName(properties.getRoleIdName(), permissionId);
     }
 }

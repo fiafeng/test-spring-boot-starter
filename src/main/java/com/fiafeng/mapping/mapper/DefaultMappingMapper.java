@@ -1,7 +1,6 @@
 package com.fiafeng.mapping.mapper;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.mapper.Interface.IMappingMapper;
 import com.fiafeng.mapping.pojo.Interface.IBaseMapping;
 import org.springframework.stereotype.Component;
@@ -11,7 +10,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
+@BeanDefinitionOrderAnnotation()
 @Component
 public class DefaultMappingMapper implements IMappingMapper {
 
@@ -48,7 +47,7 @@ public class DefaultMappingMapper implements IMappingMapper {
 
 
     @Override
-    public <T extends IBaseMapping> int insertMapping(T mapping) {
+    public int insertMapping(IBaseMapping mapping) {
         ConcurrentHashMap<String, Long> hashMap = getLongConcurrentHashMap();
         if (hashMap.getOrDefault(mapping.getUrl(), null) == null){
             long andIncrement = atomicLong.getAndIncrement();
@@ -61,7 +60,7 @@ public class DefaultMappingMapper implements IMappingMapper {
     }
 
     @Override
-    public <T extends IBaseMapping> int insertMappingList(List<T> mappingList) {
+    public int insertMappingList(List<IBaseMapping> mappingList) {
         for (IBaseMapping baseMapping : mappingList) {
             insertMapping(baseMapping);
         }
@@ -69,13 +68,12 @@ public class DefaultMappingMapper implements IMappingMapper {
     }
 
     @Override
-    public <T extends IBaseMapping> List<T> selectMappingListAll(){
-        List<T> list = (List<T>) new ArrayList<>(getMappingListMap().values());
-        return list;
+    public  List<IBaseMapping> selectMappingListAll(){
+        return new ArrayList<>(getMappingListMap().values());
     }
 
     @Override
-    public <T extends IBaseMapping> int updateMapping(T mapping) {
+    public  int updateMapping(IBaseMapping mapping) {
         if (getMappingListMap().containsKey(mapping.getId())){
             IBaseMapping iBaseMapping = getMappingListMap().get(mapping.getId());
             if (mapping.getUrl() != null){
@@ -115,17 +113,17 @@ public class DefaultMappingMapper implements IMappingMapper {
     }
 
     @Override
-    public <T extends IBaseMapping> T selectMappingById(Long mappingId) {
+    public  IBaseMapping selectMappingById(Long mappingId) {
         if (getMappingListMap().get(mappingId) == null){
             return null;
         }
-        return (T) getMappingListMap().get(mappingId);
+        return getMappingListMap().get(mappingId);
     }
 
     @Override
-    public <T extends IBaseMapping> T selectMappingByUrl(String url) {
+    public  IBaseMapping selectMappingByUrl(String url) {
         if (getLongConcurrentHashMap().containsKey(url)){
-            return (T) getMappingListMap().get(getMappingListMap().get(url));
+            return getMappingListMap().get(getLongConcurrentHashMap().get(url));
         }
 
         return null;

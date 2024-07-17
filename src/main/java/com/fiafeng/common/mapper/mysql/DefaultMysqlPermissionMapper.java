@@ -15,11 +15,11 @@ public class DefaultMysqlPermissionMapper extends BaseObjectMysqlMapper implemen
 
 
 
-    public <T extends IBasePermission> int insertPermission(T permission) {
+    public  int insertPermission(IBasePermission permission) {
         return insertObject(permission);
     }
 
-    public <T extends IBasePermission> int updatePermission(T permission) {
+    public  int updatePermission(IBasePermission permission) {
         return updateObject(permission);
     }
 
@@ -27,7 +27,7 @@ public class DefaultMysqlPermissionMapper extends BaseObjectMysqlMapper implemen
         return deletedObjectById(permissionId);
     }
 
-    public <T extends IBasePermission> int updatePermissionList(List<T> permissionList) {
+    public  int updatePermissionList(List<IBasePermission> permissionList) {
         return updateObjectList(permissionList);
     }
 
@@ -35,20 +35,20 @@ public class DefaultMysqlPermissionMapper extends BaseObjectMysqlMapper implemen
         return deletedObjectByIdList(permissionIdList);
     }
 
-    public <T extends IBasePermission> List<T> selectPermissionListByPermissionIdList(List<Long> permissionIdList) {
+    public  List<IBasePermission> selectPermissionListByPermissionIdList(List<Long> permissionIdList) {
         return selectObjectListByObjectIdList(permissionIdList);
     }
 
 
-    public <T extends IBasePermission> List<T> selectPermissionListAll() {
+    public  List<IBasePermission> selectPermissionListAll() {
         return selectObjectListAll();
     }
 
-    public <T extends IBasePermission> T selectPermissionByPermissionName(@NonNull String permissionName) {
-        return selectObjectByObjectName(getTableColName(), permissionName);
+    public  IBasePermission selectPermissionByPermissionName(@NonNull String permissionName) {
+        return (IBasePermission) selectObjectByObjectName(getTableColName(), permissionName);
     }
 
-    public <T extends IBasePermission> T selectPermissionByPermissionId(Long permissionId) {
-        return selectObjectByObjectId(permissionId);
+    public  IBasePermission selectPermissionByPermissionId(Long permissionId) {
+        return (IBasePermission) selectObjectByObjectId(permissionId);
     }
 }

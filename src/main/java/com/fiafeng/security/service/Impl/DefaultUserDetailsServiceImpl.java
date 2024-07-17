@@ -45,9 +45,9 @@ public class DefaultUserDetailsServiceImpl implements UserDetailsService {
 
     public UserDetails createLoginUser(IBaseUser user) {
         IUserDetails userDetails = FiafengSpringUtils.getBean(IUserDetails.class);
-        userDetails.setUser(user)
-                .setPermissionList(userRoleService.queryUserPermissionNameListByUserId(user.getId()))
-                .setRoleList(new ArrayList<>(userRoleService.queryUserRoleNameListByUserId(user.getId())));
+        userDetails.setUser(user);
+        userDetails.setPermissionList(userRoleService.queryUserPermissionNameListByUserId(user.getId()));
+        userDetails.setRoleList(new ArrayList<>(userRoleService.queryUserRoleNameListByUserId(user.getId())));
         return userDetails;
     }
 }

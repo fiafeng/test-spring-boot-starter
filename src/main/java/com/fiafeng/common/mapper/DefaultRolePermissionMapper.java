@@ -1,11 +1,10 @@
 package com.fiafeng.common.mapper;
 
-import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.mapper.Interface.IRolePermissionMapper;
 import com.fiafeng.common.pojo.Interface.IBaseRolePermission;
+import com.fiafeng.common.utils.ObjectUtils;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 
-@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
+@BeanDefinitionOrderAnnotation()
 @Component
 public class DefaultRolePermissionMapper implements IRolePermissionMapper {
 
@@ -28,7 +27,7 @@ public class DefaultRolePermissionMapper implements IRolePermissionMapper {
     public ConcurrentHashMap<Long, IBaseRolePermission> getRolePermissionMap() {
         if (rolePermissionMap == null) {
             rolePermissionMap = new ConcurrentHashMap<>();
-            IBaseRolePermission iBaseRolePermission = FiafengSpringUtils.getBean(IBaseRolePermission.class);
+            IBaseRolePermission iBaseRolePermission = FiafengSpringUtils.getBeanObject(IBaseRolePermission.class);
 
             rolePermissionMap.put(1L, iBaseRolePermission);
         }
@@ -74,8 +73,9 @@ public class DefaultRolePermissionMapper implements IRolePermissionMapper {
             getRolePermissionMap().remove(id);
         }
         for (Long permissionId : permissionIdList) {
-            IBaseRolePermission iBaseRolePermission = FiafengSpringUtils.getBean(IBaseRolePermission.class);
-            iBaseRolePermission.setPermissionId(permissionId).setRoleId(roleId);
+            IBaseRolePermission iBaseRolePermission = FiafengSpringUtils.getBeanObject(IBaseRolePermission.class);
+            iBaseRolePermission.setPermissionId(permissionId);
+            iBaseRolePermission.setRoleId(roleId);
             insertRolePermission(iBaseRolePermission);
         }
 
@@ -96,16 +96,15 @@ public class DefaultRolePermissionMapper implements IRolePermissionMapper {
 
     /**
      * @param rolePermission 角色权限信息
-     * @param <T>            角色权限信息实体类
      * @return 1
      */
     @Override
-    public <T extends IBaseRolePermission> T selectRolePermissionIdByRoleIdPermissionId(T rolePermission) {
+    public IBaseRolePermission selectRolePermissionIdByRoleIdPermissionId(IBaseRolePermission rolePermission) {
 
         for (IBaseRolePermission iBaseRolePermission : getRolePermissionMap().values()) {
             if (Objects.equals(iBaseRolePermission.getRoleId(), rolePermission.getRoleId())
                     && Objects.equals(iBaseRolePermission.getPermissionId(), rolePermission.getPermissionId())) {
-                return (T) JSONObject.from(iBaseRolePermission).toJavaObject(IBaseRolePermission.class);
+                return ObjectUtils.getNewObejct(iBaseRolePermission);
 
             }
         }
@@ -114,27 +113,26 @@ public class DefaultRolePermissionMapper implements IRolePermissionMapper {
     }
 
     @Override
-    public <T extends IBaseRolePermission> List<T> selectPermissionListByRoleId(Long roleId) {
+    public List<IBaseRolePermission> selectPermissionListByRoleId(Long roleId) {
         List<IBaseRolePermission> rolePermissionList = new ArrayList<>();
         for (IBaseRolePermission iBaseRolePermission : getRolePermissionMap().values()) {
             if (Objects.equals(iBaseRolePermission.getRoleId(), roleId)) {
-                rolePermissionList.add(JSONObject.from(iBaseRolePermission).toJavaObject(IBaseRolePermission.class));
+                rolePermissionList.add(ObjectUtils.getNewObejct(iBaseRolePermission));
             }
         }
 
-        return (List<T>) rolePermissionList;
+        return rolePermissionList;
     }
 
     @Override
-    public <T extends IBaseRolePermission> List<T> selectPermissionListByPermissionId(Long permissionId) {
+    public List<IBaseRolePermission> selectPermissionListByPermissionId(Long permissionId) {
         List<IBaseRolePermission> rolePermissionList = new ArrayList<>();
         for (IBaseRolePermission iBaseRolePermission : getRolePermissionMap().values()) {
             if (Objects.equals(iBaseRolePermission.getPermissionId(), permissionId)) {
-                rolePermissionList.add(
-                        JSONObject.from(iBaseRolePermission).toJavaObject(IBaseRolePermission.class));
+                rolePermissionList.add(ObjectUtils.getNewObejct(iBaseRolePermission));
             }
         }
-        return (List<T>) rolePermissionList;
+        return rolePermissionList;
     }
 
 }

@@ -7,15 +7,15 @@ import java.util.List;
 public interface IRoleMapper extends IMapper {
 
 
-    <T extends IBaseRole> int insertRole(T role);
+     int insertRole(IBaseRole role);
 
-    <T extends IBaseRole> int updateRole(T role);
+     int updateRole(IBaseRole role);
 
     int deletedRole(Long roleId);
 
-    <T extends IBaseRole> List<T> selectRoleListALl();
+     List<IBaseRole> selectRoleListALl();
 
-    <T extends IBaseRole> T selectRoleByRoleName(String roleName);
+     IBaseRole selectRoleByRoleName(String roleName);
 
-    <T extends IBaseRole> T selectRoleByRoleId(Long roleId);
+     IBaseRole selectRoleByRoleId(Long roleId);
 }

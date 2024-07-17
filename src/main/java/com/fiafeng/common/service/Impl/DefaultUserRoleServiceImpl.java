@@ -2,15 +2,14 @@ package com.fiafeng.common.service.Impl;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.constant.CacheConstants;
-import com.fiafeng.common.constant.ModelConstant;
-import com.fiafeng.common.mapper.Interface.*;
-import com.fiafeng.common.utils.spring.FiafengMessageUtils;
 import com.fiafeng.common.exception.ServiceException;
+import com.fiafeng.common.mapper.Interface.*;
 import com.fiafeng.common.pojo.Interface.IBasePermission;
 import com.fiafeng.common.pojo.Interface.IBaseRole;
 import com.fiafeng.common.pojo.Interface.IBaseUserRole;
 import com.fiafeng.common.service.ICacheService;
 import com.fiafeng.common.service.IUserRoleService;
+import com.fiafeng.common.utils.spring.FiafengMessageUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +23,7 @@ import java.util.List;
  * @description
  */
 @Service
-@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
+@BeanDefinitionOrderAnnotation()
 public class DefaultUserRoleServiceImpl implements IUserRoleService{
 
     @Autowired
@@ -49,7 +48,7 @@ public class DefaultUserRoleServiceImpl implements IUserRoleService{
     UpdateCacheServiceImpl updateCacheService;
 
     @Override
-    public <T extends IBaseUserRole> boolean insertUserRole(T userRole) {
+    public boolean insertUserRole(IBaseUserRole userRole) {
         if (userMapper.selectUserByUserId(userRole.getUserId()) == null) {
 //            throw new ServiceException("找不到用户信息");
             throw new ServiceException(FiafengMessageUtils.message("rbac.userRole.userInfoNotExist"));
@@ -106,11 +105,10 @@ public class DefaultUserRoleServiceImpl implements IUserRoleService{
 
 
     /**
-     * @param userRole
-     * @param <T>
+     * @param userRole 实体类
      */
     @Override
-    public <T extends IBaseUserRole> void deletedUserRole(T userRole) {
+    public void deletedUserRole(IBaseUserRole userRole) {
         if (userRole.getUserId() == 1L && userRole.getRoleId() == 1L){
             throw new ServiceException(FiafengMessageUtils.message("rbac.userRole.deletedAdminUser"));
         }
@@ -128,7 +126,7 @@ public class DefaultUserRoleServiceImpl implements IUserRoleService{
     }
 
     @Override
-    public <T extends IBaseUserRole> void deletedUserRoleById(Long id) {
+    public void deletedUserRoleById(Long id) {
         IBaseUserRole userRole = userRoleMapper.selectRoleListById(id);
         if (userRole == null){
 //            throw new ServiceException("找不到当前这条信息");
@@ -143,17 +141,17 @@ public class DefaultUserRoleServiceImpl implements IUserRoleService{
 
 
     @Override
-    public <T extends IBaseRole> List<T> queryUserRoleListByRoleId(Long roleId) {
+    public  List<IBaseRole> queryUserRoleListByRoleId(Long roleId) {
 
         List<IBaseRole> roleList = new ArrayList<>();
         for (IBaseUserRole iBaseUserRole : userRoleMapper.selectRoleListByRoleId(roleId)) {
             roleList.add(roleMapper.selectRoleByRoleId(iBaseUserRole.getId()));
         }
-        return (List<T>) roleList;
+        return roleList;
     }
 
     @Override
-    public <T extends IBasePermission> List<T> queryUserPermissionListByUserId(Long userId) {
+    public List<IBasePermission> queryUserPermissionListByUserId(Long userId) {
         if (userMapper.selectUserByUserId(userId) == null) {
 //            throw new ServiceException("找不到用户信息");
             throw new ServiceException(FiafengMessageUtils.message("rbac.userRole.userInfoNotExist"));
@@ -170,7 +168,7 @@ public class DefaultUserRoleServiceImpl implements IUserRoleService{
         for (Long permissionId : permissionIdHashSet) {
             permissionList.add(permissionMapper.selectPermissionByPermissionId(permissionId));
         }
-        return (List<T>) permissionList;
+        return permissionList;
     }
 
     @Override
@@ -220,7 +218,7 @@ public class DefaultUserRoleServiceImpl implements IUserRoleService{
     }
 
     @Override
-    public <T extends IBaseRole> List<T> queryUserRoleListByUserId(Long userId) {
+    public  List<IBaseRole> queryUserRoleListByUserId(Long userId) {
         if (userMapper.selectUserByUserId(userId) == null) {
 //            throw new ServiceException("找不到用户信息");
             throw new ServiceException(FiafengMessageUtils.message("rbac.userRole.userInfoNotExist"));
@@ -230,6 +228,6 @@ public class DefaultUserRoleServiceImpl implements IUserRoleService{
             roleList.addAll(queryUserRoleListByRoleId(roleId));
         }
 
-        return (List<T>) roleList;
+        return roleList;
     }
 }

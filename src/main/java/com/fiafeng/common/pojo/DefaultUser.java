@@ -2,13 +2,11 @@ package com.fiafeng.common.pojo;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.annotation.PojoAnnotation;
-import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.pojo.Interface.IBaseUser;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 
@@ -21,9 +19,8 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Accessors(chain = true)
 @ToString
-@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
+@BeanDefinitionOrderAnnotation()
 @PojoAnnotation
 public class DefaultUser implements IBaseUser, Serializable {
 

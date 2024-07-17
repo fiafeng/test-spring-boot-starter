@@ -7,24 +7,24 @@ import java.util.List;
 public interface IUserRoleMapper extends IMapper {
 
 
-    <T extends IBaseUserRole> int insertUserRole(T userRole);
+    int insertUserRole(IBaseUserRole userRole);
 
     int updateUserRoleList(Long userId, List<Long> roleIdList);
 
-    <T extends IBaseUserRole> int deleteUserRole(T userRole);
+    int deleteUserRole(IBaseUserRole userRole);
 
     int deleteUserRoleById(Long id);
 
     List<Long> selectRoleIdListByUserId(Long userId);
 
 
-    <T extends IBaseUserRole> List<T> selectUserRoleListByUserId(Long userId);
+    List<IBaseUserRole> selectUserRoleListByUserId(Long userId);
 
-    <T extends IBaseUserRole> List<T> selectRoleListByRoleId(Long roleId);
+    List<IBaseUserRole> selectRoleListByRoleId(Long roleId);
 
-    <T extends IBaseUserRole> T selectUserRoleByUserRole(T userRole);
+    IBaseUserRole selectUserRoleByUserRole(IBaseUserRole userRole);
 
 
-    <T extends IBaseUserRole> T selectRoleListById(Long id);
+    IBaseUserRole selectRoleListById(Long id);
 
 }

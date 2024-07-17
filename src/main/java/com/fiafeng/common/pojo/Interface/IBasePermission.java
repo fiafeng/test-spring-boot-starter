@@ -10,13 +10,9 @@ import com.fiafeng.common.pojo.Interface.base.IBasePojo;
  */
 public interface IBasePermission extends IBasePojo {
 
-    Long getId();
-
-    IBasePermission setId(Long id);
-
     String getName();
 
-    IBasePermission setName(String name);
+    void setName(String name);
 
 
 }

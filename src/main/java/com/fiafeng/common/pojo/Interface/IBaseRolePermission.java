@@ -9,17 +9,16 @@ import com.fiafeng.common.pojo.Interface.base.IBasePojo;
  */
 public interface IBaseRolePermission extends IBasePojo {
 
-    Long getId();
 
-    IBaseRolePermission setId(Long id);
+    void setId(Long id);
 
     Long getRoleId();
 
-    IBaseRolePermission setRoleId(Long roleId);
+    void setRoleId(Long roleId);
 
     Long getPermissionId();
 
-    IBaseRolePermission setPermissionId(Long permissionId);
+    void setPermissionId(Long permissionId);
 
 }
 

@@ -1,8 +1,8 @@
 package com.fiafeng.common.mapper.Interface;
 
-import java.util.List;
-
 import com.fiafeng.common.pojo.Interface.IBaseUser;
+
+import java.util.List;
 
 /**
  * @author Fiafeng
@@ -13,16 +13,16 @@ public interface IUserMapper extends IMapper {
 
 
 
-    <T extends IBaseUser> int insertUser(T user);
+     int insertUser(IBaseUser user);
 
-    <T extends IBaseUser> int updateUser(T user);
+     int updateUser(IBaseUser user);
 
-    <T extends IBaseUser> int deletedUserByUserId(Long userId);
+     int deletedUserByUserId(Long userId);
 
-    <T extends IBaseUser> List<T> selectUserListAll();
+     List<IBaseUser> selectUserListAll();
 
-    <T extends IBaseUser> T selectUserByUserName(String username);
+     IBaseUser selectUserByUserName(String username);
 
-    <T extends IBaseUser> T selectUserByUserId(Long userId);
+     IBaseUser selectUserByUserId(Long userId);
 
 }

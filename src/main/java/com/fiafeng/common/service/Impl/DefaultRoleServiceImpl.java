@@ -2,7 +2,6 @@ package com.fiafeng.common.service.Impl;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.constant.CacheConstants;
-import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.mapper.Interface.IRoleMapper;
 import com.fiafeng.common.mapper.Interface.IUserRoleMapper;
@@ -24,7 +23,7 @@ import java.util.Objects;
  * @description
  */
 @Service
-@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
+@BeanDefinitionOrderAnnotation()
 public class DefaultRoleServiceImpl implements IRoleService {
 
 
@@ -146,28 +145,28 @@ public class DefaultRoleServiceImpl implements IRoleService {
     }
 
     @Override
-    public <T extends IBaseRole> T queryRoleByRoleId(Long roleId) {
+    public  IBaseRole queryRoleByRoleId(Long roleId) {
         IBaseRole baseRole = roleMapper.selectRoleByRoleId(roleId);
         if (baseRole == null) {
 //            throw new ServiceException("角色名字不存在");
             throw new ServiceException(FiafengMessageUtils.message("rbac.role.roleNotExist"));
         }
-        return (T) baseRole;
+        return baseRole;
     }
 
     @Override
-    public <T extends IBaseRole> T queryRoleByRoleName(String roleName) {
+    public  IBaseRole queryRoleByRoleName(String roleName) {
 
         IBaseRole baseRole = roleMapper.selectRoleByRoleName(roleName);
         if (baseRole == null) {
 //            throw new ServiceException("角色名字不存在");
             throw new ServiceException(FiafengMessageUtils.message("rbac.role.roleNotExist"));
         }
-        return (T) baseRole;
+        return baseRole;
     }
 
     @Override
-    public <T extends IBaseRole> List<T> queryRoleListAll() {
+    public  List<IBaseRole> queryRoleListAll() {
 
         return roleMapper.selectRoleListALl();
     }

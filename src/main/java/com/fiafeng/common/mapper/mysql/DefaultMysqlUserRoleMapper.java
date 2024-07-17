@@ -15,7 +15,7 @@ public class DefaultMysqlUserRoleMapper extends BaseObjectMysqlMapper implements
 
 
     @Override
-    public <T extends IBaseUserRole> int insertUserRole(T userRole) {
+    public  int insertUserRole(IBaseUserRole userRole) {
         return insertObject(userRole);
     }
 
@@ -62,7 +62,7 @@ public class DefaultMysqlUserRoleMapper extends BaseObjectMysqlMapper implements
     }
 
     @Override
-    public <T extends IBaseUserRole> int deleteUserRole(T userRole) {
+    public  int deleteUserRole(IBaseUserRole userRole) {
         return deletedObjectById(userRole.getUserId());
     }
 
@@ -84,22 +84,22 @@ public class DefaultMysqlUserRoleMapper extends BaseObjectMysqlMapper implements
     }
 
     @Override
-    public <T extends IBaseUserRole> List<T> selectUserRoleListByUserId(Long userId) {
+    public  List<IBaseUserRole> selectUserRoleListByUserId(Long userId) {
         return selectObjectListByColValue(properties.getUserIdName(), userId);
     }
 
     @Override
-    public <T extends IBaseUserRole> List<T> selectRoleListByRoleId(Long roleId) {
+    public  List<IBaseUserRole> selectRoleListByRoleId(Long roleId) {
         return selectObjectListByColValue(properties.getRoleIdName(), roleId);
     }
 
     @Override
-    public <T extends IBaseUserRole> T selectUserRoleByUserRole(T userRole) {
-        return selectObjectByName1Name2AndValue1Value2(properties.getUserIdName(), properties.getRoleIdName(), userRole.getUserId(), userRole.getRoleId());
+    public  IBaseUserRole selectUserRoleByUserRole(IBaseUserRole userRole) {
+        return (IBaseUserRole) selectObjectByName1Name2AndValue1Value2(properties.getUserIdName(), properties.getRoleIdName(), userRole.getUserId(), userRole.getRoleId());
     }
 
     @Override
-    public <T extends IBaseUserRole> T selectRoleListById(Long id) {
-        return selectObjectByObjectId(id);
+    public  IBaseUserRole selectRoleListById(Long id) {
+        return (IBaseUserRole) selectObjectByObjectId(id);
     }
 }

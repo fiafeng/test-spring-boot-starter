@@ -13,20 +13,20 @@ import java.util.List;
  */
 public interface IUserRoleService {
 
-    <T extends IBaseUserRole> boolean insertUserRole(T userRole);
+     boolean insertUserRole(IBaseUserRole userRole);
 
     void updateUserRoleList(Long userId, List<Long> roleIdList);
 
 
-    <T extends IBaseUserRole> void deletedUserRole(T userRole);
+     void deletedUserRole(IBaseUserRole userRole);
 
-    <T extends IBaseUserRole> void deletedUserRoleById(Long id);
+     void deletedUserRoleById(Long id);
 
-    <T extends IBaseRole> List<T> queryUserRoleListByUserId(Long userId);
+     List<IBaseRole> queryUserRoleListByUserId(Long userId);
 
-    <T extends IBaseRole> List<T> queryUserRoleListByRoleId(Long roleId);
+     List<IBaseRole> queryUserRoleListByRoleId(Long roleId);
 
-    <T extends IBasePermission> List<T> queryUserPermissionListByUserId(Long userId);
+     List<IBasePermission> queryUserPermissionListByUserId(Long userId);
 
     List<String> queryUserPermissionNameListByUserId(Long userId);
 

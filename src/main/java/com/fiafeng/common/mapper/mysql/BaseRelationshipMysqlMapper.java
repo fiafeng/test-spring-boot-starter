@@ -1,22 +1,14 @@
 package com.fiafeng.common.mapper.mysql;
 
-import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.fiafeng.common.Enum.TypeOrmEnum;
 import com.fiafeng.common.properties.mysql.IMysqlTableProperties;
 import com.fiafeng.common.service.Impl.ConnectionPoolServiceImpl;
-import com.fiafeng.common.utils.FiafengMysqlUtils;
-import com.fiafeng.common.utils.StringUtils;
-import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Getter
 @Setter
@@ -88,25 +80,25 @@ public abstract class BaseRelationshipMysqlMapper extends BaseMysqlMapper {
         return getConnectionPoolService().deletedObjectById(id, getTableName(), getIdName());
     }
 
-    public <T> List<T> selectObjectListByNameValue(String colName, Object value) {
+    public List selectObjectListByNameValue(String colName, Object value) {
         HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put(colName, value);
         return getConnectionPoolService().selectObjectListByColMap(getTableName(), getType(), hashMap);
     }
 
-    public <T> List<T> selectObjectListByOneNameValue(Object value) {
+    public List selectObjectListByOneNameValue(Object value) {
         HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put(getOneName(), value);
         return getConnectionPoolService().selectObjectListByColMap(getTableName(), getType(), hashMap);
     }
 
-    public <T> List<T> selectObjectListByTwoNameValue(Object value) {
+    public List selectObjectListByTwoNameValue(Object value) {
         HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put(getTwoName(), value);
         return getConnectionPoolService().selectObjectListByColMap(getTableName(), getType(), hashMap);
     }
 
-    public <T> T selectObjectByTwoValue(Object value1, Object value2) {
+    public Object selectObjectByTwoValue(Object value1, Object value2) {
         HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put(getOneName(), value1);
         hashMap.put(getTwoName(), value2);

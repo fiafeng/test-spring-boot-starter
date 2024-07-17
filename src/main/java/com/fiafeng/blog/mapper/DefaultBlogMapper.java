@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @BeanDefinitionOrderAnnotation()
 public class DefaultBlogMapper implements IBlogMapper {
 
-    ConcurrentHashMap<Long, IBaseBlog> blogMap;
+    private volatile ConcurrentHashMap<Long, IBaseBlog> blogMap;
 
     public ConcurrentHashMap<Long, IBaseBlog> getBlogMap() {
         if (blogMap == null) {
@@ -55,8 +55,8 @@ public class DefaultBlogMapper implements IBlogMapper {
     /**
      * 根据博客Id删除博客
      *
-     * @param blogId
-     * @return
+     * @param blogId 博客id
+     * @return 删除的数量
      */
     @Override
     public int deleteBoleById(Long blogId) {
@@ -66,8 +66,8 @@ public class DefaultBlogMapper implements IBlogMapper {
     /**
      * 根据博客Id列表批量删除博客
      *
-     * @param blogIdList
-     * @return
+     * @param blogIdList 博客id列表
+     * @return 删除数量
      */
     @Override
     public int deletedBlogByIdList(List<Long> blogIdList) {
@@ -80,8 +80,8 @@ public class DefaultBlogMapper implements IBlogMapper {
     /**
      * 更新博客，根据id
      *
-     * @param baseBlog
-     * @return
+     * @param baseBlog 博客实体类
+     * @return 更新数量
      */
     @Override
     public int updateBlogById(IBaseBlog baseBlog) {
@@ -104,14 +104,14 @@ public class DefaultBlogMapper implements IBlogMapper {
      * @return 用户发的所有博客
      */
     @Override
-    public <T extends IBaseBlog> List<T> selectBlogListByUserId(Long userId) {
+    public List<IBaseBlog> selectBlogListByUserId(Long userId) {
         List<IBaseBlog> iBaseRoleList = new ArrayList<>();
         for (HashMap.Entry<Long, IBaseBlog> entry : getBlogMap().entrySet()) {
             if (entry.getValue().getUserId().equals(userId)) {
                 iBaseRoleList.add(JSONObject.from(entry.getValue()).toJavaObject(IBaseBlog.class));
             }
         }
-        return (List<T>) iBaseRoleList;
+        return iBaseRoleList;
     }
 
     /**

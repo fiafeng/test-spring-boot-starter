@@ -44,21 +44,18 @@ public class DefaultSecurityMysqlUserMapper extends BaseObjectMysqlMapper implem
     }
 
     @Override
-    public <T extends IBaseUser> List<T> selectUserListAll() {
-        List<IBaseUser> objectList = selectObjectListAll();
-        return (List<T>) objectList;
+    public List<IBaseUser> selectUserListAll() {
+        return (List<IBaseUser>) selectObjectListAll();
     }
 
     @Override
-    public <T extends IBaseUser> T selectUserByUserName(String username) {
-        IBaseUser baseUser = selectObjectByObjectName(getTableColName(), username);
-        return (T) baseUser;
+    public  IBaseUser selectUserByUserName(String username) {
+        return (IBaseUser) selectObjectByObjectName(getTableColName(), username);
     }
 
     @Override
-    public <T extends IBaseUser> T selectUserByUserId(Long userId) {
+    public  IBaseUser selectUserByUserId(Long userId) {
 
-        IBaseUser baseUser = selectObjectByObjectId(userId);
-        return (T) baseUser;
+        return (IBaseUser) selectObjectByObjectId(userId);
     }
 }

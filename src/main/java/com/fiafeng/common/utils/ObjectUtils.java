@@ -1,5 +1,8 @@
 package com.fiafeng.common.utils;
 
+import com.alibaba.fastjson2.JSONObject;
+import com.fiafeng.common.utils.spring.FiafengSpringUtils;
+
 /**
  * @author Fiafeng
  * @create 2023/12/05
@@ -25,6 +28,10 @@ public class ObjectUtils {
      */
     public static boolean isEmpty(Object[] objects) {
         return isNull(objects) || (objects.length == 0);
+    }
+
+    public static <T> T getNewObejct(T t){
+        return (T) JSONObject.from(t).toJavaObject(FiafengSpringUtils.getBean(t.getClass()).getClass());
     }
 
     /**

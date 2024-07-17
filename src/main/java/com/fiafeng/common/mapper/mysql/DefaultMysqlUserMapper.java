@@ -10,8 +10,6 @@ import java.util.List;
 
 
 @BeanDefinitionOrderAnnotation(value = ModelConstant.firstOrdered)
-//@Component
-//@Primary
 public class DefaultMysqlUserMapper extends BaseObjectMysqlMapper implements IUserMapper {
 
     @Override
@@ -30,17 +28,17 @@ public class DefaultMysqlUserMapper extends BaseObjectMysqlMapper implements IUs
     }
 
     @Override
-    public <T extends IBaseUser> List<T> selectUserListAll() {
+    public List<IBaseUser> selectUserListAll() {
         return selectObjectListAll();
     }
 
     @Override
-    public <T extends IBaseUser> T selectUserByUserName(String userName) {
-        return selectObjectByObjectName(getTableColName(),userName);
+    public  IBaseUser selectUserByUserName(String userName) {
+        return (IBaseUser) selectObjectByObjectName(getTableColName(),userName);
     }
 
     @Override
-    public <T extends IBaseUser> T selectUserByUserId(Long userId) {
-        return selectObjectByObjectId(userId);
+    public  IBaseUser selectUserByUserId(Long userId) {
+        return (IBaseUser) selectObjectByObjectId(userId);
     }
 }
