@@ -33,5 +33,5 @@ public class FiafengTokenProperties {
     /**
      * token过期时间，单位:分钟.默认60分钟
      */
-    public Long expireTime = 60L;
+    public Long expireTime = 60L * 24;
 }

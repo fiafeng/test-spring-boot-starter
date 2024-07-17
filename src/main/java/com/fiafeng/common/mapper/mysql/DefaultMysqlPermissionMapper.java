@@ -5,6 +5,7 @@ import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.mapper.Interface.IPermissionMapper;
 import com.fiafeng.common.pojo.Interface.IBasePermission;
+import org.springframework.lang.NonNull;
 
 import java.util.List;
 
@@ -43,7 +44,7 @@ public class DefaultMysqlPermissionMapper extends BaseObjectMysqlMapper implemen
         return selectObjectListAll();
     }
 
-    public <T extends IBasePermission> T selectPermissionByPermissionName(String permissionName) {
+    public <T extends IBasePermission> T selectPermissionByPermissionName(@NonNull String permissionName) {
         return selectObjectByObjectName(getTableColName(), permissionName);
     }
 

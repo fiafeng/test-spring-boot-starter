@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.Collection;
 
 @Data
-public class DynamicArg implements Serializable {
+public class DynamicGenericityArg implements Serializable {
 
    private String name;
 
@@ -22,6 +22,8 @@ public class DynamicArg implements Serializable {
             this.componentType =  type.getComponentType();
         }
     }
+
+
 
     private boolean isCollection;
 
