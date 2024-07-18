@@ -1,8 +1,7 @@
 package com.fiafeng.common.config;
 
-import com.fiafeng.common.utils.StringUtils;
-import com.fiafeng.common.Interceptor.FiafengI18nInterceptor;
 import com.fiafeng.common.properties.FiafengI18NProperties;
+import com.fiafeng.common.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -64,8 +63,7 @@ public class I18nBeanConfig {
             Resource[] resources = resourcePatternResolver.getResources(resourcePattern);
             List<String> list = new ArrayList<>();
 
-            for (int i = 0; i < resources.length; i++) {
-                Resource resource = resources[i];
+            for (Resource resource : resources) {
                 String[] urlStrArr = resource.getURL().toString().split("/");
                 int index = urlStrArr.length - 1;
                 String moduleName = urlStrArr[index];
@@ -74,7 +72,7 @@ public class I18nBeanConfig {
             }
             return list;
 
-        } catch (Exception e) {
+        } catch (Exception ignore) {
 
         }
         return new ArrayList<>();

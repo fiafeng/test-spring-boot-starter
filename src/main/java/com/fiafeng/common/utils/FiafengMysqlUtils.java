@@ -92,8 +92,7 @@ public class FiafengMysqlUtils {
                 "Create table  IF NOT EXISTS " + tableName + "(\n"
                         + "    " + primaryName + " ");
         if (primaryType == TypeOrmEnum.intType) {
-            sql.append(primaryType.mysqlType
-                    + " AUTO_INCREMENT ");
+            sql.append(primaryType.mysqlType).append(" AUTO_INCREMENT ");
         }
 
         sql.append(" PRIMARY KEY, "

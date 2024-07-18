@@ -4,7 +4,6 @@ import com.fiafeng.captcha.properties.FiafengCaptchaProperties;
 import com.fiafeng.captcha.service.ICaptchaService;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.constant.CacheConstants;
-import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.service.ICacheService;
 import com.fiafeng.common.utils.Base64;
@@ -19,7 +18,7 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 
-@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
+@BeanDefinitionOrderAnnotation()
 public class CaptchaServiceImpl implements ICaptchaService {
 
     @Autowired

@@ -1,18 +1,14 @@
 package com.fiafeng.dynamicClass.controller;
 
 
-import aj.org.objectweb.asm.Opcodes;
+import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.common.pojo.Dto.AjaxResult;
 import com.fiafeng.common.utils.StringUtils;
 import com.fiafeng.dynamicClass.pojo.DynamicClass;
 import com.fiafeng.dynamicClass.pojo.DynamicMethod;
-import com.fiafeng.dynamicClass.test.MethodSignatureVisitor;
+import com.fiafeng.dynamicClass.utils.DynamicASMUtils;
 import com.fiafeng.dynamicClass.utils.DynamicUtils;
-import jdk.internal.org.objectweb.asm.*;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -20,7 +16,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static com.fiafeng.dynamicClass.utils.DynamicUtils.getDynamicClass;
+import static com.fiafeng.dynamicClass.utils.DynamicASMUtils.getDynamicClass;
 
 @RestController
 @RequestMapping("/dynamicClass")
@@ -63,15 +59,33 @@ public class DynamicClassController {
     }
 
 
-    @GetMapping("/getSystemClassInfo_v1")
+    @GetMapping("/getSystemClassInfoV1")
     @ResponseBody
-    public AjaxResult getSystemClassInfoV1(String className) throws ClassNotFoundException, IOException, InvocationTargetException, IllegalAccessException {
+    public AjaxResult getSystemClassInfoV1(String className) throws ClassNotFoundException, IOException {
         if (StringUtils.strIsEmpty(className)) {
             return AjaxResult.error("参数不允许为空");
         }
-        List<DynamicMethod> dynamicMethods = DynamicUtils.getDynamicMethods(Class.forName(className));
+        List<DynamicMethod> dynamicMethods = DynamicASMUtils.getDynamicMethods(Class.forName(className));
 
         return AjaxResult.success(dynamicMethods);
+
+    }
+
+//    @GetMapping("/getSystemClassInfoV2")
+    @PostMapping("/getSystemClassInfoV2")
+    @ResponseBody
+    public AjaxResult getSystemClassInfoV2(String className, @RequestBody JSONObject jsonObject) throws ClassNotFoundException, IOException {
+        String string = jsonObject.getString("className");
+        if (string != null){
+            className = string;
+        }
+
+        if (StringUtils.strIsEmpty(className)) {
+            return AjaxResult.error("参数不允许为空");
+        }
+       DynamicClass dynamicClass = DynamicUtils.getDynamicClass(Class.forName(className));
+
+        return AjaxResult.success(dynamicClass);
 
     }
 

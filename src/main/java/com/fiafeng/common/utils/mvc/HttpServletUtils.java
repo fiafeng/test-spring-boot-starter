@@ -16,8 +16,7 @@ public class HttpServletUtils {
 
     public static HttpServletRequest getHttpServletRequest(){
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-        HttpServletRequest request = attributes.getRequest();
-        return request;
+        return attributes.getRequest();
     }
 
 

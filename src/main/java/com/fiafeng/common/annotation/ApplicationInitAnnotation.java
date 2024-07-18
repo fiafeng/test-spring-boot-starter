@@ -7,8 +7,8 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-/**
- * value 值越大，执行越早
+/*
+  value 值越大，执行越早
  */
 public @interface ApplicationInitAnnotation {
     int value() default 0;

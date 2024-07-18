@@ -4,17 +4,16 @@ import com.alibaba.fastjson2.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.common.constant.ModelConstant;
-import com.fiafeng.common.pojo.Interface.IBaseUser;
-import com.fiafeng.common.properties.FiafengTokenProperties;
-import com.fiafeng.common.service.ICacheService;
 import com.fiafeng.common.constant.CacheConstants;
 import com.fiafeng.common.exception.ServiceException;
+import com.fiafeng.common.pojo.Interface.IBaseUser;
 import com.fiafeng.common.pojo.Vo.IBaseUserInfo;
+import com.fiafeng.common.properties.FiafengTokenProperties;
+import com.fiafeng.common.service.ICacheService;
 import com.fiafeng.common.service.ITokenService;
-import com.fiafeng.common.utils.mvc.HttpServletUtils;
 import com.fiafeng.common.utils.IdUtils;
 import com.fiafeng.common.utils.StringUtils;
+import com.fiafeng.common.utils.mvc.HttpServletUtils;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -31,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
-@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
+@BeanDefinitionOrderAnnotation()
 @Primary
 public class DefaultTokenServiceImpl implements ITokenService {
 
@@ -121,10 +120,9 @@ public class DefaultTokenServiceImpl implements ITokenService {
      * @return 令牌
      */
     private String createToken(Map<String, Object> claims) {
-        String token = Jwts.builder()
+        return Jwts.builder()
                 .setClaims(claims)
                 .signWith(SignatureAlgorithm.HS512, tokenProperties.secret).compact();
-        return token;
     }
 
     /**

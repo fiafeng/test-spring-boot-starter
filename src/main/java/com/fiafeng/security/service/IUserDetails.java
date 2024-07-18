@@ -7,4 +7,6 @@ import java.io.Serializable;
 
 public interface IUserDetails extends IBaseUserInfo, UserDetails, Serializable {
 
+    @Override
+    void setId(Long id);
 }

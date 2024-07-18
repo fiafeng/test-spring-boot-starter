@@ -1,18 +1,13 @@
 package com.fiafeng.common.service.Impl;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.common.constant.ModelConstant;
-import com.fiafeng.common.pojo.Vo.IBaseUserInfo;
-import com.fiafeng.common.service.ICacheService;
-import com.fiafeng.common.service.ITokenService;
-import com.fiafeng.common.service.IUserRoleService;
-import com.fiafeng.common.service.IUserService;
-import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.pojo.Interface.IBaseUser;
-import com.fiafeng.common.service.ILoginService;
-import com.fiafeng.common.utils.spring.FiafengMessageUtils;
+import com.fiafeng.common.pojo.Vo.IBaseUserInfo;
+import com.fiafeng.common.service.*;
 import com.fiafeng.common.utils.ObjectUtils;
+import com.fiafeng.common.utils.spring.FiafengMessageUtils;
+import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -20,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
+@BeanDefinitionOrderAnnotation()
 @Primary
 public class DefaultLoginServiceImpl implements ILoginService {
 

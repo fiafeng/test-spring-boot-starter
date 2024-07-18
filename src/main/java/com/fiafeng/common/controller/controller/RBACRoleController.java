@@ -2,14 +2,13 @@ package com.fiafeng.common.controller.controller;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.common.constant.ModelConstant;
-import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import com.fiafeng.common.annotation.HasPermissionAnnotation;
 import com.fiafeng.common.annotation.HasRoleAnnotation;
 import com.fiafeng.common.controller.controller.Interface.IRoleController;
 import com.fiafeng.common.pojo.Dto.AjaxResult;
 import com.fiafeng.common.pojo.Interface.IBaseRole;
 import com.fiafeng.common.service.IRoleService;
+import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +21,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/user/rbac/role")
-@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
+@BeanDefinitionOrderAnnotation()
 public class RBACRoleController implements IRoleController {
 
     @Autowired

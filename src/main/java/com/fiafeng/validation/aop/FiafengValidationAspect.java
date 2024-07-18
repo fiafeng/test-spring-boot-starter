@@ -15,7 +15,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
-import java.util.List;
 
 @Aspect
 @Slf4j

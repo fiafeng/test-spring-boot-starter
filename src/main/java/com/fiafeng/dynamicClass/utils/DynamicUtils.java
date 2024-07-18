@@ -1,356 +1,235 @@
 package com.fiafeng.dynamicClass.utils;
 
-import com.fiafeng.common.utils.ObjectUtils;
 import com.fiafeng.dynamicClass.pojo.*;
-import jdk.internal.org.objectweb.asm.ClassReader;
-import jdk.internal.org.objectweb.asm.Type;
-import jdk.internal.org.objectweb.asm.signature.SignatureReader;
-import jdk.internal.org.objectweb.asm.signature.SignatureVisitor;
-import jdk.internal.org.objectweb.asm.tree.AnnotationNode;
-import jdk.internal.org.objectweb.asm.tree.ClassNode;
-import jdk.internal.org.objectweb.asm.tree.MethodNode;
-import jdk.internal.org.objectweb.asm.tree.ParameterNode;
-import jdk.internal.org.objectweb.asm.util.CheckSignatureAdapter;
 
-import java.io.IOException;
-import java.lang.annotation.*;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.*;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class DynamicUtils {
 
-    private static HashMap<String, Class<?>> hashMap = new HashMap<>();
-
-    static {
-        hashMap.put("void", void.class);
-        hashMap.put("int", int.class);
-        hashMap.put("char", char.class);
-        hashMap.put("short", short.class);
-        hashMap.put("long", long.class);
-        hashMap.put("float", float.class);
-        hashMap.put("byte", byte.class);
-        hashMap.put("boolean", boolean.class);
-    }
-
+    static List<String> annotationNameIgnoreList = Arrays.asList("equals", "hashCode", "toString", "annotationType");
     static List<String> annotationMethodNameIgnoreList = Arrays.asList("equals", "hashCode", "toString", "annotationType");
+
     static List<String> classMethodNameIgnoreList = Arrays.asList("equals", "hashCode", "toString", "annotationType", "wait", "getClass", "notify", "notifyAll");
 
-    public static DynamicClass getDynamicClass(Class<?> aClass) throws IllegalAccessException, InvocationTargetException, IOException, ClassNotFoundException {
+
+    public static DynamicClass getDynamicClass(Class<?> aclass) {
         DynamicClass dynamicClass = new DynamicClass();
-        String aClassName = aClass.getSimpleName();
+        String simpleName = aclass.getSimpleName();
+        Class<?> parentclass = aclass.getSuperclass();
 
-        boolean isInterface = aClass.isInterface();
-        boolean isAnnotation = aClass.isAnnotation();
-        boolean isAnonymousClass = aClass.isAnonymousClass();
+        List<DynamicMethod> dynamicMethodList = getDynamicMethodList(aclass);
+        List<DynamicField> dynamicFieldList = getDynamicFieldList(aclass);
+        List<DynamicAnnotation> dynamicAnnotationList = getDynamicAnnotationList(aclass.getAnnotations());
 
+        dynamicClass.setName(simpleName);
+        dynamicClass.setType(aclass);
+        dynamicClass.setParentClass(parentclass);
 
-        dynamicClass.setName(aClassName);
-        String aClassPackageName = aClass.getPackage() != null ? aClass.getPackage().getName() : "";
-        dynamicClass.setPackageName(aClassPackageName);
-        dynamicClass.setType(aClass);
-        dynamicClass.setInterface(isInterface);
-        dynamicClass.setAnnotation(isAnnotation);
-        dynamicClass.setAnonymousClass(isAnonymousClass);
-
-        List<DynamicAnnotation> dynamicAnnotationList = new ArrayList<>();
-        dynamicClass.setAnnotationList(dynamicAnnotationList);
-
-
-        // 获取属性信息
-        List<DynamicField> dynamicFieldList = new ArrayList<>();
         dynamicClass.setFieldList(dynamicFieldList);
-        for (Field aClassField : aClass.getFields()) {
-            DynamicField dynamicField = new DynamicField();
+        dynamicClass.setMethodList(dynamicMethodList);
+        dynamicClass.setAnnotationList(dynamicAnnotationList);
+        return dynamicClass;
+    }
+
+    public static List<DynamicField> getDynamicFieldList(Class<?> aClass) {
+        List<DynamicField> dynamicFieldList = new ArrayList<>();
+        Field[] classFields = aClass.getFields();
+        for (Field aClassField : classFields) {
             String fieldName = aClassField.getName();
             Class<?> fieldType = aClassField.getType();
-            List<DynamicAnnotation> annotatedList = getDynamicAnnotates(aClassField.getAnnotations());
+            List<DynamicAnnotation> annotatedList = getDynamicAnnotationList(aClassField.getAnnotations());
+            Type genericType = aClassField.getGenericType();
+            List<Class<?>> classParameterType = getClassParameterType(genericType);
+
+            DynamicField dynamicField = new DynamicField();
             dynamicField.setAnnotatedList(annotatedList);
             dynamicField.setName(fieldName);
             dynamicField.setModifiers(aClassField.getModifiers());
             dynamicField.setType(fieldType);
+            dynamicField.setComponentTypeList(classParameterType);
+
             dynamicFieldList.add(dynamicField);
         }
 
+        return dynamicFieldList;
+    }
+
+    public static List<DynamicMethod> getDynamicMethodList(Class<?> aclass) {
 
         List<DynamicMethod> dynamicMethodList = new ArrayList<>();
-        Method[] aClassMethods = aClass.getMethods();
-        // 获取方法信息
-        dynamicClass.setMethodList(new ArrayList<>());
+
+        Method[] aClassMethods = aclass.getMethods();
         for (Method classMethod : aClassMethods) {
-            String classMethodName = classMethod.getName();
-            if (classMethodNameIgnoreList.contains(classMethodName)) {
+            if (classMethodNameIgnoreList.contains(classMethod.getName())) {
                 continue;
             }
+            // 获取返回参数
+            DynamicArg dynamicReturnArg = getMethodReturnArg(classMethod);
 
-            DynamicMethod dynamicMethod = getDynamicMethod(classMethod, aClass);
-//            dynamicMethodList.add(dynamicMethod);
-            dynamicClass.getMethodList().add(dynamicMethod);
+            // 获取方法参数信息
+            List<DynamicArg> dynamicArgList = getMethodParamArgList(classMethod);
+
+            // 获取方法上面的注解信息
+            List<DynamicAnnotation> dynamicAnnotationList = getDynamicAnnotationList(classMethod.getAnnotations());
+
+            String methodName = classMethod.getName();
+
+            int modifiers = classMethod.getModifiers();
+
+            DynamicMethod dynamicMethod = new DynamicMethod();
+
+            Class<?>[] exceptionTypes = classMethod.getExceptionTypes();
+
+            dynamicMethod.setName(methodName);
+            dynamicMethod.setModifiers(modifiers);
+            dynamicMethod.setArgList(dynamicArgList);
+            dynamicMethod.setAnnotationList(dynamicAnnotationList);
+            dynamicMethod.setReturnArg(dynamicReturnArg);
+
+            dynamicMethodList.add(dynamicMethod);
         }
-
-        dynamicClass.setParentClass(aClass.getSuperclass());
-
-
-        Class<?>[] aClassInterfaces = aClass.getInterfaces();
-        // 获取实现的接口信息
-        for (Class<?> aClassInterface : aClassInterfaces) {
-
-        }
-
-        // 获取类上面的注解信息
-        Annotation[] annotatedTypes = aClass.getAnnotations();
-        List<DynamicAnnotation> dynamicAnnotations = getDynamicAnnotates(annotatedTypes);
-        dynamicClass.setAnnotationList(dynamicAnnotations);
-        return dynamicClass;
+        return dynamicMethodList;
     }
 
-    private static List<DynamicInterface> getClassInterfaces(Class<?>[] aClassInterfaces) {
-        List<DynamicInterface> dynamicInterfaceList = new ArrayList<>();
-        // 获取实现的接口信息
-        for (Class<?> aClassInterface : aClassInterfaces) {
-            String interfaceSimpleName = aClassInterface.getSimpleName();
-            String interfacePackageName = aClassInterface.getPackage() != null ? aClassInterface.getPackage().getName() : "";
 
+    public static List<DynamicException> getExceptionList(Class<?>[] exceptionTypes){
+        List<DynamicException> dynamicExceptionList = new ArrayList<>();
+        for (Class<?> exceptionType : exceptionTypes) {
+            DynamicException dynamicException = new DynamicException();
 
-            DynamicInterface dynamicInterface = new DynamicInterface();
+            dynamicException.setName(exceptionType.getSimpleName());
+            dynamicException.setType(exceptionType);
 
-
-            dynamicInterfaceList.add(dynamicInterface);
+            dynamicExceptionList.add(dynamicException);
         }
 
-
-        return dynamicInterfaceList;
+        return dynamicExceptionList;
     }
 
-    private static List<DynamicAnnotation> getDynamicAnnotates(Annotation[] annotations) throws InvocationTargetException, IllegalAccessException {
-        return getDynamicAnnotates(annotations, true);
-    }
-
-    private static List<DynamicAnnotation> getDynamicAnnotates(Annotation[] annotations, boolean flag) throws InvocationTargetException, IllegalAccessException {
+    public static List<DynamicAnnotation> getDynamicAnnotationList(Annotation[] annotations) {
         List<DynamicAnnotation> dynamicAnnotationList = new ArrayList<>();
         for (Annotation annotation : annotations) {
-            if (annotation.annotationType() == Target.class
-                    || annotation.annotationType() == Retention.class
-                    || annotation.annotationType() == Documented.class
-                    || annotation.annotationType() == Inherited.class) {
-                continue;
-            }
+            Class<? extends Annotation> annotationClass = annotation.annotationType();
+            List<DynamicAnnotationMethod> dynamicAnnotationMethodList = getAnnotationMethodList(annotation);
+            String annotationName = annotationClass.getSimpleName();
 
             DynamicAnnotation dynamicAnnotation = new DynamicAnnotation();
-            Class<? extends Annotation> annotationType = annotation.annotationType();
-            String annotationName = annotationType.getSimpleName();
+
             dynamicAnnotation.setName(annotationName);
-            dynamicAnnotation.setType(annotationType);
+            dynamicAnnotation.setValueList(dynamicAnnotationMethodList);
+            dynamicAnnotation.setType(annotationClass);
 
-            String annotationPackageName = annotationType.getPackage() == null ? "" : annotationType.getPackage().getName();
-            dynamicAnnotation.setPackageName(annotationPackageName);
-            List<DynamicAnnotationMethod> dynamicMethodList = new ArrayList<>();
-            Method[] annotationMethods = annotationType.getMethods();
-            dynamicAnnotation.setValueList(dynamicMethodList);
-            for (Method annotationMethod : annotationMethods) {
-                String annotationMethodName = annotationMethod.getName();
-                if (annotationMethodNameIgnoreList.contains(annotationMethodName)) {
-                    continue;
-                }
-                Class<?> returnType = annotationMethod.getReturnType();
-                List<DynamicArg> dynamicArgList = new ArrayList<>();
-                Object defaultValue = annotationMethod.invoke(annotation);
-
-                DynamicAnnotationMethod dynamicAnnotationMethod = new DynamicAnnotationMethod();
-
-                dynamicAnnotationMethod.setDefaultValue(defaultValue);
-                dynamicAnnotationMethod.setReturnType(returnType);
-                dynamicAnnotationMethod.setArgList(dynamicArgList);
-
-
-                dynamicMethodList.add(dynamicAnnotationMethod);
-            }
             dynamicAnnotationList.add(dynamicAnnotation);
-            Annotation[] annotationTypeAnnotations = annotationType.getAnnotations();
-            if (flag) {
-                List<DynamicAnnotation> dynamicAnnotations = getDynamicAnnotates(annotationTypeAnnotations, false);
-                dynamicAnnotation.setParentAnnotated(dynamicAnnotations);
-            }
         }
 
         return dynamicAnnotationList;
     }
 
-    private static DynamicMethod getDynamicMethod(Method classMethod, Class<?> aclass) throws IOException, ClassNotFoundException {
-        DynamicMethod classMethodDynamicMethod = new DynamicMethod();
-        String methodName = classMethod.getName();
-        classMethodDynamicMethod.setName(methodName);
 
-        Class<?> returnType = classMethod.getReturnType();
-//        classMethodDynamicMethod.setParentObject(dynamicClass);
-//        classMethodDynamicMethod.setReturnType(returnType);
-        int modifiers = classMethod.getModifiers();
-        classMethodDynamicMethod.setModifiers(modifiers);
-
-        Class<?>[] parameterTypes = classMethod.getParameterTypes();
-        List<DynamicArg> dynamicArgList = getDynamicArgs(parameterTypes, classMethod, aclass);
-        classMethodDynamicMethod.setArgList(dynamicArgList);
-
-        return classMethodDynamicMethod;
-    }
-
-    private static List<DynamicArg> getDynamicArgs(Class<?>[] parameterTypes, Method classMethod, Class<?> aclass) throws IOException {
-
-        List<DynamicArg> dynamicArgList = new ArrayList<>();
-        for (int i = 0; i < parameterTypes.length; i++) {
-            Class<?> parameterType = parameterTypes[i];
-            DynamicArg dynamicArg = new DynamicArg();
-            String parameterTypeSimpleName = "arg_" + parameterType.getSimpleName() + "_" + i;
-            String parameterPackageName = parameterType.getPackage() != null ? parameterType.getPackage().getName() : "";
-
-            if (Collection.class.isAssignableFrom(parameterType)) {
-                Class<?> componentType = parameterType.getComponentType();
-                dynamicArg.setComponentType(componentType);
-                dynamicArg.setCollection(true);
+    public static List<DynamicAnnotationMethod> getAnnotationMethodList(Annotation annotation) {
+        Class<? extends Annotation> annotationClass = annotation.annotationType();
+        List<DynamicAnnotationMethod> dynamicAnnotationMethodList = new ArrayList<>();
+        Method[] annotationMethods = annotationClass.getMethods();
+        for (Method annotationMethod : annotationMethods) {
+            String annotationMethodName = annotationMethod.getName();
+            if (annotationNameIgnoreList.contains(annotationMethodName)) {
+                continue;
+            }
+            Object defaultValue = null;
+            try {
+                defaultValue = annotationMethod.invoke(annotation);
+            } catch (Exception ignore) {
+                continue;
             }
 
-            dynamicArg.setName(parameterTypeSimpleName);
-            dynamicArg.setPackageName(parameterPackageName);
+            Class<?> returnType = defaultValue.getClass();
+            DynamicAnnotationMethod dynamicAnnotationMethod = new DynamicAnnotationMethod();
+            dynamicAnnotationMethod.setName(annotationMethodName);
+            dynamicAnnotationMethod.setValue(defaultValue);
+            dynamicAnnotationMethod.setReturnType(returnType);
+            dynamicAnnotationMethodList.add(dynamicAnnotationMethod);
+        }
+        return dynamicAnnotationMethodList;
+    }
+
+    public static List<DynamicArg> getMethodParamArgList(Method classMethod) {
+        List<DynamicArg> dynamicArgList = new ArrayList<>();
+        for (Parameter parameter : classMethod.getParameters()) {
+
+            Class<?> parameterType = parameter.getType();
+            String parameterName = parameter.getName();
+            String paramPackageName = DynamicUtils.getImport(parameterType);
+            List<Class<?>> classParameterTypeList = getClassParameterType(parameterType);
+
+            DynamicArg dynamicArg = new DynamicArg();
+            if (!classParameterTypeList.isEmpty()) {
+                dynamicArg.setParamType(true);
+                dynamicArg.setComponentTypeList(classParameterTypeList);
+            }
+
+            dynamicArg.setName(parameterName);
             dynamicArg.setType(parameterType);
             dynamicArgList.add(dynamicArg);
         }
-
         return dynamicArgList;
     }
 
 
-    public static List<DynamicMethod> getDynamicMethods(Class<?> aclass) throws IOException, ClassNotFoundException {
-        List<DynamicMethod> dynamicMethodList = new ArrayList<>();
+    public static DynamicArg getMethodReturnArg(Method classMethod) {
+        List<Class<?>> componentTypeList = new ArrayList<>();
+        // 获取返回参数
+        Type genericReturnType = classMethod.getGenericReturnType();
+        Class<?> returnType = classMethod.getReturnType();
+        // 但他时Class.class的时候，Class<?> actualTypeArgument = (Class<?>) type强转失败
+        if (returnType != Class.class) {
+            componentTypeList = getClassParameterType(genericReturnType);
+        }
+        DynamicArg dynamicReturnArg = DynamicArg.getReturn();
+        dynamicReturnArg.setType(returnType);
+        if (!componentTypeList.isEmpty()) {
+            dynamicReturnArg.setParamType(true);
+            dynamicReturnArg.setComponentTypeList(componentTypeList);
+        }
+        return dynamicReturnArg;
+    }
 
-        Method[] aClassMethods = aclass.getMethods();
-
-
-        ClassNode classNode = new ClassNode();
-        ClassReader classReader = new ClassReader(aclass.getPackage().getName() + "." + aclass.getSimpleName());
-        classReader.accept(classNode, 0);
-        // 遍历方法节点
-        List<MethodNode> methods = classNode.methods;
-        for (int i = 0; i < methods.size(); i++) {
-            MethodNode method = methods.get(i);
-            // 方法名字
-            String methodName = method.name;
-            // 返回值
-            String returnClassName = Type.getMethodType(method.desc).getReturnType().getClassName();
-            Type[] types = Type.getArgumentTypes(method.desc);
-
-            // 参数
-            List<ParameterNode> parameters = method.parameters;
-
-            Class<?> returnClassType = getClassType(returnClassName);
-            if (getClassType(returnClassName) == null) {
-                returnClassType = Class.forName(returnClassName);
-            }
-
-            DynamicMethod dynamicMethod = new DynamicMethod();
-            List<DynamicArg> dynamicArgList = new ArrayList<>();
-            for (Method classMethod : aClassMethods) {
-                if (classMethod.getName().equals(methodName)) {
-                    Class<?>[] parameterTypes = classMethod.getParameterTypes();
-                    if (ObjectUtils.isNotNull(parameters) && !parameters.isEmpty() && parameterTypes.length == parameters.size()) {
-                        int i1 = 0;
-                        for (; i1 < parameterTypes.length; i1++) {
-                            Class<?> classParamType = parameterTypes[i1];
-                            Class<?> paramClass = getClassType(types[i1].getClassName());
-                            if (paramClass != classParamType) {
-                                break;
-                            }
-                        }
-
-                        if (i1 == parameterTypes.length) {
-                            for (int j = 0; j < parameters.size(); j++) {
-                                Class<?> classParamType = parameterTypes[j];
-                                DynamicArg dynamicArg = new DynamicArg();
-                                Class<?> paramClass = getClassType(types[j].getClassName());
-                                String parameterPackageName = "";
-                                if (paramClass != null) {
-                                    parameterPackageName = paramClass.getPackage() != null ? paramClass.getPackage().getName() : "";
-                                }
-                                dynamicArg.setType(classParamType);
-                                dynamicArg.setPackageName(parameterPackageName);
-                                dynamicArg.setName(parameters.get(j).name);
-                                dynamicArgList.add(dynamicArg);
-//                }
-                            }
-
-                            returnClassType = classMethod.getReturnType();
-                            DynamicArg returnArg = new DynamicArg();
-                            returnArg.setType(returnClassType);
-                            returnArg.setName("return");
-
-
-                        }
+    private static List<Class<?>> getClassParameterType(Type genericType) {
+        List<Class<?>> componentTypeList = new ArrayList<>();
+        if (genericType instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = (ParameterizedType) genericType;
+            Type[] typeArguments = parameterizedType.getActualTypeArguments();
+            if (typeArguments.length != 0) {
+                componentTypeList = new ArrayList<>();
+                for (Type type : typeArguments) {
+                    String typeName = type.getTypeName();
+                    if ("java.lang.Class<?>".equals(typeName)) {
+                        componentTypeList.add(Class.class);
+                    } else if (type instanceof Class) {
+                        //强转
+                        Class<?> actualTypeArgument = (Class<?>) type;
+                        //获取实际参数的类名
+                        componentTypeList.add(actualTypeArgument);
+                    }else {
+                        System.out.println(type);
                     }
                 }
             }
-
-            String signature = method.signature;
-            if (signature != null) {
-                if (signature.contains("<") && signature.contains(">")) {
-                    String substring = signature.substring(signature.indexOf("<"), signature.indexOf(">") + 1);
-                    int a = 1;
-                }
-            }
-
-
-            dynamicMethod.setName(methodName);
-            dynamicMethod.setArgList(dynamicArgList);
-            dynamicMethodList.add(dynamicMethod);
         }
-
-
-        return dynamicMethodList;
+        return componentTypeList;
     }
 
 
-    private static List<DynamicArg> getDynamicArgs(Method classMethod, Class<?> aclass) throws
-            IOException, ClassNotFoundException {
-
-        List<DynamicArg> dynamicArgList = new ArrayList<>();
-        ClassNode classNode = new ClassNode();
-        ClassReader classReader = new ClassReader(aclass.getPackage().getName() + "." + aclass.getSimpleName());
-        classReader.accept(classNode, 0);
-        // 遍历方法节点
-        HashMap<String, MethodNode> methodNodeHashMap = new HashMap<>();
-        List<MethodNode> methods = classNode.methods;
-        for (MethodNode methodNode : methods) {
-            methodNodeHashMap.put(methodNode.name, methodNode);
-        }
-        String methodName = classMethod.getName();
-        MethodNode methodNode = methodNodeHashMap.get(methodName);
-
-        Type[] types = Type.getArgumentTypes(classMethod);
-        List<ParameterNode> parameters = methodNode.parameters;
-        if (ObjectUtils.isNotNull(parameters) && !parameters.isEmpty()) {
-            for (int i = 0; i < parameters.size(); i++) {
-                DynamicArg dynamicArg = new DynamicArg();
-                Class<?> paramClass = Class.forName(types[i].getClassName());
-                String parameterPackageName = paramClass.getPackage() != null ? paramClass.getPackage().getName() : "";
-                dynamicArg.setType(paramClass);
-                dynamicArg.setName(parameters.get(i).name);
-                dynamicArg.setPackageName(parameterPackageName);
-                dynamicArgList.add(dynamicArg);
-            }
-        }
-
-        return dynamicArgList;
+    public static String getImport(Class<?> type) {
+        return type.getCanonicalName();
     }
 
 
-    public static Class<?> getClassType(String className) {
-        if (hashMap.containsKey(className)) {
-            return hashMap.get(className);
-        } else {
-            try {
-                return Class.forName(className);
-            } catch (ClassNotFoundException e) {
-                return null;
-            }
-        }
+    public static String getPackageName(Class<?> aclass) {
+        return aclass.getPackage() == null ? "" : aclass.getPackage().getName();
+
     }
 }

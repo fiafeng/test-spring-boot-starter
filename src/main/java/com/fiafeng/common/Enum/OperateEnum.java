@@ -25,7 +25,7 @@ public enum OperateEnum {
     ;
 
 
-    String operate;
+    final String operate;
 
     OperateEnum(String operate) {
         this.operate = operate;

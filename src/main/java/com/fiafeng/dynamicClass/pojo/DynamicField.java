@@ -1,35 +1,39 @@
 package com.fiafeng.dynamicClass.pojo;
 
 
+import com.fiafeng.dynamicClass.utils.DynamicUtils;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
 @Data
-public class DynamicField implements IDynamicObject, Serializable {
+public class DynamicField implements Serializable {
 
     private String name;
 
     private Class<?> type;
 
-    private boolean isCollection;
+    private boolean paramType = false;
 
-    private Class<?> componentType;
+    private HashSet<String> importList = new HashSet<>();
 
-    public void setType(Class<?> type) {
-        this.type = type;
-        if (Collection.class.isAssignableFrom(type)){
-            setCollection(true);
-            this.componentType =  type.getComponentType();
-        }
-
-    }
+    private List<Class<?>> componentTypeList;
 
     private List<DynamicAnnotation> annotatedList;
+
+    public void setComponentTypeList(List<Class<?>> componentTypeList) {
+        if (componentTypeList.isEmpty()){
+            return;
+        }
+        this.componentTypeList = componentTypeList;
+        this.paramType = true;
+        for (Class<?> aClass : componentTypeList) {
+            importList.add(DynamicUtils.getImport(aClass));
+        }
+    }
+
 
     /**
      * 访问范围

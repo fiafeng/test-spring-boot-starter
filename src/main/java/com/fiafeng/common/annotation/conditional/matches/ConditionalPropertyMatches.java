@@ -38,25 +38,24 @@ public class ConditionalPropertyMatches implements Condition {
                 }
             } else {
 
-                JarFile jarFile = new JarFile(pathFile);
-                // 创建URLClassLoader
-                URL url = pathFile.toURI().toURL(); // 将jar文件转换为URL
-                URL[] urls = new URL[]{url};
-                ClassLoader urlClassLoader = new URLClassLoader(urls);
-
-                // 遍历Jar文件中的所有条目
-                jarFile.stream().forEach(entry -> {
-                    String name = entry.getName();
-                    if (name.contains("properties") && name.endsWith(".class")) {
-                        String className = name.substring(0, name.lastIndexOf('.')).replace('/', '.');
-                        try {
-                            Class<?> loadClass = urlClassLoader.loadClass(className);// 加载类
-                            addPropertiesClass(className, loadClass);
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                try (JarFile jarFile = new JarFile(pathFile)) {
+                    // 创建URLClassLoader
+                    URL url = pathFile.toURI().toURL(); // 将jar文件转换为URL
+                    URL[] urls = new URL[]{url};
+                    ClassLoader urlClassLoader = new URLClassLoader(urls);
+                    // 遍历Jar文件中的所有条目
+                    jarFile.stream().forEach(entry -> {
+                        String name = entry.getName();
+                        if (name.contains("properties") && name.endsWith(".class")) {
+                            String className = name.substring(0, name.lastIndexOf('.')).replace('/', '.');
+                            try {
+                                Class<?> loadClass = urlClassLoader.loadClass(className);// 加载类
+                                addPropertiesClass(className, loadClass);
+                            } catch (Exception e) {
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }
         } catch (Exception ignored) {
         }
@@ -109,8 +108,7 @@ public class ConditionalPropertyMatches implements Condition {
         if (key.startsWith("fiafeng.") && key.endsWith(".enable")) {
             String name = key.substring(8, key.length() - 7);
             if (iPropertiesHashMap.containsKey(name)) {
-                boolean flag = iPropertiesHashMap.get(name).getEnable() == value;
-                return flag;
+                return iPropertiesHashMap.get(name).getEnable() == value;
             } else {
                 throw new RuntimeException("请建立名字为Fiafeng" + name + "Properties的类，并且需要继承，并且将类放在properties包下IProperties接口");
             }

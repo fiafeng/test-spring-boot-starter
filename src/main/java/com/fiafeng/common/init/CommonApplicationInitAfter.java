@@ -2,9 +2,6 @@ package com.fiafeng.common.init;
 
 import com.fiafeng.common.annotation.ApplicationInitAnnotation;
 import com.fiafeng.common.annotation.ApplicationProcessorAnnotation;
-import com.fiafeng.common.mapper.Interface.*;
-import com.fiafeng.common.pojo.Interface.*;
-import com.fiafeng.common.properties.FiafengRbacProperties;
 import com.fiafeng.common.service.ICacheService;
 import com.fiafeng.common.service.Impl.DefaultCacheServiceImpl;
 import com.fiafeng.common.utils.ObjectClassUtils;

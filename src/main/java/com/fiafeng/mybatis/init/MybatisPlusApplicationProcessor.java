@@ -1,6 +1,9 @@
 package com.fiafeng.mybatis.init;
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.fiafeng.common.annotation.ApplicationProcessorAnnotation;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.annotation.PojoAnnotation;
@@ -10,7 +13,6 @@ import com.fiafeng.common.mapper.Interface.IMapper;
 import com.fiafeng.common.pojo.Interface.IBasePermission;
 import com.fiafeng.common.pojo.Interface.base.IBasePojo;
 import com.fiafeng.common.properties.mysql.IMysqlTableProperties;
-import com.fiafeng.common.utils.ObjectClassUtils;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import com.fiafeng.mybatis.properties.FiafengMybatisProperties;
 import com.fiafeng.mybatis.utils.MybatisPlusUtils;
@@ -21,7 +23,6 @@ import javassist.bytecode.ConstPool;
 import javassist.bytecode.FieldInfo;
 import javassist.bytecode.annotation.*;
 import org.springframework.beans.BeansException;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
@@ -334,7 +335,7 @@ public class MybatisPlusApplicationProcessor extends ApplicationProcessor {
         sb.append("public boolean equals(Object o) {\n");
         sb.append("    if (this == o) return true;\n");
         sb.append("    if (o == null || getClass() != o.getClass()) return false;\n");
-        sb.append("    " + cc.getName() + " other = (" + cc.getName() + ") o;\n");
+        sb.append("    ").append(cc.getName()).append(" other = (").append(cc.getName()).append(") o;\n");
 
         // 遍历所有字段生成 equals 比较
         for (CtField field : cc.getDeclaredFields()) {
@@ -415,11 +416,10 @@ public class MybatisPlusApplicationProcessor extends ApplicationProcessor {
 
 
     public static CtMethod CanEqualMethod(CtClass cc) throws CannotCompileException {
-        StringBuilder sb = new StringBuilder();
-        sb.append("protected boolean canEqual(Object obj) {\n");
-        sb.append("    return obj instanceof ").append(cc.getName()).append(";\n");
-        sb.append("};\n");
+        String sb = "protected boolean canEqual(Object obj) {\n" +
+                "    return obj instanceof " + cc.getName() + ";\n" +
+                "};\n";
 
-        return CtNewMethod.make(sb.toString(), cc);
+        return CtNewMethod.make(sb, cc);
     }
 }

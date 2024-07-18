@@ -94,7 +94,7 @@ public final class UUIDUtils implements java.io.Serializable, Comparable<UUIDUti
         randomBytes[6] &= 0x0f; /* clear version */
         randomBytes[6] |= 0x40; /* set to version 4 */
         randomBytes[8] &= 0x3f; /* clear variant */
-        randomBytes[8] |= 0x80; /* set to IETF variant */
+        randomBytes[8] |= (byte) 0x80; /* set to IETF variant */
         return new UUIDUtils(randomBytes);
     }
 
@@ -115,7 +115,7 @@ public final class UUIDUtils implements java.io.Serializable, Comparable<UUIDUti
         md5Bytes[6] &= 0x0f; /* clear version */
         md5Bytes[6] |= 0x30; /* set to version 3 */
         md5Bytes[8] &= 0x3f; /* clear variant */
-        md5Bytes[8] |= 0x80; /* set to IETF variant */
+        md5Bytes[8] |= (byte) 0x80; /* set to IETF variant */
         return new UUIDUtils(md5Bytes);
     }
 
@@ -135,15 +135,15 @@ public final class UUIDUtils implements java.io.Serializable, Comparable<UUIDUti
             components[i] = "0x" + components[i];
         }
 
-        long mostSigBits = Long.decode(components[0]).longValue();
+        long mostSigBits = Long.decode(components[0]);
         mostSigBits <<= 16;
-        mostSigBits |= Long.decode(components[1]).longValue();
+        mostSigBits |= Long.decode(components[1]);
         mostSigBits <<= 16;
-        mostSigBits |= Long.decode(components[2]).longValue();
+        mostSigBits |= Long.decode(components[2]);
 
-        long leastSigBits = Long.decode(components[3]).longValue();
+        long leastSigBits = Long.decode(components[3]);
         leastSigBits <<= 48;
-        leastSigBits |= Long.decode(components[4]).longValue();
+        leastSigBits |= Long.decode(components[4]);
 
         return new UUIDUtils(mostSigBits, leastSigBits);
     }
@@ -384,11 +384,11 @@ public final class UUIDUtils implements java.io.Serializable, Comparable<UUIDUti
     public int compareTo(UUIDUtils val) {
         // The ordering is intentionally set up so that the UUIDs
         // can simply be numerically compared as two numbers
+        //
+        //
         return (this.mostSigBits < val.mostSigBits ? -1 : //
                 (this.mostSigBits > val.mostSigBits ? 1 : //
-                        (this.leastSigBits < val.leastSigBits ? -1 : //
-                                (this.leastSigBits > val.leastSigBits ? 1 : //
-                                        0))));
+                        (Long.compare(this.leastSigBits, val.leastSigBits))));
     }
 
     // -------------------------------------------------------------------------------------------------------------------

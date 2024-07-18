@@ -8,9 +8,8 @@ public class ObjectFactoryConverter implements Converter<String, ObjectFactory> 
     @Override
     public ObjectFactory convert(String source) {
         try {
-            ObjectFactory objectFactory = (ObjectFactory) Class.forName(source).newInstance();
-            return objectFactory;
-        }catch (Exception e){
+            return (ObjectFactory) Class.forName(source).newInstance();
+        }catch (Exception ignore){
 
         }
         return null;

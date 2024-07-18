@@ -52,7 +52,7 @@ public class MyBatisSupportConfig {
         List<Interceptor> values = new ArrayList<>(interceptorMap.values());
 
         mybatisSqlSessionFactoryBean.setObjectFactory(customObjectFactory);
-        mybatisSqlSessionFactoryBean.setPlugins(values.toArray(new Interceptor[values.size()]));
+        mybatisSqlSessionFactoryBean.setPlugins(values.toArray(new Interceptor[0]));
 
 
         return mybatisSqlSessionFactoryBean.getObject();

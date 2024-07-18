@@ -13,13 +13,16 @@ public class ConditionalOnClassListMatches implements Condition {
 
         try {
             Map<String, Object> annotationAttributes = metadata.getAnnotationAttributes(ConditionalOnClassList.class.getName());
-            String[] names = (String[]) annotationAttributes.get("name");
+            String[] names = new String[0];
+            if (annotationAttributes != null) {
+                names = (String[]) annotationAttributes.get("name");
+            }
 
             for (String name : names) {
                 try {
                     Class<?> aClass = Class.forName(name);
                     return true;
-                }catch (Exception e){
+                }catch (Exception ignore){
                 }
 
             }

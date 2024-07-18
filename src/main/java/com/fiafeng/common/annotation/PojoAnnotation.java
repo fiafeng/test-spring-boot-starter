@@ -1,8 +1,6 @@
 package com.fiafeng.common.annotation;
 
 
-import lombok.Data;
-import lombok.experimental.Accessors;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

@@ -2,13 +2,12 @@ package com.fiafeng.common.filter;
 
 import com.alibaba.fastjson2.JSON;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.common.constant.ModelConstant;
-import com.fiafeng.common.utils.mvc.ServletUtils;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.pojo.Dto.AjaxResult;
 import com.fiafeng.common.pojo.Vo.IBaseUserInfo;
 import com.fiafeng.common.service.ICacheService;
 import com.fiafeng.common.service.ITokenService;
+import com.fiafeng.common.utils.mvc.ServletUtils;
 import com.fiafeng.security.properties.FiafengSecurityProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,7 +26,7 @@ import java.io.IOException;
  */
 
 @Component
-@BeanDefinitionOrderAnnotation(value = ModelConstant.defaultOrder)
+@BeanDefinitionOrderAnnotation()
 public class DefaultJwtAuthenticationTokenFilter extends OncePerRequestFilter implements IJwtAuthenticationTokenFilter {
 
     @Autowired

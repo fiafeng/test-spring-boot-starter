@@ -3,7 +3,6 @@ package com.fiafeng.mybatis.Interceptor;
 import com.github.pagehelper.PageHelper;
 import lombok.Getter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -11,12 +10,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 
+@Getter
 @ConditionalOnClass(PageHelper.class)
 //@Component
 public class PageHelperInterceptor implements HandlerInterceptor {
 
 
-    @Getter
     ThreadLocal<HttpServletRequest>  requestThreadLocal= new ThreadLocal<>();
 
 

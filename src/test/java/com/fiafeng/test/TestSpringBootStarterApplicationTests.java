@@ -1,17 +1,16 @@
 package com.fiafeng.test;
 
-import com.fiafeng.comment.pojo.BaseComment;
-import com.fiafeng.comment.pojo.dto.CommentDTO;
 import com.fiafeng.comment.service.Impl.mybatis.CommentMybatisServiceImpl;
 import com.fiafeng.common.mapper.Interface.IUserMapper;
 import com.fiafeng.common.pojo.Interface.IBaseUser;
 import com.fiafeng.demo.TestSpringBootStarterApplication;
-import com.mysql.cj.log.Log;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 @SpringBootTest(classes = {TestSpringBootStarterApplication.class})
 //@SpringBootTest

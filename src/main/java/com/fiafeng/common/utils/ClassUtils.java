@@ -22,7 +22,7 @@ public class ClassUtils {
                     try {
                         Class.forName(aClass);
                         return true;
-                    }catch (Exception e){
+                    }catch (Exception ignore){
                     }
                 }
             }

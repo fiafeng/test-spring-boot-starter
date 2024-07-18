@@ -16,17 +16,15 @@ public interface IRolePermissionService {
      * 给角色添加权限
      * @param rolePermission 角色信息
      * @return 成功与否
-     * @param <T>
      */
-    <T extends IBaseRolePermission> boolean insertRolePermission(T rolePermission);
+     boolean insertRolePermission(IBaseRolePermission rolePermission);
 
     /**
      *
      * @param rolePermission
      * @return
-     * @param <T>
      */
-    <T extends IBaseRolePermission> boolean deletedRolePermission(T rolePermission);
+     boolean deletedRolePermission(IBaseRolePermission rolePermission);
 
 
     boolean updateRolePermissionList(Long roleId, List<Long> permissionList);
@@ -35,9 +33,8 @@ public interface IRolePermissionService {
      *
      * @param roleId
      * @return
-     * @param <T>
      */
-    <T extends IBasePermission> List<T> queryPermissionListByRoleId(Long roleId);
+    List<IBasePermission> queryPermissionListByRoleId(Long roleId);
 
 
     List<String> queryPermissionNameListByRoleId(Long roleId);
