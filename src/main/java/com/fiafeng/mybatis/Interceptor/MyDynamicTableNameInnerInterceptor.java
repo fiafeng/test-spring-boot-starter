@@ -41,6 +41,8 @@ public class MyDynamicTableNameInnerInterceptor extends MybatisPlusInterceptor {
             // 如果不为空，使用动态表名。
             return tableName;
         });
+
+
         addInnerInterceptor(dynamicTableNameInnerInterceptor);
     }
 }

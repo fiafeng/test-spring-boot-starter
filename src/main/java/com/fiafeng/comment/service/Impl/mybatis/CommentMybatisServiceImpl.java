@@ -74,7 +74,7 @@ public class CommentMybatisServiceImpl  <T extends IBaseComment>  extends Servic
     }
 
 
-    public boolean sendComment(BaseComment baseComment) {
+    public boolean sendComment(IBaseComment baseComment) {
         try {
             if (!baseComment.getParentId().equals("-1")) {
                 BaseComment selectOne = baseMapper.selectById(baseComment.getParentId());
@@ -85,7 +85,7 @@ public class CommentMybatisServiceImpl  <T extends IBaseComment>  extends Servic
                     baseComment.setReceiverName(selectOne.getSenderName());
                 }
             }
-            baseMapper.insert(baseComment);
+            baseMapper.insert((BaseComment) baseComment);
             return true;
         } catch (Exception e) {
 //            e.printStackTrace();

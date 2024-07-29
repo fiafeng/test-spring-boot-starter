@@ -1,8 +1,6 @@
 package com.fiafeng.mybatis.config;
 
 
-import com.fiafeng.mybatis.factory.CustomObjectFactory;
-import com.fiafeng.mybatis.factory.ObjectFactoryConverter;
 import com.fiafeng.mybatis.properties.FiafengMybatisPageProperties;
 import com.fiafeng.mybatis.properties.FiafengMybatisProperties;
 import org.mybatis.spring.SqlSessionFactoryBean;
@@ -11,7 +9,6 @@ import org.mybatis.spring.annotation.MapperScans;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScans;
 import org.springframework.context.annotation.Import;
@@ -40,15 +37,15 @@ import org.springframework.context.annotation.Import;
 @ConditionalOnWebApplication
 public class MyBatisConfig {
 
-    @Bean
-    public CustomObjectFactory customObjectFactory() {
-        return new CustomObjectFactory();
-    }
-
-    @Bean
-    ObjectFactoryConverter objectFactoryConverter() {
-        return new ObjectFactoryConverter();
-    }
+//    @Bean
+//    public CustomObjectFactory customObjectFactory() {
+//        return new CustomObjectFactory();
+//    }
+//
+//    @Bean
+//    ObjectFactoryConverter objectFactoryConverter() {
+//        return new ObjectFactoryConverter();
+//    }
 
 
 }

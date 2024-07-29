@@ -3,10 +3,7 @@ package com.fiafeng.common.pojo;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.annotation.PojoAnnotation;
 import com.fiafeng.common.pojo.Interface.IBaseUser;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import java.io.Serializable;
 
@@ -17,9 +14,6 @@ import java.io.Serializable;
  */
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@ToString
 @BeanDefinitionOrderAnnotation()
 @PojoAnnotation
 public class DefaultUser implements IBaseUser, Serializable {

@@ -7,7 +7,10 @@ import com.fiafeng.common.annotation.HasRoleAnnotation;
 import com.fiafeng.common.controller.controller.Interface.IRoleController;
 import com.fiafeng.common.pojo.Dto.AjaxResult;
 import com.fiafeng.common.pojo.Interface.IBaseRole;
+import com.fiafeng.common.properties.mysql.FiafengMysqlRoleProperties;
+import com.fiafeng.common.properties.mysql.IMysqlTableProperties;
 import com.fiafeng.common.service.IRoleService;
+import com.fiafeng.common.service.Impl.ConnectionPoolServiceImpl;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +35,13 @@ public class RBACRoleController implements IRoleController {
 
         IBaseRole bean = FiafengSpringUtils.getBean(IBaseRole.class);
         IBaseRole iBaseRole = jsonObject.toJavaObject(bean.getClass());
+
+        ConnectionPoolServiceImpl connectionPoolService = FiafengSpringUtils.getBean(ConnectionPoolServiceImpl.class);
+        IMysqlTableProperties mysqlUserProperties = FiafengSpringUtils.getBeanObject(FiafengMysqlRoleProperties.class);
+        Long autoIncrementValue = connectionPoolService.getAutoIncrementValue(mysqlUserProperties.getTableName());
+        iBaseRole.setId(autoIncrementValue);
         roleService.insertRole(iBaseRole);
+
         return AjaxResult.success();
     }
 

@@ -14,11 +14,12 @@ import java.util.List;
 @Mapper
 public interface UserDaoMybatisPlusDemo extends BaseMapper<DefaultUser>, IUserMapper {
 
-    default  int insertUser(IBaseUser user) {
-        return insert((DefaultUser) user);
+    default int insertUser(IBaseUser user) {
+        DefaultUser defaultUser = (DefaultUser) user;
+        return insert(defaultUser);
     }
 
-    default  int updateUser(IBaseUser user) {
+    default int updateUser(IBaseUser user) {
         return updateById((DefaultUser) user);
     }
 
@@ -32,14 +33,14 @@ public interface UserDaoMybatisPlusDemo extends BaseMapper<DefaultUser>, IUserMa
         return (List) selectList(queryWrapper);
     }
 
-    default  IBaseUser selectUserByUserName(String username) {
+    default IBaseUser selectUserByUserName(String username) {
         QueryWrapper<DefaultUser> queryWrapper = new QueryWrapper<>();
         FiafengMysqlUserProperties mysqlUserProperties = FiafengSpringUtils.getBean(FiafengMysqlUserProperties.class);
         queryWrapper.eq(mysqlUserProperties.getTableColName(), username);
         return selectOne(queryWrapper);
     }
 
-    default  IBaseUser selectUserByUserId(Long userId) {
+    default IBaseUser selectUserByUserId(Long userId) {
         return selectById(userId);
     }
 }

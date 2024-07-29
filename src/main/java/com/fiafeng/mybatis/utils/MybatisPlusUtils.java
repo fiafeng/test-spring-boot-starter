@@ -2,8 +2,12 @@ package com.fiafeng.mybatis.utils;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.fiafeng.common.mapper.Interface.IMapper;
+import com.fiafeng.common.mapper.Interface.IUserMapper;
+import com.fiafeng.common.pojo.Interface.IBaseUser;
 import com.fiafeng.common.pojo.Interface.base.IBasePojo;
+import com.fiafeng.common.properties.mysql.FiafengMysqlUserProperties;
 import com.fiafeng.common.properties.mysql.IMysqlTableProperties;
+import com.fiafeng.common.service.Impl.ConnectionPoolServiceImpl;
 import com.fiafeng.common.utils.ObjectClassUtils;
 import com.fiafeng.common.utils.StringUtils;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
@@ -29,6 +33,15 @@ public class MybatisPlusUtils {
     }
 
 
+    public static void setUserAutoIncrementValue(IUserMapper userMapper, IBaseUser user) {
+        if (MybatisPlusUtils.isMybatisClassProxy(userMapper)) {
+            ConnectionPoolServiceImpl connectionPoolService = FiafengSpringUtils.getBean(ConnectionPoolServiceImpl.class);
+            FiafengMysqlUserProperties mysqlUserProperties = FiafengSpringUtils.getBean(FiafengMysqlUserProperties.class);
+            Long autoIncrementValue = connectionPoolService.getAutoIncrementValue(mysqlUserProperties.getTableName());
+            user.setId(autoIncrementValue);
+        }
+    }
+
     public static void addMybatisPlusTableNameORM(Class<? extends IMapper> mapperClass, Class<? extends IBasePojo> baseClass) {
         if (isMybatisClassProxy(FiafengSpringUtils.getBean(mapperClass))) {
             // 获取原始表名
@@ -47,11 +60,13 @@ public class MybatisPlusUtils {
                     String property = environment.getProperty("fiafeng.mysql-table." + mapperName.toLowerCase() + ".table-name");
 
                     String tableName = property == null ? properties.getTableName() : property;
+                    properties.setTableName(tableName);
                     MyDynamicTableNameInnerInterceptor.hashMap.put(oldName, tableName);
                     HashSet<String> hashSet = ObjectClassUtils.mybatisClassMap.get(baseClass);
                     if (hashSet != null) {
                         for (String beanName : hashSet) {
                             MyDynamicTableNameInnerInterceptor.hashMap.put(StringUtils.camelToUnderline(beanName), tableName);
+                            MyDynamicTableNameInnerInterceptor.hashMap.put(StringUtils.camelToUnderline(baseClass.getSimpleName()), tableName);
                         }
                     }
 

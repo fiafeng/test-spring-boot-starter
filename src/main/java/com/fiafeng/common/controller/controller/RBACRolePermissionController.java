@@ -7,7 +7,10 @@ import com.fiafeng.common.controller.controller.Interface.IRolePermissionControl
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.pojo.Dto.AjaxResult;
 import com.fiafeng.common.pojo.Interface.IBaseRolePermission;
+import com.fiafeng.common.properties.mysql.FiafengMysqlRolePermissionProperties;
+import com.fiafeng.common.properties.mysql.IMysqlTableProperties;
 import com.fiafeng.common.service.IRolePermissionService;
+import com.fiafeng.common.service.Impl.ConnectionPoolServiceImpl;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +35,10 @@ public class RBACRolePermissionController implements IRolePermissionController {
 
         IBaseRolePermission bean = FiafengSpringUtils.getBean(IBaseRolePermission.class);
         IBaseRolePermission rolePermission = jsonObject.toJavaObject(bean.getClass());
+        ConnectionPoolServiceImpl connectionPoolService = FiafengSpringUtils.getBean(ConnectionPoolServiceImpl.class);
+        IMysqlTableProperties mysqlUserProperties = FiafengSpringUtils.getBeanObject(FiafengMysqlRolePermissionProperties.class);
+        Long autoIncrementValue = connectionPoolService.getAutoIncrementValue(mysqlUserProperties.getTableName());
+        rolePermission.setId(autoIncrementValue);
 
         rolePermissionService.insertRolePermission(rolePermission);
         return AjaxResult.success();

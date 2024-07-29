@@ -27,7 +27,12 @@ public class MysqlApplicationInit implements ApplicationInitAfter{
 
         ObjectClassUtils.refreshBaseMysqlMapperType(IUserMapper.class, IBaseUser.class);
 
-        ObjectClassUtils.mysqlMapperInit(FiafengSpringUtils.getBean(FiafengRbacProperties.class));
+        try {
+            ObjectClassUtils.mysqlMapperInit(FiafengSpringUtils.getBean(FiafengRbacProperties.class));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
 
     }
 }

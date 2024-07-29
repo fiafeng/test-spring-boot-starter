@@ -61,7 +61,7 @@ public class DynamicASMUtils {
             String fieldName = aClassField.getName();
             Class<?> fieldType = aClassField.getType();
             List<DynamicAnnotation> annotatedList = getDynamicAnnotates(aClassField.getAnnotations());
-            dynamicField.setAnnotatedList(annotatedList);
+            dynamicField.setAnnotationList(annotatedList);
             dynamicField.setName(fieldName);
             dynamicField.setModifiers(aClassField.getModifiers());
             dynamicField.setType(fieldType);

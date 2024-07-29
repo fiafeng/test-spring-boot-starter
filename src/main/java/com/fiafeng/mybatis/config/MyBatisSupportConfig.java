@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClas
 import org.springframework.context.annotation.Bean;
 
 import com.fiafeng.mybatis.factory.CustomObjectFactory;
+import org.springframework.context.annotation.DependsOn;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import java.util.Map;
 
 // 在配置类中进行相关配置
 @ConditionalOnClass({SqlSessionFactoryBean.class})
+@DependsOn("customObjectFactory")
 public class MyBatisSupportConfig {
 
     @Autowired
@@ -50,6 +52,10 @@ public class MyBatisSupportConfig {
 
         Map<String, Interceptor> interceptorMap = FiafengSpringUtils.getBeanFactory().getBeansOfType(Interceptor.class);
         List<Interceptor> values = new ArrayList<>(interceptorMap.values());
+
+        if (customObjectFactory == null){
+            customObjectFactory = new CustomObjectFactory();
+        }
 
         mybatisSqlSessionFactoryBean.setObjectFactory(customObjectFactory);
         mybatisSqlSessionFactoryBean.setPlugins(values.toArray(new Interceptor[0]));

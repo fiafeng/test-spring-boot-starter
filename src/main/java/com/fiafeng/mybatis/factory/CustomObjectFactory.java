@@ -4,6 +4,7 @@ import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import org.apache.ibatis.reflection.ReflectionException;
 import org.apache.ibatis.reflection.Reflector;
 import org.apache.ibatis.reflection.factory.DefaultObjectFactory;
+import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Constructor;
 import java.util.Collections;
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-
+@Component
 public class CustomObjectFactory extends DefaultObjectFactory {
 
     @Override
@@ -22,7 +23,6 @@ public class CustomObjectFactory extends DefaultObjectFactory {
     @Override
     public <T> T create(Class<T> type, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
         try {
-
             Class<?> classToCreate = (Class<?>) FiafengSpringUtils.getBean(type);
             return (T) instantiateClass(classToCreate, constructorArgTypes, constructorArgs);
         } catch (Exception e) {

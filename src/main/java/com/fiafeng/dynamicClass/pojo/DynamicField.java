@@ -21,7 +21,23 @@ public class DynamicField implements Serializable {
 
     private List<Class<?>> componentTypeList;
 
-    private List<DynamicAnnotation> annotatedList;
+    private List<DynamicAnnotation> annotationList;
+
+    private Object defaultValue;
+
+    public void setType(Class<?> type) {
+        this.type = type;
+        this.importList.add(DynamicUtils.getImport(type));
+    }
+
+    public void setAnnotationList(List<DynamicAnnotation> annotationList) {
+        if (annotationList != null && !annotationList.isEmpty()) {
+            this.annotationList = annotationList;
+            for (DynamicAnnotation dynamicAnnotation : annotationList) {
+                this.importList.addAll(dynamicAnnotation.getImportList());
+            }
+        }
+    }
 
     public void setComponentTypeList(List<Class<?>> componentTypeList) {
         if (componentTypeList.isEmpty()){

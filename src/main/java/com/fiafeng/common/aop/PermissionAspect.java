@@ -2,15 +2,15 @@ package com.fiafeng.common.aop;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.common.Enum.LogicEnum;
+import com.fiafeng.common.annotation.HasPermissionAnnotation;
+import com.fiafeng.common.annotation.HasRoleAnnotation;
 import com.fiafeng.common.constant.CacheConstants;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.pojo.Vo.IBaseUserInfo;
+import com.fiafeng.common.properties.FiafengRbacProperties;
 import com.fiafeng.common.service.ICacheService;
 import com.fiafeng.common.service.ITokenService;
 import com.fiafeng.common.utils.SecurityUtils;
-import com.fiafeng.common.annotation.HasPermissionAnnotation;
-import com.fiafeng.common.annotation.HasRoleAnnotation;
-import com.fiafeng.common.properties.FiafengRbacProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -32,7 +31,7 @@ import java.util.List;
  */
 @Aspect
 @Slf4j
-@Component
+//@Component
 @ConditionalOnClass(Aspect.class)
 @ConditionalOnProperty( prefix = "fiafeng.rbac" ,value = "permission-aop-enable", havingValue = "true")
 public class PermissionAspect {

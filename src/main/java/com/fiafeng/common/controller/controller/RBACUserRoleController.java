@@ -9,7 +9,10 @@ import com.fiafeng.common.pojo.Dto.AjaxResult;
 import com.fiafeng.common.pojo.Interface.IBaseRole;
 import com.fiafeng.common.pojo.Interface.IBaseUserRole;
 import com.fiafeng.common.properties.FiafengRbacProperties;
+import com.fiafeng.common.properties.mysql.FiafengMysqlUserRoleProperties;
+import com.fiafeng.common.properties.mysql.IMysqlTableProperties;
 import com.fiafeng.common.service.IUserRoleService;
+import com.fiafeng.common.service.Impl.ConnectionPoolServiceImpl;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -44,6 +47,10 @@ public class RBACUserRoleController implements IUserRoleController {
                 throw new ServiceException("用户单一角色限制已经开启,当前用户已经拥有一个角色了！");
             }
         }
+        ConnectionPoolServiceImpl connectionPoolService = FiafengSpringUtils.getBean(ConnectionPoolServiceImpl.class);
+        IMysqlTableProperties mysqlUserProperties = FiafengSpringUtils.getBeanObject(FiafengMysqlUserRoleProperties.class);
+        Long autoIncrementValue = connectionPoolService.getAutoIncrementValue(mysqlUserProperties.getTableName());
+        userRole.setId(autoIncrementValue);
 
         userRoleService.insertUserRole(userRole);
         return AjaxResult.success();

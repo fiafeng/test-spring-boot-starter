@@ -6,6 +6,9 @@ public interface IMysqlTableProperties extends IFiafengProperties {
 
     String getTableName();
 
+   default void setTableName(String tableName){
+   }
+
     default String getIdName() {return "id";}
 
     default String getTableColName(){

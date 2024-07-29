@@ -13,9 +13,4 @@ public class DynamicAnnotationMethod implements Serializable {
     private Class<?> returnType;
 
     private Object value;
-
-
-
-
-
 }

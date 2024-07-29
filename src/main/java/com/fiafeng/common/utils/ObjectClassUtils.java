@@ -6,11 +6,11 @@ import com.fiafeng.common.mapper.mysql.BaseObjectMysqlMapper;
 import com.fiafeng.common.pojo.Interface.*;
 import com.fiafeng.common.pojo.Interface.base.IBasePojo;
 import com.fiafeng.common.properties.FiafengRbacProperties;
-import com.fiafeng.common.properties.mysql.FiafengMysqlUserProperties;
-import com.fiafeng.common.properties.mysql.IMysqlTableProperties;
+import com.fiafeng.common.properties.mysql.*;
 import com.fiafeng.common.service.IUserTableInitService;
 import com.fiafeng.common.service.Impl.ConnectionPoolServiceImpl;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
+import com.fiafeng.mybatis.utils.MybatisPlusUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -134,18 +134,18 @@ public class ObjectClassUtils {
     /**
      * 初始化mysql数据库，用户，角色，权限。默认添加管理员和管理员角色和管理员权限
      */
-    public static void mysqlMapperInit(FiafengRbacProperties rbacProperties) {
+    public static void mysqlMapperInit(FiafengRbacProperties rbacProperties) throws Exception {
 
 
         // 检查用户表
         // TODO 因为 BCryptPasswordEncoder 是属于Security框架的。所以为了兼容没有使用Security框架的，使用了一个接口两个实现类的方式
 
-        try {
-            IUserTableInitService userTableInitService = FiafengSpringUtils.getBean(IUserTableInitService.class);
-            userTableInitService.init();
+        IUserTableInitService userTableInitService = FiafengSpringUtils.getBean(IUserTableInitService.class);
+        userTableInitService.init();
 
-        } catch (Exception ignored) {
-        }
+        IUserMapper userMapper = FiafengSpringUtils.getBean(IUserMapper.class);
+        IBaseUser adminUser = userMapper.selectUserByUserName(rbacProperties.getDefaultUserName());
+
 
         IRoleMapper roleMapper = FiafengSpringUtils.getBean(IRoleMapper.class);
         // 检查角色表
@@ -162,73 +162,83 @@ public class ObjectClassUtils {
             if (baseRole == null){
                 IBaseRole role = FiafengSpringUtils.getBean(IBaseRole.class);
                 role.setName(rbacProperties.roleAdminName);
+                if (MybatisPlusUtils.isMybatisClassProxy(roleMapper)) {
+                    ConnectionPoolServiceImpl connectionPoolService = FiafengSpringUtils.getBean(ConnectionPoolServiceImpl.class);
+                    IMysqlTableProperties mysqlUserProperties = FiafengSpringUtils.getBeanObject(FiafengMysqlRoleProperties.class);
+                    Long autoIncrementValue = connectionPoolService.getAutoIncrementValue(mysqlUserProperties.getTableName());
+                    role.setId(autoIncrementValue);
+                }
                 roleMapper.insertRole(role);
-            }
 
+            }
         }
+
+
+
+        IBaseRole adminRole = roleMapper.selectRoleByRoleName(rbacProperties.getRoleAdminName());
 
         // 检查权限表
         IPermissionMapper permissionMapper = FiafengSpringUtils.getBean(IPermissionMapper.class);
         if (permissionMapper instanceof BaseObjectMysqlMapper) {
             BaseObjectMysqlMapper baseMysqlMapper = (BaseObjectMysqlMapper) permissionMapper;
             if (baseMysqlMapper.selectObjectByObjectId(1L) == null) {
-                IBasePermission baseRole = FiafengSpringUtils.getBean(IBasePermission.class);
-                baseRole.setId(1L);
-                baseRole.setName(rbacProperties.permissionAdminName);
-                baseMysqlMapper.insertObject(baseRole, false);
+                IBasePermission basePermission = FiafengSpringUtils.getBean(IBasePermission.class);
+                basePermission.setId(1L);
+                basePermission.setName(rbacProperties.permissionAdminName);
+                baseMysqlMapper.insertObject(basePermission, false);
             }
         }else {
-            IBasePermission baseRole = permissionMapper.selectPermissionByPermissionName(rbacProperties.getPermissionAdminName());
-            if (baseRole == null){
+            IBasePermission basePermission = permissionMapper.selectPermissionByPermissionName(rbacProperties.getPermissionAdminName());
+            if (basePermission == null){
                 IBasePermission permission = FiafengSpringUtils.getBean(IBasePermission.class);
                 permission.setName(rbacProperties.roleAdminName);
+                if (MybatisPlusUtils.isMybatisClassProxy(permissionMapper)) {
+                    ConnectionPoolServiceImpl connectionPoolService = FiafengSpringUtils.getBean(ConnectionPoolServiceImpl.class);
+                    IMysqlTableProperties mysqlUserProperties = FiafengSpringUtils.getBeanObject(FiafengMysqlPermissionProperties.class);
+                    Long autoIncrementValue = connectionPoolService.getAutoIncrementValue(mysqlUserProperties.getTableName());
+                    permission.setId(autoIncrementValue);
+                }
                 permissionMapper.insertPermission(permission);
             }
         }
 
+
+        IBasePermission adminPermission = permissionMapper.selectPermissionByPermissionName(rbacProperties.getPermissionAdminName());
+
         // 检查用户角色表
         IUserRoleMapper userRoleMapper = FiafengSpringUtils.getBean(IUserRoleMapper.class);
-        IBaseRole role = roleMapper.selectRoleByRoleName(rbacProperties.getRoleAdminName());
-        if (userRoleMapper instanceof BaseObjectMysqlMapper) {
-            BaseObjectMysqlMapper baseMysqlMapper = (BaseObjectMysqlMapper) userRoleMapper;
-            if (baseMysqlMapper.selectObjectByObjectId(1L) == null) {
-                IBaseUserRole baseUserRole = FiafengSpringUtils.getBean(IBaseUserRole.class);
-                baseUserRole.setId(1L);
-                baseUserRole.setRoleId(1L);
-                baseUserRole.setUserId(1L);
-                baseMysqlMapper.insertObject(baseUserRole, false);
+        IBaseUserRole baseUserRole = FiafengSpringUtils.getBean(IBaseUserRole.class);
+        baseUserRole.setRoleId(adminRole.getId());
+        baseUserRole.setUserId(adminUser.getId());
+        baseUserRole.setId(null);
+        IBaseUserRole iBaseUserRole = userRoleMapper.selectUserRoleByUserRole(baseUserRole);
+        if (iBaseUserRole == null){
+            if (MybatisPlusUtils.isMybatisClassProxy(permissionMapper)) {
+                ConnectionPoolServiceImpl connectionPoolService = FiafengSpringUtils.getBean(ConnectionPoolServiceImpl.class);
+                IMysqlTableProperties mysqlUserProperties = FiafengSpringUtils.getBeanObject(FiafengMysqlUserRoleProperties.class);
+                Long autoIncrementValue = connectionPoolService.getAutoIncrementValue(mysqlUserProperties.getTableName());
+                baseUserRole.setId(autoIncrementValue);
             }
-        }else {
-            IUserMapper userMapper = FiafengSpringUtils.getBean(IUserMapper.class);
-            IBaseUser user = userMapper.selectUserByUserName(rbacProperties.defaultUserName);
-            IBaseUserRole userRole = FiafengSpringUtils.getBean(IBaseUserRole.class);
-            userRole.setRoleId(role.getId());
-            userRole.setUserId(user.getId());
-            if (userRoleMapper.selectUserRoleByUserRole(userRole) == null){
-                userRoleMapper.insertUserRole(userRole);
-            }
+            userRoleMapper.insertUserRole(baseUserRole);
         }
+
 
 
         // 检查角色权限表
         IRolePermissionMapper rolePermissionMapper = FiafengSpringUtils.getBean(IRolePermissionMapper.class);
-        if (rolePermissionMapper instanceof BaseObjectMysqlMapper) {
-            BaseObjectMysqlMapper baseMysqlMapper = (BaseObjectMysqlMapper) rolePermissionMapper;
-            if (baseMysqlMapper.selectObjectByObjectId(1L) == null) {
-                IBaseRolePermission baseRole = FiafengSpringUtils.getBean(IBaseRolePermission.class);
-                baseRole.setId(1L);
-                baseRole.setRoleId(1L);
-                baseRole.setPermissionId(1L);
-                baseMysqlMapper.insertObject(baseRole, false);
+        IBaseRolePermission rolePermission = FiafengSpringUtils.getBean(IBaseRolePermission.class);
+        rolePermission.setRoleId(adminRole.getId());
+        rolePermission.setPermissionId(adminPermission.getId());
+        rolePermission.setId(null);
+        IBaseRolePermission baseRolePermission = rolePermissionMapper.selectRolePermissionIdByRoleIdPermissionId(rolePermission);
+        if (baseRolePermission == null){
+            if (MybatisPlusUtils.isMybatisClassProxy(permissionMapper)) {
+                ConnectionPoolServiceImpl connectionPoolService = FiafengSpringUtils.getBean(ConnectionPoolServiceImpl.class);
+                IMysqlTableProperties mysqlUserProperties = FiafengSpringUtils.getBeanObject(FiafengMysqlRoleProperties.class);
+                Long autoIncrementValue = connectionPoolService.getAutoIncrementValue(mysqlUserProperties.getTableName());
+                rolePermission.setId(autoIncrementValue);
             }
-        }else {
-            IBasePermission permission = permissionMapper.selectPermissionByPermissionName(rbacProperties.getPermissionAdminName());
-            IBaseRolePermission rolePermission = FiafengSpringUtils.getBean(IBaseRolePermission.class);
-            rolePermission.setRoleId(role.getId());
-            rolePermission.setPermissionId(permission.getId());
-            if (rolePermissionMapper.selectRolePermissionIdByRoleIdPermissionId(rolePermission) == null){
-                rolePermissionMapper.insertRolePermission(rolePermission);
-            }
+            rolePermissionMapper.insertRolePermission(rolePermission);
         }
     }
 

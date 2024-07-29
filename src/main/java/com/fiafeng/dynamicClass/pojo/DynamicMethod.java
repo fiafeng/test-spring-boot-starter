@@ -19,6 +19,7 @@ public class DynamicMethod implements Serializable {
 
     private List<DynamicException> exceptionList = new ArrayList<>();
 
+
     public void setAnnotationList(List<DynamicAnnotation> annotationList) {
         if (annotationList != null && !annotationList.isEmpty()) {
             this.annotationList = annotationList;

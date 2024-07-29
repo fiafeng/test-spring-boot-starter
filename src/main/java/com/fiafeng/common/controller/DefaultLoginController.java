@@ -12,11 +12,13 @@ import com.fiafeng.common.service.ILoginService;
 import com.fiafeng.common.service.ITokenService;
 import com.fiafeng.common.service.IUserService;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @BeanDefinitionOrderAnnotation()
+@Slf4j
 public class DefaultLoginController implements ILoginController {
 
     @Autowired
@@ -38,6 +40,7 @@ public class DefaultLoginController implements ILoginController {
         String token = loginService.login(username, password);
         AjaxResult ajax = AjaxResult.success();
         ajax.put(tokenProperties.getToken(), token);
+        log.info("=>用户" + username + "登录成功");
         return ajax;
     }
 
@@ -58,6 +61,7 @@ public class DefaultLoginController implements ILoginController {
         String token = loginService.login(iBaseUser.getUsername(), iBaseUser.getPassword());
         AjaxResult ajax = AjaxResult.success();
         ajax.put(tokenProperties.getToken(), token);
+        log.info("=>用户" + iBaseUser.getUsername() + "登录成功");
         return ajax;
     }
 

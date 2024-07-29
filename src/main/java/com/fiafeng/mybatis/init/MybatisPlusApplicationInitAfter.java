@@ -42,12 +42,5 @@ public class MybatisPlusApplicationInitAfter implements ApplicationInitAfter {
         for (Map.Entry<Class<? extends IMapper>, Class<? extends IBasePojo>> classClassEntry : entries) {
             MybatisPlusUtils.addMybatisPlusTableNameORM(classClassEntry.getKey(), classClassEntry.getValue());
         }
-
-
-
-
     }
-
-
-
 }

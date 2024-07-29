@@ -6,6 +6,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 public class DynamicUtils {
@@ -14,6 +15,8 @@ public class DynamicUtils {
     static List<String> annotationMethodNameIgnoreList = Arrays.asList("equals", "hashCode", "toString", "annotationType");
 
     static List<String> classMethodNameIgnoreList = Arrays.asList("equals", "hashCode", "toString", "annotationType", "wait", "getClass", "notify", "notifyAll");
+
+    static HashMap<Class, DynamicAnnotation> defaultDynamicAnnotationHashMap = new HashMap<>();
 
 
     public static DynamicClass getDynamicClass(Class<?> aclass) {
@@ -28,6 +31,7 @@ public class DynamicUtils {
         dynamicClass.setName(simpleName);
         dynamicClass.setType(aclass);
         dynamicClass.setParentClass(parentclass);
+        dynamicClass.setModifiers(aclass.getModifiers());
 
         dynamicClass.setFieldList(dynamicFieldList);
         dynamicClass.setMethodList(dynamicMethodList);
@@ -37,7 +41,7 @@ public class DynamicUtils {
 
     public static List<DynamicField> getDynamicFieldList(Class<?> aClass) {
         List<DynamicField> dynamicFieldList = new ArrayList<>();
-        Field[] classFields = aClass.getFields();
+        Field[] classFields = aClass.getDeclaredFields();
         for (Field aClassField : classFields) {
             String fieldName = aClassField.getName();
             Class<?> fieldType = aClassField.getType();
@@ -45,8 +49,9 @@ public class DynamicUtils {
             Type genericType = aClassField.getGenericType();
             List<Class<?>> classParameterType = getClassParameterType(genericType);
 
+
             DynamicField dynamicField = new DynamicField();
-            dynamicField.setAnnotatedList(annotatedList);
+            dynamicField.setAnnotationList(annotatedList);
             dynamicField.setName(fieldName);
             dynamicField.setModifiers(aClassField.getModifiers());
             dynamicField.setType(fieldType);
@@ -96,7 +101,7 @@ public class DynamicUtils {
     }
 
 
-    public static List<DynamicException> getExceptionList(Class<?>[] exceptionTypes){
+    public static List<DynamicException> getExceptionList(Class<?>[] exceptionTypes) {
         List<DynamicException> dynamicExceptionList = new ArrayList<>();
         for (Class<?> exceptionType : exceptionTypes) {
             DynamicException dynamicException = new DynamicException();
@@ -136,15 +141,20 @@ public class DynamicUtils {
         Method[] annotationMethods = annotationClass.getMethods();
         for (Method annotationMethod : annotationMethods) {
             String annotationMethodName = annotationMethod.getName();
-            if (annotationNameIgnoreList.contains(annotationMethodName)) {
+            if (annotationMethodNameIgnoreList.contains(annotationMethodName)) {
                 continue;
             }
             Object defaultValue = null;
             try {
                 defaultValue = annotationMethod.invoke(annotation);
+//                Annotation instance = annotationClass.newInstance();
+//                if (defaultValue == annotationMethod.invoke(instance)){
+//                    continue;
+//                }
             } catch (Exception ignore) {
                 continue;
             }
+
 
             Class<?> returnType = defaultValue.getClass();
             DynamicAnnotationMethod dynamicAnnotationMethod = new DynamicAnnotationMethod();
@@ -164,12 +174,15 @@ public class DynamicUtils {
             String parameterName = parameter.getName();
             String paramPackageName = DynamicUtils.getImport(parameterType);
             List<Class<?>> classParameterTypeList = getClassParameterType(parameterType);
+            Annotation[] parameterAnnotations = parameter.getAnnotations();
+            List<DynamicAnnotation> dynamicAnnotationList = getDynamicAnnotationList(parameterAnnotations);
 
             DynamicArg dynamicArg = new DynamicArg();
             if (!classParameterTypeList.isEmpty()) {
                 dynamicArg.setParamType(true);
                 dynamicArg.setComponentTypeList(classParameterTypeList);
             }
+            dynamicArg.setAnnotationList(dynamicAnnotationList);
 
             dynamicArg.setName(parameterName);
             dynamicArg.setType(parameterType);
@@ -177,7 +190,6 @@ public class DynamicUtils {
         }
         return dynamicArgList;
     }
-
 
     public static DynamicArg getMethodReturnArg(Method classMethod) {
         List<Class<?>> componentTypeList = new ArrayList<>();
@@ -213,7 +225,7 @@ public class DynamicUtils {
                         Class<?> actualTypeArgument = (Class<?>) type;
                         //获取实际参数的类名
                         componentTypeList.add(actualTypeArgument);
-                    }else {
+                    } else {
                         System.out.println(type);
                     }
                 }

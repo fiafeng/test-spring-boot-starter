@@ -19,6 +19,7 @@ import org.springframework.lang.Nullable;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
+import java.math.BigInteger;
 import java.sql.Date;
 import java.sql.*;
 import java.util.*;
@@ -32,6 +33,7 @@ public class ConnectionPoolServiceImpl {
     DataSource dataSource;
 
     @Value("${spring.datasource.url}")
+    @Getter
     public String url;
 
     public static volatile List<Connection> connectionPool = new ArrayList<>();
@@ -224,7 +226,6 @@ public class ConnectionPoolServiceImpl {
             userCount.getAndDecrement();
         }
     }
-
 
     private static void closeStatement() {
 
@@ -714,7 +715,7 @@ public class ConnectionPoolServiceImpl {
     /**
      * 根据主键更新对应的数据
      *
-     * @param Object 更新的对象
+     * @param Object    更新的对象
      * @param idName    主键id名称
      * @param tableName 表名
      * @return 删除数量
@@ -728,8 +729,8 @@ public class ConnectionPoolServiceImpl {
 
     /**
      * @param objectLists 更新列表
-     * @param idName    主键id名称
-     * @param tableName 表名
+     * @param idName      主键id名称
+     * @param tableName   表名
      * @return 更新数量
      */
     public int updateObjectList(List objectLists, String idName, String tableName) {
@@ -755,7 +756,7 @@ public class ConnectionPoolServiceImpl {
 
 
     /**
-     * @param type 返回类型
+     * @param type      返回类型
      * @param tableName 表名
      * @return 查询结果
      */
@@ -768,8 +769,8 @@ public class ConnectionPoolServiceImpl {
 
     /**
      * @param tableName   表名
-     * @param type 返回的类型
-     * @param colName 查询字段名
+     * @param type        返回的类型
+     * @param colName     查询字段名
      * @param valueObject 条件内的值
      * @return 查询结果
      */
@@ -780,9 +781,9 @@ public class ConnectionPoolServiceImpl {
     }
 
     /**
-     * @param tableName 表名
-     * @param type 返回的类型
-     * @param colName 条件字段名
+     * @param tableName   表名
+     * @param type        返回的类型
+     * @param colName     条件字段名
      * @param valueObject 条件的值
      * @return 返回值
      */
@@ -793,8 +794,8 @@ public class ConnectionPoolServiceImpl {
 
     /**
      * @param tableName   表名
-     * @param type 返回类型
-     * @param colName 条件字段名
+     * @param type        返回类型
+     * @param colName     条件字段名
      * @param valueObject 条件的值
      * @return 查询结果
      */
@@ -805,9 +806,9 @@ public class ConnectionPoolServiceImpl {
     }
 
     /**
-     * @param tableName 表名
-     * @param type 返回类型
-     * @param colName 条件字段名
+     * @param tableName   表名
+     * @param type        返回类型
+     * @param colName     条件字段名
      * @param valueObject 条件的值
      * @return 查询的结果集合
      */
@@ -818,7 +819,7 @@ public class ConnectionPoolServiceImpl {
     /**
      * @param tableName    表名
      * @param idName       主键id名称
-     * @param type 返回值的类型
+     * @param type         返回值的类型
      * @param ObjectIdList 主键id列表
      * @return 结果集合
      */
@@ -838,15 +839,15 @@ public class ConnectionPoolServiceImpl {
 
     /**
      * @param tableName 表名
-     * @param type 返回值的类型
-     * @param paramMap 条件集合
+     * @param type      返回值的类型
+     * @param paramMap  条件集合
      * @return 查询结果
      */
     public Object selectObjectByColMap(String tableName, String colNames, Class<?> type, Map<String, Object> paramMap) {
-        StringBuilder sql = new StringBuilder(getBaseSelectSql(tableName));
+        StringBuilder sql = new StringBuilder(getBaseSelectSql(tableName, colNames));
         List<Object> objectList = new ArrayList<>();
         for (String colName : paramMap.keySet()) {
-            sql.append(StringUtils.camelToUnderline(colName)).append("= ?");
+            sql.append(" and ").append(StringUtils.camelToUnderline(colName)).append("= ?");
             objectList.add(paramMap.get(colName));
         }
         Map<String, Object> objectMap = queryFoObject(sql.toString(), objectList.toArray());
@@ -860,8 +861,8 @@ public class ConnectionPoolServiceImpl {
 
     /**
      * @param tableName 表名
-     * @param type 返回类型
-     * @param paramMap 参数集合
+     * @param type      返回类型
+     * @param paramMap  参数集合
      * @return 查询结果集合
      */
     public <T> List<T> selectObjectListByColMap(String tableName, Class<?> type, Map<String, Object> paramMap) {
@@ -871,9 +872,9 @@ public class ConnectionPoolServiceImpl {
 
     /**
      * @param tableName 表名
-     * @param colNames 查询字段名
-     * @param type 返回类型
-     * @param paramMap 参数集合
+     * @param colNames  查询字段名
+     * @param type      返回类型
+     * @param paramMap  参数集合
      * @return 查询结果集合
      */
     public <T> List<T> selectObjectListByColMap(String tableName, String colNames, Class<?> type, Map<String, Object> paramMap) {
@@ -885,6 +886,29 @@ public class ConnectionPoolServiceImpl {
         }
         List<Map<String, Object>> mapList = queryForList(sql.toString(), objectList.toArray());
         return getObjectList(mapList, type);
+    }
+
+    public Long getAutoIncrementValue(String tableName) {
+        String schema = url.substring(url.lastIndexOf("/") + 1, url.indexOf("?"));
+
+        return getAutoIncrementValue(tableName, schema);
+    }
+
+    public Long getAutoIncrementValue(String tableName, String schemaName) {
+        Object[] objects = {schemaName, tableName};
+        String sql = "SELECT AUTO_INCREMENT\n" +
+                "FROM information_schema.TABLES\n" +
+                "WHERE TABLE_NAME = ?\n";
+        objects = new Object[]{tableName};
+        if (schemaName != null) {
+            sql += "  and TABLE_SCHEMA = ?";
+            objects = new Object[]{tableName, schemaName};
+        }
+        Map<String, Object> map = queryFoObject(sql, objects);
+        if (map != null) {
+           return ((BigInteger)map.getOrDefault("AUTO_INCREMENT", 1L)).longValue();
+        }
+        return 1L;
     }
 
 
@@ -902,7 +926,7 @@ public class ConnectionPoolServiceImpl {
 
     /**
      * @param tableName 表名
-     * @param colNames 查询字段名
+     * @param colNames  查询字段名
      * @return 基础查询sql
      */
     public String getBaseSelectSql(String tableName, String colNames) {
@@ -954,7 +978,7 @@ public class ConnectionPoolServiceImpl {
 
 
     /**
-     * @param map 对象属性和值的集合
+     * @param map  对象属性和值的集合
      * @param type 返回类型
      * @return 查询结果
      */
@@ -990,7 +1014,7 @@ public class ConnectionPoolServiceImpl {
 
     /**
      * @param jsonObject 对象属性
-     * @param type 返回类型
+     * @param type       返回类型
      * @return 查询结果
      */
     public static Object getObject(JSONObject jsonObject, Class<?> type) {

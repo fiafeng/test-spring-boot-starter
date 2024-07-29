@@ -1,5 +1,6 @@
 package com.fiafeng.comment.controller;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.fiafeng.comment.pojo.BaseComment;
 import com.fiafeng.comment.pojo.Interface.IBaseComment;
 import com.fiafeng.comment.pojo.dto.CommentDTO;
@@ -12,6 +13,7 @@ import com.fiafeng.common.service.ITokenService;
 import com.fiafeng.common.service.IUserService;
 import com.fiafeng.common.utils.ObjectUtils;
 import com.fiafeng.common.utils.StringUtils;
+import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import com.fiafeng.validation.annotation.ValidationAnnotation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -31,15 +33,19 @@ public class CommentController {
     @Autowired
     CommentMybatisServiceImpl commentService;
 
-
-
     @PostMapping("/send")
     @ValidationAnnotation
-    public AjaxResult sendCommentPost(@RequestBody BaseComment baseComment) {
+    public AjaxResult sendCommentPost(@RequestBody JSONObject jsonObject) {
+        IBaseComment baseComment = jsonObject.toJavaObject(FiafengSpringUtils.getBean(IBaseComment.class).getClass());
+
         // 如果是回复的评论，检查回复评论名字和Id
         if (!"-1".equals(baseComment.getParentId()) && (StringUtils.strIsEmpty(baseComment.getReceiverName()) && StringUtils.strIsEmpty(baseComment.getReceiverUserId()))) {
             throw new ServiceException("回复评论参数不正确");
         }
+        if (StringUtils.strIsEmpty(baseComment.getCommentContent())){
+            throw new ServiceException("评论内容不存在");
+        }
+
         IBaseUserInfo loginUserInfo = tokenService.getLoginUser();
         baseComment.setSenderUserId(loginUserInfo.getUser().getId());
         baseComment.setSenderName(loginUserInfo.getUser().getUsername());
@@ -84,9 +90,6 @@ public class CommentController {
                 throw new ServiceException("找不到回复的评论信息");
             }
         }
-
-
-
 
         if (!StringUtils.strIsEmpty(baseComment.getReceiverName()) && !StringUtils.strIsEmpty(baseComment.getReceiverUserId())){
             IBaseUser baseUser = userService.selectUserByUserId(Long.valueOf(baseComment.getReceiverUserId()));
@@ -166,7 +169,7 @@ public class CommentController {
         List<CommentDTO> dtoList;
         IBaseComment baseComment = commentService.queryCommentById(commentId);
         if (baseComment == null) {
-            throw new ServiceException("找不到主评论");
+            throw new ServiceException("找不到当前评论");
         }
 
         List<BaseComment> baseCommentTreeByIdTree = commentService.queryCommentTreeById(commentId);

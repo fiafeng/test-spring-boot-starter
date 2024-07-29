@@ -1,7 +1,6 @@
 package com.fiafeng.common.service.Impl;
 
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
-import com.fiafeng.common.constant.CacheConstants;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.mapper.Interface.IRoleMapper;
 import com.fiafeng.common.mapper.Interface.IUserRoleMapper;
@@ -77,8 +76,6 @@ public class DefaultRoleServiceImpl implements IRoleService {
 
         if (roleMapper.deletedRole(roleId) != 1) {
             updateCacheService.updateCacheByRole(roleId);
-            cacheService.deleteObject(CacheConstants.ROLE_PERMISSION_PREFIX + roleId);
-
         } else {
             throw new ServiceException("删除角色遇到意外的异常");
         }
@@ -104,7 +101,6 @@ public class DefaultRoleServiceImpl implements IRoleService {
 
         if (roleMapper.deletedRole(iBaseRole.getId()) != 1) {
             updateCacheService.updateCacheByRole(iBaseRole.getId());
-            cacheService.deleteObject(CacheConstants.ROLE_PERMISSION_PREFIX + iBaseRole.getId());
 
         } else {
             throw new ServiceException("删除角色遇到意外的异常");

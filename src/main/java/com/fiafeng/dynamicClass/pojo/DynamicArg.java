@@ -23,6 +23,18 @@ public class DynamicArg implements Serializable {
         importList.add(DynamicUtils.getImport(type));
     }
 
+    List<DynamicAnnotation> annotationList;
+
+    public void setAnnotationList(List<DynamicAnnotation> annotationList) {
+        this.annotationList = annotationList;
+        if (annotationList != null && !annotationList.isEmpty()){
+            for (DynamicAnnotation dynamicAnnotation : annotationList) {
+                this.importList.addAll(dynamicAnnotation.getImportList());
+            }
+        }
+
+    }
+
     public void setComponentTypeList(List<Class<?>> componentTypeList) {
         if (componentTypeList.isEmpty()){
             return;

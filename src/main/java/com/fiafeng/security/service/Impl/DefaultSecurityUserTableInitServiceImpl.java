@@ -3,11 +3,12 @@ package com.fiafeng.security.service.Impl;
 import com.fiafeng.common.annotation.BeanDefinitionOrderAnnotation;
 import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.mapper.Interface.IUserMapper;
+import com.fiafeng.common.mapper.mysql.BaseObjectMysqlMapper;
 import com.fiafeng.common.pojo.Interface.IBaseUser;
+import com.fiafeng.common.properties.FiafengRbacProperties;
 import com.fiafeng.common.service.IUserTableInitService;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
-import com.fiafeng.common.mapper.mysql.BaseObjectMysqlMapper;
-import com.fiafeng.common.properties.FiafengRbacProperties;
+import com.fiafeng.mybatis.utils.MybatisPlusUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -39,18 +40,24 @@ public class DefaultSecurityUserTableInitServiceImpl implements IUserTableInitSe
 
                 user.setPassword(bCryptPasswordEncoder.encode(rbacProperties.defaultUserPassword));
                 baseMysqlMapper.insertObject(user, false);
-            }else if (!rbacProperties.defaultUserName.equals(iBaseUser.getUsername())){
-                iBaseUser.setPassword(rbacProperties.getDefaultUserName());
+            } else if (!rbacProperties.defaultUserName.equals(iBaseUser.getUsername())) {
+                iBaseUser.setUsername(rbacProperties.getDefaultUserName());
                 baseMysqlMapper.updateObject(iBaseUser);
             }
-        }else {
+        } else {
             IBaseUser iBaseUser = userMapper.selectUserByUserName(rbacProperties.defaultUserName);
+            IBaseUser user = null;
             if (iBaseUser == null) {
-                IBaseUser user = FiafengSpringUtils.getBean(IBaseUser.class);
+                user = FiafengSpringUtils.getBean(IBaseUser.class);
                 user.setUsername(rbacProperties.defaultUserName);
                 user.setPassword(bCryptPasswordEncoder.encode(rbacProperties.defaultUserPassword));
+                MybatisPlusUtils.setUserAutoIncrementValue(userMapper, user);
                 userMapper.insertUser(user);
+            }else if (!rbacProperties.defaultUserName.equals(iBaseUser.getUsername())) {
+                iBaseUser.setUsername(rbacProperties.getDefaultUserName());
+                userMapper.updateUser(iBaseUser);
             }
         }
     }
+
 }

@@ -6,13 +6,12 @@ import com.fiafeng.common.constant.ModelConstant;
 import com.fiafeng.common.exception.ServiceException;
 import com.fiafeng.common.filter.IJwtAuthenticationTokenFilter;
 import com.fiafeng.common.pojo.Dto.AjaxResult;
-import com.fiafeng.security.properties.FiafengSecurityProperties;
-import com.fiafeng.security.service.IUserDetails;
 import com.fiafeng.common.service.ICacheService;
 import com.fiafeng.common.service.ITokenService;
 import com.fiafeng.common.utils.ObjectUtils;
-import com.fiafeng.common.utils.SecurityUtils;
 import com.fiafeng.common.utils.mvc.ServletUtils;
+import com.fiafeng.security.properties.FiafengSecurityProperties;
+import com.fiafeng.security.service.IUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -74,8 +73,9 @@ public class DefaultSecurityJwtAuthenticationTokenFilter extends OncePerRequestF
         }
 
 
+//        Authentication authentication = SecurityUtils.getAuthentication();
         // 校验token
-        if (ObjectUtils.isNotNull(userDetails) && ObjectUtils.isNull(SecurityUtils.getAuthentication())) {
+        if (ObjectUtils.isNotNull(userDetails)){
             tokenService.verifyToken(userDetails);
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(userDetails, null,
