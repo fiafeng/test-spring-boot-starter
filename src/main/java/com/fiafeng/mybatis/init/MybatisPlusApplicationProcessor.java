@@ -10,7 +10,6 @@ import com.fiafeng.common.init.ApplicationProcessor;
 import com.fiafeng.common.mapper.Interface.IMapper;
 import com.fiafeng.common.pojo.Interface.base.IBasePojo;
 import com.fiafeng.common.properties.mysql.IMysqlTableProperties;
-import com.fiafeng.common.utils.ObjectClassUtils;
 import com.fiafeng.common.utils.spring.FiafengSpringUtils;
 import com.fiafeng.mybatis.properties.FiafengMybatisProperties;
 import com.fiafeng.mybatis.utils.JavassistAnnotationUtils;
@@ -65,14 +64,10 @@ public class MybatisPlusApplicationProcessor extends ApplicationProcessor {
                                 Class<?> generateClass;
                                 try {
                                     generateClass = createdMybatisPojoClass(beanFactoryBeansOfType.get(pojoName).getClass(), tableProperties, pojoClass);
-                                } catch (NotFoundException ex) {
-                                    throw new RuntimeException(ex);
-                                } catch (CannotCompileException ex) {
-                                    throw new RuntimeException(ex);
-                                } catch (IOException ex) {
+//                                ObjectClassUtils.registerBean(generateClass, null);
+                                } catch (NotFoundException | CannotCompileException | IOException ex) {
                                     throw new RuntimeException(ex);
                                 }
-                                ObjectClassUtils.registerBean(generateClass, null);
 
                             }
                         }

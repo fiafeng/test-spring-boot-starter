@@ -1,7 +1,7 @@
 spring:
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&nullCatalogMeansCurrent=true
+    url: jdbc:mysql://localhost:3306/flowable?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&nullCatalogMeansCurrent=true
     username: root
     password: 123456
   # redis 配置
@@ -46,6 +46,7 @@ fiafeng:
       - /login/**
       - /register
       - /captchaImage
+      - /modeler/**
 
 mybatis-plus:
   global-config:
@@ -54,5 +55,22 @@ mybatis-plus:
       logic-delete-field: deleted
       logic-not-delete-value: 0
   configuration:
-#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     map-underscore-to-camel-case: true
+
+flowable:
+  #异步执行
+  async-executor-activate: true
+  #自动更新数据库
+  database-schema-update: true
+  #校验流程文件，默认校验resources下的processes文件夹里的流程文件
+  process-definition-location-prefix: classpath*:/processes/
+  process-definition-location-suffixes: "**.bpmn20.xml, **.bpmn"
+  #该配置只是防止页面报错,没有实际意义
+  common:
+    app:
+      idm-admin:
+        password: test
+        user: test
+      #没有实际意义
+      idm-url: http://localhost:8080/flowable-demo

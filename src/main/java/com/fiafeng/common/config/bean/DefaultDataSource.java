@@ -31,7 +31,7 @@ public class DefaultDataSource implements DataSource {
 
     @Override
     public Connection getConnection() {
-        return getConnection(username,password);
+        return getConnection(username, password);
     }
 
     @Override
@@ -50,17 +50,17 @@ public class DefaultDataSource implements DataSource {
         }
         try {
 
-            if (environment == null){
+            if (environment == null) {
                 environment = FiafengSpringUtils.getBean(Environment.class);
             }
 
-            if (url == null ){
+            if (url == null) {
                 url = environment.getProperty("spring.datasource.url");
             }
-            if (username == null){
+            if (username == null) {
                 username = environment.getProperty("spring.datasource.username");
             }
-            if (password == null){
+            if (password == null) {
                 password = environment.getProperty("spring.datasource.password");
             }
 
@@ -73,12 +73,12 @@ public class DefaultDataSource implements DataSource {
     }
 
     @Override
-    public <T> T unwrap(Class<T> iface) throws SQLException {
+    public <T> T unwrap(Class<T> face) throws SQLException {
         return null;
     }
 
     @Override
-    public boolean isWrapperFor(Class<?> iface) throws SQLException {
+    public boolean isWrapperFor(Class<?> face) throws SQLException {
         return false;
     }
 

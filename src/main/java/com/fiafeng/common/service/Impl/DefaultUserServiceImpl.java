@@ -72,4 +72,9 @@ public class DefaultUserServiceImpl implements IUserService {
     public  List<IBaseUser> selectUserListAll() {
         return userMapper.selectUserListAll();
     }
+
+    @Override
+    public List<IBaseUser> selectUserListAll(IBaseUser baseUser) {
+        return null;
+    }
 }

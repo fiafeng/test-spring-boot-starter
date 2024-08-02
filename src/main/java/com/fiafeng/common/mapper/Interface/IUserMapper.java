@@ -21,6 +21,8 @@ public interface IUserMapper extends IMapper {
 
      List<IBaseUser> selectUserListAll();
 
+//     List<IBaseUser> selectUserListAll(IBaseUser baseUser);
+
      IBaseUser selectUserByUserName(String username);
 
      IBaseUser selectUserByUserId(Long userId);

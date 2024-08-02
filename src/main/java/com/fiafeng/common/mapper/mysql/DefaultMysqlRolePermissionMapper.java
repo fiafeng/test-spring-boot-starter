@@ -66,7 +66,7 @@ public class DefaultMysqlRolePermissionMapper extends BaseObjectMysqlMapper impl
 
     @Override
     public List<Long> selectPermissionIdListByRoleId(Long roleId) {
-        List<IBaseRolePermission> objectList = (List<IBaseRolePermission>) selectObjectByObjectId(roleId);
+        List<IBaseRolePermission> objectList = (List<IBaseRolePermission>) selectObjectByObjectName(properties.getRoleIdName(), roleId);
         List<Long> permissionIdList = new ArrayList<>();
         for (IBaseRolePermission iBaseRolePermission : objectList) {
             permissionIdList.add(iBaseRolePermission.getPermissionId());

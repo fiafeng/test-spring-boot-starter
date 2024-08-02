@@ -890,7 +890,6 @@ public class ConnectionPoolServiceImpl {
 
     public Long getAutoIncrementValue(String tableName) {
         String schema = url.substring(url.lastIndexOf("/") + 1, url.indexOf("?"));
-
         return getAutoIncrementValue(tableName, schema);
     }
 

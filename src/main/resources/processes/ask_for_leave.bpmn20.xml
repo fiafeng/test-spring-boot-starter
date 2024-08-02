@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.flowable.org/processdef">
+  <process id="askForLeave" name="ask_for_leave_process" isExecutable="true">
+    <startEvent id="sid-b3fcb298-124a-4dc3-b603-1397b392e1a5"/>
+    <userTask id="employee" name="员工" flowable:assignee="#{employeeNo}" flowable:formFieldValidation="true">
+      <documentation>员工提交申请</documentation>
+    </userTask>
+    <sequenceFlow id="sid-9a4f7da0-7df8-422c-8d93-fcfe6eed6454" sourceRef="sid-b3fcb298-124a-4dc3-b603-1397b392e1a5" targetRef="employee"/>
+    <userTask id="leader" name="领导" flowable:assignee="#{leaderNo}" flowable:formFieldValidation="true"/>
+    <sequenceFlow id="sid-cda53600-1fdd-4556-b1f4-434cdef4b44c" sourceRef="employee" targetRef="leader"/>
+    <exclusiveGateway id="sid-53b678ee-c126-46be-9bb7-70efe235451c"/>
+    <sequenceFlow id="sid-c18a730f-6932-4036-b105-a840204bbd1f" sourceRef="leader" targetRef="sid-53b678ee-c126-46be-9bb7-70efe235451c"/>
+    <endEvent id="sid-dc057597-34a0-4835-bbbb-1b12f0e8e407"/>
+    <sequenceFlow id="leaderExamine" sourceRef="sid-53b678ee-c126-46be-9bb7-70efe235451c" targetRef="sid-dc057597-34a0-4835-bbbb-1b12f0e8e407" name="领导审核不通过">
+      <conditionExpression xsi:type="tFormalExpression">${outcome=='驳回'}</conditionExpression>
+    </sequenceFlow>
+    <userTask id="boss" name="老板" flowable:formFieldValidation="true" flowable:assignee="#{bossNo}"/>
+    <sequenceFlow id="leaderExaminePass" sourceRef="sid-53b678ee-c126-46be-9bb7-70efe235451c" targetRef="boss" name="领导审核通过">
+      <conditionExpression xsi:type="tFormalExpression">${outcome=='通过'}</conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="sid-17d3919b-99f0-4a2e-8914-3dfb7bc74046"/>
+    <sequenceFlow id="sid-e4dd8e02-acc7-4e51-95d4-5a1ade5eb2fd" sourceRef="boss" targetRef="sid-17d3919b-99f0-4a2e-8914-3dfb7bc74046"/>
+    <endEvent id="sid-311b83fa-5c04-48af-8491-4e2f9417c49c"/>
+    <sequenceFlow id="bossExamine" sourceRef="sid-17d3919b-99f0-4a2e-8914-3dfb7bc74046" targetRef="sid-311b83fa-5c04-48af-8491-4e2f9417c49c" name="老板审核不通过">
+      <conditionExpression xsi:type="tFormalExpression">${outcome=='驳回'}</conditionExpression>
+    </sequenceFlow>
+    <endEvent id="sid-3f6150ad-4b8c-47e9-a726-39f5dffd5e0a"/>
+    <sequenceFlow id="bossExaminePass" sourceRef="sid-17d3919b-99f0-4a2e-8914-3dfb7bc74046" targetRef="sid-3f6150ad-4b8c-47e9-a726-39f5dffd5e0a" name="老板审核通过">
+      <conditionExpression xsi:type="tFormalExpression">${outcome=='通过'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-fe1092d5-8296-4898-ac53-4e9b67b0b130" sourceRef="sid-53b678ee-c126-46be-9bb7-70efe235451c" targetRef="sid-dc057597-34a0-4835-bbbb-1b12f0e8e407"/>
+    <sequenceFlow id="sid-a3970437-b723-4d88-b2a1-146ef1d02ccf" sourceRef="sid-53b678ee-c126-46be-9bb7-70efe235451c" targetRef="sid-dc057597-34a0-4835-bbbb-1b12f0e8e407"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_ask_for_leave">
+    <bpmndi:BPMNPlane bpmnElement="askForLeave" id="BPMNPlane_ask_for_leave">
+      <bpmndi:BPMNShape id="shape-c5da47a1-57a1-465c-a7f8-2aad63d19b47" bpmnElement="sid-b3fcb298-124a-4dc3-b603-1397b392e1a5">
+        <omgdc:Bounds x="0.152565" y="49.519497" width="30.0" height="30.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape-71f351aa-e8f4-4656-9fa0-7979ddc1d916" bpmnElement="employee">
+        <omgdc:Bounds x="69.627075" y="49.769497" width="61.0" height="29.5"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge-a0cd4bce-af0a-40ce-8128-97629a5f4a23" bpmnElement="sid-9a4f7da0-7df8-422c-8d93-fcfe6eed6454">
+        <omgdi:waypoint x="30.152565" y="64.5195"/>
+        <omgdi:waypoint x="69.627075" y="64.5195"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="shape-6a814a53-e6e2-4453-bb4a-43a1167e5559" bpmnElement="leader">
+        <omgdc:Bounds x="163.12709" y="49.269497" width="63.0" height="30.5"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge-3a2944ef-43d6-4409-920d-9d3d1acd422f" bpmnElement="sid-cda53600-1fdd-4556-b1f4-434cdef4b44c">
+        <omgdi:waypoint x="130.62708" y="64.5195"/>
+        <omgdi:waypoint x="163.12709" y="64.5195"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="shape-bef28649-6416-4428-a3bd-43edb5c1b9c6" bpmnElement="sid-53b678ee-c126-46be-9bb7-70efe235451c">
+        <omgdc:Bounds x="251.98714" y="44.519497" width="40.0" height="40.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge-fa69c266-5b3c-4e26-a4e2-3f58c271ebb4" bpmnElement="sid-c18a730f-6932-4036-b105-a840204bbd1f">
+        <omgdi:waypoint x="226.12709" y="64.5195"/>
+        <omgdi:waypoint x="251.98714" y="64.5195"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="shape-9d577a21-ca61-4e33-bf3e-c892557f1638" bpmnElement="sid-dc057597-34a0-4835-bbbb-1b12f0e8e407">
+        <omgdc:Bounds x="256.98712" y="137.39716" width="30.0" height="30.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge-5651dbf2-4118-4668-bbd6-0259282cc084" bpmnElement="leaderExamine">
+        <omgdi:waypoint x="271.98712" y="84.5195"/>
+        <omgdi:waypoint x="271.98712" y="97.76925"/>
+        <omgdi:waypoint x="271.98712" y="84.51951"/>
+        <omgdi:waypoint x="271.98712" y="137.39716"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="shape-1398abfb-fefc-4a16-881c-84a6c4b7b7f7" bpmnElement="boss">
+        <omgdc:Bounds x="335.77844" y="47.519497" width="68.0" height="34.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge-3f5df081-8086-492f-a2c7-90aba1c1e4d7" bpmnElement="leaderExaminePass">
+        <omgdi:waypoint x="291.98712" y="64.5195"/>
+        <omgdi:waypoint x="335.77844" y="64.5195"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="shape-4932221b-736b-4e85-a319-0859dbeb3e6b" bpmnElement="sid-17d3919b-99f0-4a2e-8914-3dfb7bc74046">
+        <omgdc:Bounds x="430.27838" y="44.519497" width="40.0" height="40.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge-3daa1ef4-119f-4b98-a40e-0b9cb3b205ce" bpmnElement="sid-e4dd8e02-acc7-4e51-95d4-5a1ade5eb2fd">
+        <omgdi:waypoint x="403.77844" y="64.5195"/>
+        <omgdi:waypoint x="430.27838" y="64.5195"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="shape-6becf929-e7e7-4153-a1d1-6175677742ca" bpmnElement="sid-311b83fa-5c04-48af-8491-4e2f9417c49c">
+        <omgdc:Bounds x="435.27838" y="137.39717" width="30.0" height="30.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge-1f1a1414-f4f9-442a-97af-676878899415" bpmnElement="bossExamine">
+        <omgdi:waypoint x="450.27838" y="84.5195"/>
+        <omgdi:waypoint x="450.27838" y="137.39717"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="shape-919e70dd-5004-4066-8103-427901b5c1fd" bpmnElement="sid-3f6150ad-4b8c-47e9-a726-39f5dffd5e0a">
+        <omgdc:Bounds x="516.495" y="49.519505" width="30.0" height="30.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge-542631d7-42d7-4b2a-b467-da8fdba298a1" bpmnElement="bossExaminePass">
+        <omgdi:waypoint x="470.27838" y="64.5195"/>
+        <omgdi:waypoint x="516.495" y="64.51951"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge-5a6e0593-c7d5-4eff-880d-39f4445de534" bpmnElement="sid-fe1092d5-8296-4898-ac53-4e9b67b0b130">
+        <omgdi:waypoint x="271.98712" y="84.5195"/>
+        <omgdi:waypoint x="271.98712" y="137.39716"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge-baeed44a-ba71-4d5a-8a5f-22ce5a464863" bpmnElement="sid-a3970437-b723-4d88-b2a1-146ef1d02ccf">
+        <omgdi:waypoint x="271.98712" y="84.5195"/>
+        <omgdi:waypoint x="271.98712" y="137.39716"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

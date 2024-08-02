@@ -146,7 +146,12 @@ public class DefaultRolePermissionServiceImpl implements IRolePermissionService 
     @Override
     public List<String> queryPermissionNameListByRoleId(Long roleId) {
         List<String> permissionList = new ArrayList<>();
-        for (Long permissionId : rolePermissionMapper.selectPermissionIdListByRoleId(roleId)) {
+        List<Long> permissionIdListByRoleId = rolePermissionMapper.selectPermissionIdListByRoleId(roleId);
+        if (permissionIdListByRoleId == null){
+            throw new ServiceException("没有找到角色id为" + roleId + "的角色");
+        }
+
+        for (Long permissionId : permissionIdListByRoleId) {
             permissionList.add(permissionMapper.selectPermissionByPermissionId(permissionId).getName());
         }
         return permissionList;

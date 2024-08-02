@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  * @create 2023/12/05
  * @description
  */
-public class StringUtils {
+public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
     /**
      * 空字符串
@@ -34,6 +34,27 @@ public class StringUtils {
 
     private static final int STRING_BUILDER_SIZE = 256;
 
+    /**
+     * 格式化文本, {} 表示占位符<br>
+     * 此方法只是简单将占位符 {} 按照顺序替换为参数<br>
+     * 如果想输出 {} 使用 \\转义 { 即可，如果想输出 {} 之前的 \ 使用双转义符 \\\\ 即可<br>
+     * 例：<br>
+     * 通常使用：format("this is {} for {}", "a", "b") -> this is a for b<br>
+     * 转义{}： format("this is \\{} for {}", "a", "b") -> this is \{} for a<br>
+     * 转义\： format("this is \\\\{} for {}", "a", "b") -> this is \a for b<br>
+     *
+     * @param template 文本模板，被替换的部分用 {} 表示
+     * @param params 参数值
+     * @return 格式化后的文本
+     */
+    public static String format(String template, Object... params)
+    {
+        if (ObjectUtils.isEmpty(params) || isEmpty(template))
+        {
+            return template;
+        }
+        return StrFormatter.format(template, params);
+    }
 
     /**
      * 输入下划线的字符串，返回驼峰风格字符串
@@ -54,6 +75,55 @@ public class StringUtils {
 
 
         return camel.toString().isEmpty() ? underline : camel.toString();
+    }
+
+    /**
+     * 驼峰转下划线命名
+     */
+    public static String toUnderScoreCase(String str)
+    {
+        if (str == null)
+        {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        // 前置字符是否大写
+        boolean preCharIsUpperCase = true;
+        // 当前字符是否大写
+        boolean curreCharIsUpperCase = true;
+        // 下一字符是否大写
+        boolean nexteCharIsUpperCase = true;
+        for (int i = 0; i < str.length(); i++)
+        {
+            char c = str.charAt(i);
+            if (i > 0)
+            {
+                preCharIsUpperCase = Character.isUpperCase(str.charAt(i - 1));
+            }
+            else
+            {
+                preCharIsUpperCase = false;
+            }
+
+            curreCharIsUpperCase = Character.isUpperCase(c);
+
+            if (i < (str.length() - 1))
+            {
+                nexteCharIsUpperCase = Character.isUpperCase(str.charAt(i + 1));
+            }
+
+            if (preCharIsUpperCase && curreCharIsUpperCase && !nexteCharIsUpperCase)
+            {
+                sb.append(SEPARATOR);
+            }
+            else if ((i != 0 && !preCharIsUpperCase) && curreCharIsUpperCase)
+            {
+                sb.append(SEPARATOR);
+            }
+            sb.append(Character.toLowerCase(c));
+        }
+
+        return sb.toString();
     }
 
 

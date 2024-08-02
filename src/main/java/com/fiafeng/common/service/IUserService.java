@@ -24,6 +24,8 @@ public interface IUserService {
 
     List<IBaseUser> selectUserListAll();
 
+    List<IBaseUser> selectUserListAll(IBaseUser baseUser);
+
 
     @Nullable
     IBaseUser selectUserByUserName(String username);

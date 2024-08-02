@@ -76,7 +76,7 @@ public class RBACRolePermissionController implements IRolePermissionController {
      * @return 角色权限列表
      */
     @HasRoleAnnotation
-    @GetMapping("/query/{roleId}")
+    @GetMapping("/queryByRoleId/{roleId}")
     public AjaxResult queryRolePermission(@PathVariable Long roleId){
         List<String> permissionList = rolePermissionService.queryPermissionNameListByRoleId(roleId);
         return AjaxResult.success(permissionList);

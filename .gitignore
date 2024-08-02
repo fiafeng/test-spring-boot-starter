@@ -36,3 +36,4 @@ build/
 .vscode/
 /.github/
 /com/fiafeng/**/pojo/**.class
+/src/main/resources/static/modeler/**/**.*
